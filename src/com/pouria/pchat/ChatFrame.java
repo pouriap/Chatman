@@ -45,9 +45,7 @@ import javax.swing.text.html.HTMLEditorKit;
  */
 public class ChatFrame extends javax.swing.JFrame {
 
-    Socket serverSocket;
-    PrintWriter writer;
-    Thread t,scanner;
+    Chatman chatmanInstance;
     String[] arguments;
     String[] textAreaHtml;
     String incomingTextAll;
@@ -55,8 +53,6 @@ public class ChatFrame extends javax.swing.JFrame {
     String userName;
     List<String> config;
     String[] backgrounds;
-    int mode;
-    final int MOD_SERVER = 1 , MOD_CLIENT = 2 ;
 
 
     
@@ -343,8 +339,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
-        if(writer != null)
-            writer.println("byebyebye");
+        chatmanInstance.sendBye();
     }//GEN-LAST:event_formWindowClosing
 
     private void textAreaOutgoingKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyReleased
@@ -535,13 +530,13 @@ public class ChatFrame extends javax.swing.JFrame {
                                 message("حداکثر حجم فایل قابل انتقال ۲۰مگابایت است");
                                 continue;
                             }
-                            writer.println("filefilefile");
+                            
                             String name = file.getName();
                             name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
-                            writer.println(name);
                             byte[] data = Files.toByteArray(file);
                             String base64data = BaseEncoding.base64().encode(data);
-                            writer.println(base64data); 
+                            chatmanInstance.sendFile(name, base64data);
+                            
                             updateChatText("File sent: " + file.getName());
                             textAreaOutgoing.setText(textAreaHtml[0]+textAreaHtml[1]);
                         }catch(IOException e){
@@ -658,11 +653,13 @@ public class ChatFrame extends javax.swing.JFrame {
         //Start as server/client
         //Server?
         if(arguments.length == 1){
-            startAsServer();
+            chatmanInstance = new ChatmanServer(this);
+            chatmanInstance.start();
         }
         //Client?
-        else if(arguments.length == 0){
-            connect(false);
+        else if(arguments.length == 0){ 
+            chatmanInstance = new ChatmanClient(this);
+            chatmanInstance.connect(false);
             this.setVisible(true);
         }
         else{
@@ -671,71 +668,11 @@ public class ChatFrame extends javax.swing.JFrame {
         }
         
     } 
-      
-    public void startAsClient(){
-        //Output: Socket.OutputStream
-        //Input:  Socket.inputStream
-        //stablishes the input and output streams as a client
-        //is only called from IpConnector when it finds an alive server
-        mode = MOD_CLIENT;
-        try{
-            writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
-            labelStatus.setText("اتصال با " + serverSocket.getInetAddress().getHostAddress() + " برقرار شد");
-
-            t = new Thread(new InputReaderTh(this, "client", serverSocket));
-            t.start();
-        }catch(UnknownHostException e){
-            message("could not find host"+e.getMessage());
-            exit();
-        }catch(IOException e){
-            message("could not open stream"+e.getMessage());
-            exit();
-        }
-    }
-    
-    public void startAsServer(){
-        //Output: STDOUT
-        //Input:  STDIN
-        //establishes the input and output streams as a server
-        mode = MOD_SERVER;
-        writer = new PrintWriter(new OutputStreamWriter(System.out), true);
-        labelStatus.setText("سرور در حال اجرا");
-
-        t = new Thread(new InputReaderTh(this, "server"));
-        t.start();
-
-    }
-    
-    public void connect(boolean retry){
-        //connects to server. if server-ip is specified in config then connects directly
-        //else it scans the subnet-mask for live servers
-        //if retry is true, shows a dialog asking the user whether to retry connection
-        
-        if(retry)
-            if(JOptionPane.showConfirmDialog(null, "سروری در شبکه پیدا نشد. تلاش دوباره؟", "سرور پیدا نشد", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
-                exit();
-
-        labelStatus.setText("در حال جستجوی شبکه");
-
-        int serverPort = Integer.valueOf(getConfig("server-port"));
-        //if we have server's ip we don't scan the network
-        if(config.contains("server-ip")){
-            String serverIp = getConfig("server-ip");
-            scanner = new Thread(new IpConnector(this, serverIp, serverPort, true));
-            scanner.start();
-        }
-        else{
-            String subnet = getConfig("subnet-mask");
-            scanner = new Thread(new IpScanner(this, subnet, serverPort));
-            scanner.start();
-        }
-
-    }
     
     private void send(){
         //is run when Enter is pressed or Ersal is pressed
-        if(mode == MOD_CLIENT)
-            if(!isServerSocketSet()){
+        if(chatmanInstance.getMode() == Chatman.MOD_CLIENT)
+            if(!chatmanInstance.isServerSocketSet()){
                 message("در حال جستجوی شبکه. لطفا منتظر بمانید.");
                 return;
         }
@@ -747,7 +684,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //get rid of \n and trim (baraye inke \n readline ro kharab mikone. har message bayad yek khat bashe)
         s = s.replace("\n", "").trim();
         updateChatText("<b>" + userName + "</b>(you): " + s);
-        writer.println("<b>" + userName + "</b>: " + s);
+        chatmanInstance.send("<b>" + userName + "</b>: " + s);
         textAreaOutgoing.setText(textAreaHtml[0]+textAreaHtml[1]);
     }
     
@@ -791,6 +728,12 @@ public class ChatFrame extends javax.swing.JFrame {
         return "";
     }
     
+    public boolean isConfigAvailable(String confName){
+        if(config.indexOf(confName) != -1)
+            return true;
+        return false;
+    }
+    
     public void writeConfig(String confName, String confValue){
         config.set(config.indexOf(confName)+1, confValue);
         String configAll = "";
@@ -804,25 +747,14 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }
     
+    public Chatman getChatmanInstance(){
+        return chatmanInstance;
+    }
+    
     public void updateUserName(){
         //esme background ha be in shekl as
         userName = getConfig("background-image").split("_")[0];
         userName = userName.substring(0, 1).toUpperCase() + userName.substring(1,userName.length());
-    }
-    
-    public void setServerSocket(Socket s){
-        if(serverSocket != null){
-            throw new IllegalArgumentException();
-        }
-        else{
-            serverSocket = s;
-        }
-    }
-    
-    public boolean isServerSocketSet(){
-        if(serverSocket != null) 
-            return true; 
-        return false;
     }
     
     public boolean isHidden(){

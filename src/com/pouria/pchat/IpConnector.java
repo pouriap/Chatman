@@ -35,14 +35,14 @@ public class IpConnector implements Runnable{
         try{
             Socket socket = new Socket();           
             socket.connect(new InetSocketAddress(ip, port), 3000);
-            gui.setServerSocket(socket);
-            gui.startAsClient();
+            gui.getChatmanInstance().setServerSocket(socket);
+            gui.getChatmanInstance().start();
         }catch(IOException ex){ 
             //verbose is false when we are scanning network for servers and don't want a "not found"
             //message for each failed connect
             if(verbose){
                 exceptionMessage = ex.getMessage();
-                gui.connect(true);
+                gui.getChatmanInstance().connect(true);
             }
         }catch(IllegalArgumentException e){
             //server socket already set

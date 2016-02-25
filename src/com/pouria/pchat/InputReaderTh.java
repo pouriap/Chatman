@@ -89,7 +89,7 @@ public class InputReaderTh implements Runnable{
                     }
                 }
                 //exit message
-                else if(line.equals("byebyebye")){
+                else if(line.equals(Chatman.SPECIAL_BYE)){
                     //agar hanuz hidden ast faghat kharej sahvim
                     if(gui.isHidden())
                         gui.exit();
@@ -108,7 +108,7 @@ public class InputReaderTh implements Runnable{
                     }
                 }
                 //file message
-                else if(line.equals("filefilefile")){
+                else if(line.equals(Chatman.SPECIAL_FILE)){
                         String fileName = reader.readLine();
                         fileName = new String(BaseEncoding.base64().decode(fileName), Charsets.UTF_8);
                         String fileData = reader.readLine();

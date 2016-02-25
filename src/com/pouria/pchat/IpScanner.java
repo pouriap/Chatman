@@ -80,8 +80,8 @@ public class IpScanner implements Runnable {
                 }
             }while(c);  
             //if serversocket is not set after all threads are finished means we have not found a server
-            if(!gui.isServerSocketSet())
-                gui.connect(true);
+            if(!gui.getChatmanInstance().isServerSocketSet())
+                gui.getChatmanInstance().connect(true);
         }
         else{
             gui.message("could not find local computer's ip");
