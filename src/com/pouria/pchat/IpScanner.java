@@ -16,9 +16,9 @@ import java.util.Enumeration;
  */
 public class IpScanner implements Runnable {
 
-    ChatFrame gui;
-    String subnet;
-    int port;
+    private ChatFrame gui;
+    private String subnet;
+    private int port;
     
     IpScanner(ChatFrame g, String s, int p){
         this.gui = g;

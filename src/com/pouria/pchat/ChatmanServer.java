@@ -27,7 +27,7 @@ public class ChatmanServer extends Chatman {
         writer = new PrintWriter(new OutputStreamWriter(System.out), true);
         gui.setLabelStatus("سرور در حال اجرا");
 
-        inputReaderThread = new Thread(new InputReaderTh(gui, "server"));
+        inputReaderThread = new Thread(new InputReaderTh(gui));
         inputReaderThread.start();
     }
     

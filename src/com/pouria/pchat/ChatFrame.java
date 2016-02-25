@@ -20,14 +20,9 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.AbstractAction;
@@ -45,15 +40,14 @@ import javax.swing.text.html.HTMLEditorKit;
  */
 public class ChatFrame extends javax.swing.JFrame {
 
-    Chatman chatmanInstance;
-    String[] arguments;
-    String[] textAreaHtml;
-    String incomingTextAll;
-    String[][] emoticonsArray;
-    String userName;
-    List<String> config;
-    String[] backgrounds;
-
+    private Chatman chatmanInstance;
+    private String[] arguments;
+    private String[] textAreaHtml;
+    private String incomingTextAll;
+    private String[][] emoticonsArray;
+    private String userName;
+    private List<String> config;
+    private String[] backgrounds;
 
     
     public ChatFrame(String[] args){

@@ -36,7 +36,7 @@ public class ChatmanClient extends Chatman{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
             gui.setLabelStatus("اتصال با " + serverSocket.getInetAddress().getHostAddress() + " برقرار شد");
 
-            inputReaderThread = new Thread(new InputReaderTh(gui, "client", serverSocket));
+            inputReaderThread = new Thread(new InputReaderTh(gui, serverSocket));
             inputReaderThread.start();
         }catch(UnknownHostException e){
             gui.message("could not find host"+e.getMessage());

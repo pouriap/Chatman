@@ -15,10 +15,10 @@ import java.net.Socket;
  */
 public class IpConnector implements Runnable{
 
-    ChatFrame gui;
-    String ip;
-    int port;
-    boolean verbose;
+    private ChatFrame gui;
+    private String ip;
+    private int port;
+    private boolean verbose;
     private static String exceptionMessage;
     
     IpConnector(ChatFrame g, String h, int p, boolean r){

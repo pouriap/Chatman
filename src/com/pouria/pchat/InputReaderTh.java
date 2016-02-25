@@ -23,29 +23,28 @@ import javax.swing.SwingUtilities;
  */
 public class InputReaderTh implements Runnable{
     
+    private int type;
+    private Socket socket;
+    private ChatFrame gui;
+    private String line; //baraye inke tooye anonymous class faghat be variable haye kelasy ke 
+                         //anonymous tooye oone dastresi darim va be variable haye final
     
-    String type;
-    Socket socket;
-    ChatFrame gui;
-    String line; //baraye inke tooye anonymous class faghat be variable haye kelasy ke 
-                 //anonymous tooye oone dastresi darim va be variable haye final
-    
-    //FOR CLIENT
-    InputReaderTh(ChatFrame g, String t, Socket s){
+    //when we are client
+    InputReaderTh(ChatFrame g, Socket s){
         gui = g;
-        type = t;
         socket = s;
     }
-    //FOR SERVER(SERVER USES STD FOR COMMUNICATION)
-    InputReaderTh(ChatFrame g, String t){
+    //when we are server
+    InputReaderTh(ChatFrame g){
         gui = g;
-        type = t;
     }
 
     public void run(){
         BufferedReader reader = null;
         boolean c = true;
-        if (type.equals("client")){
+        
+        //client uses socket input stream
+        if (gui.getChatmanInstance().getMode() == Chatman.MOD_CLIENT){
             try{
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             }catch(IOException e){
@@ -54,16 +53,13 @@ public class InputReaderTh implements Runnable{
             }
             
         }
-        else if(type.equals("server")){
+        //server uses stdin
+        else{
             reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
             if(reader == null){
                 gui.message("could not open STDIN");
                 c = false;
             }
-        }
-        else{
-            gui.message("invalid type");
-            c = false;
         }
         
         try{
@@ -109,16 +105,22 @@ public class InputReaderTh implements Runnable{
                 }
                 //file message
                 else if(line.equals(Chatman.SPECIAL_FILE)){
-                        String fileName = reader.readLine();
-                        fileName = new String(BaseEncoding.base64().decode(fileName), Charsets.UTF_8);
+                        String f = reader.readLine();
+                        final String fileName = new String(BaseEncoding.base64().decode(f), Charsets.UTF_8);
                         String fileData = reader.readLine();
-                        String location = System.getProperty("user.home") + "\\My Documents\\Chatman Downloads\\";
+                        final String location = System.getProperty("user.home") + "\\My Documents\\Chatman Downloads\\";
                         try{
                             File saveDir = new File(location);
                             if(!saveDir.isDirectory())
                                 saveDir.mkdir();
                             Files.write(BaseEncoding.base64().decode(fileData), new File(location + fileName));
-                            gui.updateChatText("فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName);
+                            
+                            SwingUtilities.invokeLater(new Runnable() {
+                                public void run() {
+                                    gui.updateChatText("فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName);
+                                }
+                            });
+                            
                         }catch(IOException e){
                             gui.message("could not save received file: " + e.getMessage());
                         }
