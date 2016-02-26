@@ -14,11 +14,15 @@ import java.util.Enumeration;
  *
  * @author PouriaP
  */
+//takes a subnet mask and scans that subnet
+//num-hosts-to-scan in the config files determines how many hosts in the subnet should we scan
+//when finds a live server calls the setserversocket() on chatmanclient which is used as a flag
+//retries on fail
 public class IpScanner implements Runnable {
 
-    private ChatFrame gui;
-    private String subnet;
-    private int port;
+    private final ChatFrame gui;
+    private final String subnet;
+    private final int port;
     
     IpScanner(ChatFrame g, String s, int p){
         this.gui = g;
@@ -80,6 +84,7 @@ public class IpScanner implements Runnable {
                 }
             }while(c);  
             //if serversocket is not set after all threads are finished means we have not found a server
+            //connect(true) shows a connection failed to the user and asks them if we should retry
             if(!gui.getChatmanInstance().isServerSocketSet())
                 gui.getChatmanInstance().connect(true);
         }

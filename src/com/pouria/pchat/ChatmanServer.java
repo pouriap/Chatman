@@ -12,17 +12,16 @@ import java.io.PrintWriter;
  *
  * @author SH
  */
+//Output: STDOUT
+//Input:  STDIN
 public class ChatmanServer extends Chatman {
     
     ChatmanServer(ChatFrame gui){
-        super(gui);
-        this.mode = MOD_SERVER;
+        super(gui, MOD_SERVER);
     }
     
     @Override
     public void start(){
-        //Output: STDOUT
-        //Input:  STDIN
         //establishes the input and output streams as a server
         writer = new PrintWriter(new OutputStreamWriter(System.out), true);
         gui.setLabelStatus("سرور در حال اجرا");
@@ -30,7 +29,5 @@ public class ChatmanServer extends Chatman {
         inputReaderThread = new Thread(new InputReaderTh(gui));
         inputReaderThread.start();
     }
-    
-
     
 }

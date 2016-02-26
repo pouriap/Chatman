@@ -12,16 +12,21 @@ import java.net.Socket;
  *
  * @author SH
  */
+//is responsible for sending data to streams
+//if chatmanclient extends it, output stream is a socket
+//if chatmanserver extends it, output stream is STDOUT
+//inputreaderth is responsible for input streams
 public abstract class Chatman {
-    protected int mode;
-    protected ChatFrame gui;
+    protected final int mode;
+    protected final ChatFrame gui;
     protected PrintWriter writer;
     protected Thread inputReaderThread;
     final static int MOD_SERVER = 1, MOD_CLIENT = 2;
     final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile";
     
-    Chatman(ChatFrame gui){
+    Chatman(ChatFrame gui, int mode){
         this.gui = gui;
+        this.mode = mode;
     }
     
     public void send(String s){

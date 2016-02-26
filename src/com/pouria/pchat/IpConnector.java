@@ -13,12 +13,15 @@ import java.net.Socket;
  *
  * @author SH
  */
+//takes an ip and port and connects to it
+//is only called when we have the ip of the live server
+//which we acquire either by scanning or from the config file
 public class IpConnector implements Runnable{
 
-    private ChatFrame gui;
-    private String ip;
-    private int port;
-    private boolean verbose;
+    private final ChatFrame gui;
+    private final String ip;
+    private final int port;
+    private final boolean verbose;
     private static String exceptionMessage;
     
     IpConnector(ChatFrame g, String h, int p, boolean r){

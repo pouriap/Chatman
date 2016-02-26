@@ -40,7 +40,7 @@ import javax.swing.text.html.HTMLEditorKit;
  */
 public class ChatFrame extends javax.swing.JFrame {
 
-    private Chatman chatmanInstance;
+    private Chatman chatman;
     private String[] arguments;
     private String[] textAreaHtml;
     private String incomingTextAll;
@@ -333,7 +333,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
-        chatmanInstance.sendBye();
+        chatman.sendBye();
     }//GEN-LAST:event_formWindowClosing
 
     private void textAreaOutgoingKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyReleased
@@ -366,7 +366,7 @@ public class ChatFrame extends javax.swing.JFrame {
         int col = tableEmojis.getSelectedColumn();
 
          String s = textAreaOutgoing.getText();
-         if(s.indexOf("<div>") == -1)
+         if(!s.contains("<div>"))
              s = "";
          else
              s = s.substring((s.indexOf("<div>"))+5, (s.indexOf("</div>"))-1);
@@ -387,7 +387,6 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         if(evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
             try{
-                URL url = evt.getURL();
                 String path = evt.getURL().toString();
                 if(path.contains("file://")){
                     path = path.substring(7);
@@ -465,7 +464,7 @@ public class ChatFrame extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ChatFrame(a);//.setVisible(true);
+                new ChatFrame(a);
             }
         });
     }
@@ -529,7 +528,7 @@ public class ChatFrame extends javax.swing.JFrame {
                             name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
                             byte[] data = Files.toByteArray(file);
                             String base64data = BaseEncoding.base64().encode(data);
-                            chatmanInstance.sendFile(name, base64data);
+                            chatman.sendFile(name, base64data);
                             
                             updateChatText("File sent: " + file.getName());
                             textAreaOutgoing.setText(textAreaHtml[0]+textAreaHtml[1]);
@@ -647,13 +646,13 @@ public class ChatFrame extends javax.swing.JFrame {
         //Start as server/client
         //Server?
         if(arguments.length == 1){
-            chatmanInstance = new ChatmanServer(this);
-            chatmanInstance.start();
+            chatman = new ChatmanServer(this);
+            chatman.start();
         }
         //Client?
         else if(arguments.length == 0){ 
-            chatmanInstance = new ChatmanClient(this);
-            chatmanInstance.connect(false);
+            chatman = new ChatmanClient(this);
+            chatman.connect(false);
             this.setVisible(true);
         }
         else{
@@ -665,20 +664,23 @@ public class ChatFrame extends javax.swing.JFrame {
     
     private void send(){
         //is run when Enter is pressed or Ersal is pressed
-        if(chatmanInstance.getMode() == Chatman.MOD_CLIENT)
-            if(!chatmanInstance.isServerSocketSet()){
+        if(chatman.getMode() == Chatman.MOD_CLIENT)
+            if(!chatman.isServerSocketSet()){
                 message("در حال جستجوی شبکه. لطفا منتظر بمانید.");
                 return;
         }
         String s = textAreaOutgoing.getText();
-        if(s.indexOf("<div>") == -1)
+        //return if textarea is empty
+        if(!s.contains("<div>"))
             return;
         //s style ha ro be dalili nadare. HTMLe khalie
         s = s.substring((s.indexOf("<div>"))+5, (s.indexOf("</div>"))-1);
         //get rid of \n and trim (baraye inke \n readline ro kharab mikone. har message bayad yek khat bashe)
         s = s.replace("\n", "").trim();
+        
         updateChatText("<b>" + userName + "</b>(you): " + s);
-        chatmanInstance.send("<b>" + userName + "</b>: " + s);
+        chatman.send("<b>" + userName + "</b>: " + s);
+        
         textAreaOutgoing.setText(textAreaHtml[0]+textAreaHtml[1]);
     }
     
@@ -742,7 +744,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     public Chatman getChatmanInstance(){
-        return chatmanInstance;
+        return chatman;
     }
     
     public void updateUserName(){

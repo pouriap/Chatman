@@ -21,11 +21,13 @@ import javax.swing.SwingUtilities;
  *
  * @author PouriaP
  */
+//is responsible for reading input streams
+//we need a thread for input and not for output
+//is created from chatmanclient or chatmanserver
 public class InputReaderTh implements Runnable{
     
-    private int type;
     private Socket socket;
-    private ChatFrame gui;
+    private final ChatFrame gui;
     private String line; //baraye inke tooye anonymous class faghat be variable haye kelasy ke 
                          //anonymous tooye oone dastresi darim va be variable haye final
     
