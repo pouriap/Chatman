@@ -5,6 +5,7 @@
  */
 package com.pouria.pchat;
 
+import com.github.kevinsawicki.HttpRequest;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;
@@ -91,6 +92,7 @@ public class ChatFrame extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuChangeBg = new javax.swing.JMenuItem();
+        menuResetModem = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
         dialogPopup.setAlwaysOnTop(true);
@@ -297,14 +299,20 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelFrameBg);
         labelFrameBg.setBounds(0, 0, 500, 600);
 
-        menuFile.setText("File");
+        menuFile.setText("گزینه ها");
+        menuFile.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuFile.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        menuFile.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        menuFile.setMargin(new java.awt.Insets(0, 10, 0, 0));
+        menuFile.setPreferredSize(new java.awt.Dimension(70, 23));
         menuFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuFileActionPerformed(evt);
             }
         });
 
-        menuChangeBg.setText("Change Background");
+        menuChangeBg.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuChangeBg.setText("تغییر پس زمینه");
         menuChangeBg.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuChangeBgActionPerformed(evt);
@@ -312,7 +320,17 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuChangeBg);
 
-        menuExit.setText("Exit");
+        menuResetModem.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuResetModem.setText("ریست مودم");
+        menuResetModem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuResetModemActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuResetModem);
+
+        menuExit.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuExit.setText("خروج");
         menuExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuExitActionPerformed(evt);
@@ -357,6 +375,8 @@ public class ChatFrame extends javax.swing.JFrame {
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/" + bg)));
         writeConfig("background-image", bg);
         updateUserName();
+        
+        menuFile.doClick();
 
     }//GEN-LAST:event_menuChangeBgActionPerformed
 
@@ -432,6 +452,37 @@ public class ChatFrame extends javax.swing.JFrame {
             menuRightClick.show(textAreaOutgoing, evt.getX(), evt.getY());
         } 
     }//GEN-LAST:event_textAreaOutgoingMouseReleased
+
+    private void menuResetModemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuResetModemActionPerformed
+        // TODO add your handling code here:
+        HttpRequest request = HttpRequest.post("http://192.168.1.1/index/login.cgi")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0")
+                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .header("Accept-Language", "en-US,en;q=0.8,fa-IR;q=0.5,fa;q=0.3")
+                .header("Accept-Encoding", "gzip, deflate")
+                .header("DNT", "1")
+                .header("Referer", "http://192.168.1.1/")
+                .header("Cookie", "FirstMenu=Admin_0; SecondMenu=Admin_0_0; ThirdMenu=Admin_0_0_0; Language=en;")
+                .send("Username=admin&Password=Nzc3MjA3NTk%3D");
+
+        String cookie = (request.header("Set-Cookie"));
+        
+        request = HttpRequest.post("http://192.168.1.1/html/management/reboot.cgi?RequestFile=/html/management/reset.asp")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0")
+                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .header("Accept-Language", "en-US,en;q=0.8,fa-IR;q=0.5,fa;q=0.3")
+                .header("Accept-Encoding", "gzip, deflate")
+                .header("DNT", "1")
+                .header("Referer", "http://192.168.1.1/html/management/reset.asp")
+                .header("Cookie", "FirstMenu=Admin_0; SecondMenu=Admin_0_0; ThirdMenu=Admin_0_0_0; Language=en; " + cookie);
+        if(request.body().isEmpty()){
+            message("could not reset modem :( ");
+        }
+        else{
+            exit();    
+        }
+        
+    }//GEN-LAST:event_menuResetModemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -743,6 +794,11 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }
     
+    public void endSession(){
+        textAreaOutgoing.setText(textAreaHtml[0] + "<span style='font-size:20px;'>طرف مقابل از برنامه خارج شد</span>" + textAreaHtml[1]);
+        textAreaOutgoing.setEnabled(false);
+    }
+    
     public Chatman getChatmanInstance(){
         return chatman;
     }
@@ -789,6 +845,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuChangeBg;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
+    private javax.swing.JMenuItem menuResetModem;
     private javax.swing.JPopupMenu menuRightClick;
     private javax.swing.JLabel outgoingBg;
     private javax.swing.JPanel panelPopup;
