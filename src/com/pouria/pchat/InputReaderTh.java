@@ -92,18 +92,14 @@ public class InputReaderTh implements Runnable{
                     if(gui.isHidden())
                         gui.exit();
                     
-                    int o = JOptionPane.showConfirmDialog(null, "طرف مقابل از برنامه خارج شد. خروج؟", "خروج", JOptionPane.YES_NO_OPTION);
-                    if(o == JOptionPane.YES_OPTION){
-                        c = false; 
-                    }
-                    else{
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                gui.setLabelStatus("اتصال قطع شد!");
-                            }
-                        });
-                        return;
-                    }
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            gui.setLabelStatus("اتصال قطع شد!");
+                            gui.endSession();
+                        }
+                    });
+                    return;
+
                 }
                 //file message
                 else if(line.equals(Chatman.SPECIAL_FILE)){
