@@ -115,7 +115,7 @@ public class InputReaderTh implements Runnable{
                             
                             SwingUtilities.invokeLater(new Runnable() {
                                 public void run() {
-                                    gui.updateChatText("فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName);
+                                    gui.updateIncomingText("فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName);
                                 }
                             });
                             
@@ -127,7 +127,7 @@ public class InputReaderTh implements Runnable{
                 else{
                     SwingUtilities.invokeLater(new Runnable(){
                         public void run(){
-                            gui.updateChatText(line + "\n");
+                            gui.updateIncomingText(line);
                         }
                     });
                 }

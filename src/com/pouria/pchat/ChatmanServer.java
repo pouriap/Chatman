@@ -7,6 +7,7 @@ package com.pouria.pchat;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.Socket;
 
 /**
  *
@@ -30,4 +31,16 @@ public class ChatmanServer extends Chatman {
         inputReaderThread.start();
     }
     
+    @Override
+    public void connect(boolean retry){
+    }
+    
+    @Override
+    public void setServerSocket(Socket s){
+    }
+    
+    @Override
+    public boolean isServerSocketSet(){
+        return false;
+    }
 }

@@ -51,17 +51,11 @@ public abstract class Chatman {
     }
     
     //abstract methods
-    //to be Ovverriden by both client and server
     public abstract void start();
     
-    //to be Overriden by ChatmanClient
-    public void connect(boolean retry){
-    }
+    public abstract void connect(boolean retry);
     
-    public void setServerSocket(Socket s){
-    }
+    public abstract void setServerSocket(Socket s);
     
-    public boolean isServerSocketSet(){
-        return true;
-    }
+    public abstract boolean isServerSocketSet();
 }

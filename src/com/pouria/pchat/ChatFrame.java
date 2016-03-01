@@ -24,7 +24,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -43,8 +52,10 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private Chatman chatman;
     private String[] arguments;
-    private String[] textAreaHtml;
+    private String[] defaultTextAreaHtml;
     private String incomingTextAll;
+    private String textAreaIncomingContentBeforeHistory;
+    HistoryTablePagination historyPagination;
     private String[][] emoticonsArray;
     private String userName;
     private List<String> config;
@@ -76,6 +87,11 @@ public class ChatFrame extends javax.swing.JFrame {
         labelNewMessage = new javax.swing.JLabel();
         labelMessageIcon = new javax.swing.JLabel();
         menuRightClick = new javax.swing.JPopupMenu();
+        dialogHistory = new javax.swing.JDialog();
+        scrollPaneHistory = new javax.swing.JScrollPane();
+        tableHistory = new javax.swing.JTable();
+        buttonNextHistoryPage = new javax.swing.JButton();
+        buttonPrevHistoryPage = new javax.swing.JButton();
         scrollPaneIncoming = new javax.swing.JScrollPane();
         textAreaIncoming = new javax.swing.JEditorPane();
         scrollPaneOutgoing = new javax.swing.JScrollPane();
@@ -92,6 +108,7 @@ public class ChatFrame extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuChangeBg = new javax.swing.JMenuItem();
+        menuShowHistory = new javax.swing.JMenuItem();
         menuResetModem = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
@@ -149,6 +166,99 @@ public class ChatFrame extends javax.swing.JFrame {
         menuRightClick.setBackground(new java.awt.Color(51, 51, 51));
         menuRightClick.setForeground(new java.awt.Color(255, 255, 255));
 
+        dialogHistory.setTitle("تاریخچه");
+        dialogHistory.setAlwaysOnTop(true);
+        dialogHistory.setIconImage(null);
+        dialogHistory.setMinimumSize(new java.awt.Dimension(400, 300));
+        dialogHistory.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                dialogHistoryWindowClosed(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                dialogHistoryWindowClosing(evt);
+            }
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                dialogHistoryWindowOpened(evt);
+            }
+        });
+
+        tableHistory.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        tableHistory.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "تاریخ", "متن"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableHistory.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tableHistory.setRowHeight(20);
+        tableHistory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tableHistoryMouseReleased(evt);
+            }
+        });
+        scrollPaneHistory.setViewportView(tableHistory);
+
+        buttonNextHistoryPage.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        buttonNextHistoryPage.setText("صفحه بعد");
+        buttonNextHistoryPage.setEnabled(false);
+        buttonNextHistoryPage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonNextHistoryPageActionPerformed(evt);
+            }
+        });
+
+        buttonPrevHistoryPage.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        buttonPrevHistoryPage.setText("صفحه قبل");
+        buttonPrevHistoryPage.setEnabled(false);
+        buttonPrevHistoryPage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonPrevHistoryPageActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout dialogHistoryLayout = new javax.swing.GroupLayout(dialogHistory.getContentPane());
+        dialogHistory.getContentPane().setLayout(dialogHistoryLayout);
+        dialogHistoryLayout.setHorizontalGroup(
+            dialogHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dialogHistoryLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(dialogHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dialogHistoryLayout.createSequentialGroup()
+                        .addComponent(buttonPrevHistoryPage)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(buttonNextHistoryPage))
+                    .addComponent(scrollPaneHistory, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        dialogHistoryLayout.setVerticalGroup(
+            dialogHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dialogHistoryLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(scrollPaneHistory, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(dialogHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonNextHistoryPage)
+                    .addComponent(buttonPrevHistoryPage))
+                .addContainerGap())
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Chatman - (This isn't a chat)");
         setFocusable(false);
@@ -169,10 +279,6 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaIncoming.setEditable(false);
         textAreaIncoming.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
         textAreaIncoming.setContentType("text/html"); // NOI18N
-        textAreaIncoming.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        textAreaIncoming.setForeground(new java.awt.Color(255, 255, 255));
-        textAreaIncoming.setText("<html></html>");
-        textAreaIncoming.setToolTipText("");
         textAreaIncoming.setAutoscrolls(false);
         textAreaIncoming.setOpaque(false);
         textAreaIncoming.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
@@ -190,10 +296,6 @@ public class ChatFrame extends javax.swing.JFrame {
 
         textAreaOutgoing.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
         textAreaOutgoing.setContentType("text/html"); // NOI18N
-        textAreaOutgoing.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        textAreaOutgoing.setForeground(new java.awt.Color(255, 255, 255));
-        textAreaOutgoing.setText("<html></html>");
-        textAreaOutgoing.setToolTipText("");
         textAreaOutgoing.setCaretColor(new java.awt.Color(255, 255, 255));
         textAreaOutgoing.setOpaque(false);
         textAreaOutgoing.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -320,6 +422,16 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuChangeBg);
 
+        menuShowHistory.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuShowHistory.setText("نمایش تاریخچه");
+        menuShowHistory.setToolTipText("");
+        menuShowHistory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuShowHistoryActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuShowHistory);
+
         menuResetModem.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         menuResetModem.setText("ریست مودم");
         menuResetModem.addActionListener(new java.awt.event.ActionListener() {
@@ -352,6 +464,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
         chatman.sendBye();
+        exit();
     }//GEN-LAST:event_formWindowClosing
 
     private void textAreaOutgoingKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyReleased
@@ -384,21 +497,14 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         int row = tableEmojis.getSelectedRow();
         int col = tableEmojis.getSelectedColumn();
-
-         String s = textAreaOutgoing.getText();
-         if(!s.contains("<div>"))
-             s = "";
-         else
-             s = s.substring((s.indexOf("<div>"))+5, (s.indexOf("</div>"))-1);
          
         String name = emoticonsArray[row][col];
         URL url = getClass().getResource("/resources/emoticons_large/" + name + ".png");
         if(url != null)
             name = url.toString();
         String img = "<img src='" + name + "'  height=50 width=50 />";
-        String h = textAreaHtml[0] + s + img +  textAreaHtml[1]; 
         
-        textAreaOutgoing.setText(h);
+        updateOutgoingText(img, true);
         textAreaOutgoing.requestFocus();
     
     }//GEN-LAST:event_tableEmojisMouseReleased
@@ -443,7 +549,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
         // TODO add your handling code here:
-        textAreaOutgoing.setText(textAreaHtml[0] + textAreaHtml[1]);
+        defaultOutgoingText();
     }//GEN-LAST:event_labelClearMouseReleased
 
     private void textAreaOutgoingMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaOutgoingMouseReleased
@@ -455,6 +561,10 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void menuResetModemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuResetModemActionPerformed
         // TODO add your handling code here:
+        int reset = JOptionPane.showConfirmDialog(null, "مودم ریست شود؟", "ریست", JOptionPane.YES_NO_OPTION);
+        if(reset == JOptionPane.NO_OPTION)
+            return;
+        
         HttpRequest request = HttpRequest.post("http://192.168.1.1/index/login.cgi")
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0")
                 .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
@@ -483,6 +593,74 @@ public class ChatFrame extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_menuResetModemActionPerformed
+
+    private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
+        // TODO add your handling code here:
+        
+        textAreaIncomingContentBeforeHistory = incomingTextAll;
+        historyPagination = new HistoryTablePagination(
+                this, 
+                tableHistory,
+                "history.sqlite",
+                "SELECT date,text FROM chat_sessions ORDER BY date DESC"
+        );
+
+        try{
+            historyPagination.nextPage();
+            buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
+        }catch(SQLException e){
+            message("could not load history: " + e.getMessage());
+        }
+
+    }//GEN-LAST:event_dialogHistoryWindowOpened
+
+    private void menuShowHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuShowHistoryActionPerformed
+        // TODO add your handling code here:
+        dialogHistory.setLocationRelativeTo(null);
+        dialogHistory.setVisible(true);
+    }//GEN-LAST:event_menuShowHistoryActionPerformed
+
+    private void tableHistoryMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableHistoryMouseReleased
+        // TODO add your handling code here:
+        int row = tableHistory.getSelectedRow();
+        String text = tableHistory.getModel().getValueAt(row, 1).toString();
+        //be khatere inke dige regex nashe. darim mesle halate tabii ro shabih sazi mikonim
+        incomingTextAll = text;
+        updateIncomingText("<br>", false);
+        
+    }//GEN-LAST:event_tableHistoryMouseReleased
+
+    private void dialogHistoryWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dialogHistoryWindowClosed
+
+    private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
+        // TODO add your handling code here:
+        incomingTextAll = "";
+        updateIncomingText(textAreaIncomingContentBeforeHistory, false);
+    }//GEN-LAST:event_dialogHistoryWindowClosing
+
+    private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
+        // TODO add your handling code here:
+        try{
+            historyPagination.nextPage();
+            buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
+            buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
+        }catch(SQLException e){
+            message("could not load history :" + e.getMessage());
+        }
+    }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
+
+    private void buttonPrevHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPrevHistoryPageActionPerformed
+        // TODO add your handling code here:
+        try{
+            historyPagination.prevPage();
+            buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
+            buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
+        }catch(SQLException e){
+            message("could not load history :" + e.getMessage());
+        }
+    }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     /**
      * @param args the command line arguments
@@ -528,18 +706,11 @@ public class ChatFrame extends javax.swing.JFrame {
             "bane_1.jpg", "bane_2.jpg", "bane_3.jpg", "bane_4.jpg", 
             "alien_1.jpg", "alien_2.jpg", "alien_3.jpg", "alien_4.jpg"
         };
+        
         //!!!IMPORTANT: dar esme emoticon ha nabayad adad va alamat bashe. faghat horuf.
         //!!!IMPORTANT: emoticon ha bayad .png bashand va dar foldere emoticons bashand. vagarna bayad regex eslah shavad
         //!!!IMPORTANT: height va width e emoticon ha bayad too tableEmojisMouseReleased too tage <img> neveshte beshe
         //!!IMPORTANT: har taghiiri inja dar esm,folder,format,etc. emoticon ha haselshe bayad to regex ham lahaz she
-        /* old emoticon set
-        String[] row_0 = {"angel","anger","blush","confused","dead"};
-        String[] row_1 = {"devil","erm","GASP","groggy","happy"};
-        String[] row_2 = {"happy","HUH","lol","love","meh"};
-        String[] row_3 = {"sad","shucks","sleep","smile","squwooshy"};
-        String[] row_4 = row_3;
-        emoticonsArray = new String[][]{row_0,row_1,row_2,row_3,row_4};
-        */
         emoticonsArray = new String[][]{
             {"XD","want","tears","grin","dizzy"},
             {"angry","pissedoff","omg","kaboom","ohno"},
@@ -547,6 +718,7 @@ public class ChatFrame extends javax.swing.JFrame {
             {"yes","grumpyno","grumpy","dog","epicface"},
             {"snail","bat","wifi","reset","question"},
         };
+        
         
         //Read config file
         try{
@@ -556,6 +728,7 @@ public class ChatFrame extends javax.swing.JFrame {
             message("could not read config file: " + e.getMessage());
             exit();
         }
+        
         
         //TextArea Dorp
         textAreaOutgoing.setDropTarget(new DropTarget() {
@@ -581,8 +754,8 @@ public class ChatFrame extends javax.swing.JFrame {
                             String base64data = BaseEncoding.base64().encode(data);
                             chatman.sendFile(name, base64data);
                             
-                            updateChatText("File sent: " + file.getName());
-                            textAreaOutgoing.setText(textAreaHtml[0]+textAreaHtml[1]);
+                            updateIncomingText("File sent: " + file.getName());
+                            defaultOutgoingText();
                         }catch(IOException e){
                             message("could not open file");
                         }
@@ -614,7 +787,7 @@ public class ChatFrame extends javax.swing.JFrame {
                 String s = textAreaOutgoing.getText();
                 //clear html tags and new lines
                 s = s.replaceAll("<[\\/\\w]*>", "").replace("\n", "").trim();
-                textAreaOutgoing.setText(textAreaHtml[0] + s + textAreaHtml[1]);
+                updateOutgoingText(s,true);
             }
         }; 
         
@@ -638,6 +811,7 @@ public class ChatFrame extends javax.swing.JFrame {
         
         //TextArea focus
         textAreaOutgoing.requestFocus();
+        
         
         //Table BG
         tableEmojis.setBackground(new Color(50,50,50,170));  
@@ -670,12 +844,11 @@ public class ChatFrame extends javax.swing.JFrame {
        
         
         //Default HTML Texts
-        textAreaHtml = new String[2];
-        textAreaHtml[0] = "<html><div style='direction:rtl;color:white;font-family:Tahoma;font-size:12px;cursor: text;'>";
-        textAreaHtml[1] = "</div></html>";
-        
-        textAreaIncoming.setText(textAreaHtml[0]+textAreaHtml[1]);
-        textAreaOutgoing.setText(textAreaHtml[0]+textAreaHtml[1]);
+        defaultTextAreaHtml = new String[2];
+        defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px }</style></head><body><div id=\"text\">";
+        defaultTextAreaHtml[1] = "</div></body></html>";
+        defaultOutgoingText();
+        defaultIncomingText();        
         
         
         //Make ScrollPanes invisible
@@ -684,11 +857,17 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneIncoming.setOpaque(false);
         scrollPaneIncoming.getViewport().setOpaque(false);
               
-        //Icon
+        
+        //Icons
         java.net.URL url = getClass().getResource("/resources/icon.png");
         Toolkit kit = Toolkit.getDefaultToolkit();
         Image img = kit.createImage(url);
         this.setIconImage(img);
+        
+        url = getClass().getResource("/resources/history.png");
+        img = kit.createImage(url);
+        dialogHistory.setIconImage(img);
+        
         
         //Center
         this.setLocationRelativeTo(null);
@@ -720,22 +899,23 @@ public class ChatFrame extends javax.swing.JFrame {
                 message("در حال جستجوی شبکه. لطفا منتظر بمانید.");
                 return;
         }
-        String s = textAreaOutgoing.getText();
+        
+        String s = getOutgoingText();
+        
         //return if textarea is empty
-        if(!s.contains("<div>"))
+        if(s.isEmpty())
             return;
-        //s style ha ro be dalili nadare. HTMLe khalie
-        s = s.substring((s.indexOf("<div>"))+5, (s.indexOf("</div>"))-1);
+
         //get rid of \n and trim (baraye inke \n readline ro kharab mikone. har message bayad yek khat bashe)
         s = s.replace("\n", "").trim();
         
-        updateChatText("<b>" + userName + "</b>(you): " + s);
+        updateIncomingText("<b>" + userName + "</b>(you): " + s);
         chatman.send("<b>" + userName + "</b>: " + s);
         
-        textAreaOutgoing.setText(textAreaHtml[0]+textAreaHtml[1]);
+        defaultOutgoingText();
     }
     
-    public void updateChatText(String t){
+    public void updateIncomingText(String t, boolean bleep){
         //updates the textareaIncoming. Is run when we say something or the other guy says something
         
         //popup when first message received
@@ -744,10 +924,15 @@ public class ChatFrame extends javax.swing.JFrame {
             dialogPopup.playSound();
         }
         //bleep if we received message and was not focused
-        else if(!this.isActive()){
+        else if(!this.isActive() && bleep){
             dialogPopup.playSound();
         }
 
+        if(t.isEmpty()){
+            defaultIncomingText();
+            return;
+        }
+        
         //internet links
         t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
         //file links
@@ -760,8 +945,62 @@ public class ChatFrame extends javax.swing.JFrame {
         t = t.replaceAll("img\\ssrc=[^>]*emoticons_large\\/([\\w]*\\.png)", "img src=" + url + "$1");
         
         incomingTextAll = incomingTextAll + t + "<br />";
-        String h = textAreaHtml[0] + incomingTextAll + textAreaHtml[1]; 
-        textAreaIncoming.setText(h);
+        textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
+        
+    }
+    
+    public void updateIncomingText(String t){
+        updateIncomingText(t, true);
+    }
+    
+    public void defaultIncomingText(){
+        textAreaIncoming.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
+    }
+    
+    public void updateOutgoingText(String t, boolean append){
+
+        if(append){
+            textAreaOutgoing.setText(defaultTextAreaHtml[0] + getOutgoingText() + t + defaultTextAreaHtml[1]);
+        }
+        else{
+            textAreaOutgoing.setText(defaultTextAreaHtml[0] + t + defaultTextAreaHtml[1]);
+        }
+    }
+    
+    public String getOutgoingText(){
+        String s = textAreaOutgoing.getText();
+        if(!s.contains("<div id=\"text\">"))
+            return "";
+        return s.substring((s.indexOf("<div id=\"text\">"))+15, (s.indexOf("</div>"))-1).trim();
+    }
+    
+    public void defaultOutgoingText(){
+        textAreaOutgoing.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
+    }
+    
+    public void saveHistory(){
+        if(incomingTextAll.isEmpty())
+            return;
+
+        Connection c = null;
+        PreparedStatement stmt = null;
+        Date date = new Date();
+        try {
+            Class.forName("org.sqlite.JDBC");
+            c = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
+            c.setAutoCommit(false);
+
+            stmt = c.prepareStatement("INSERT INTO chat_sessions (date, text) Values(? , ?)");
+            stmt.setString(1, String.valueOf(date.getTime()));
+            stmt.setString(2, incomingTextAll);
+            stmt.executeUpdate();
+            c.commit();
+            
+            stmt.close();
+            c.close();
+        } catch ( Exception e ) {
+            message("could not save chat history: " + e.getMessage());
+        }
     }
     
     //Utility functions
@@ -795,7 +1034,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     public void endSession(){
-        textAreaOutgoing.setText(textAreaHtml[0] + "<span style='font-size:20px;'>طرف مقابل از برنامه خارج شد</span>" + textAreaHtml[1]);
+        updateOutgoingText("<span style='font-size:20px;'>طرف مقابل از برنامه خارج شد</span>", false);
         textAreaOutgoing.setEnabled(false);
     }
     
@@ -807,6 +1046,27 @@ public class ChatFrame extends javax.swing.JFrame {
         //esme background ha be in shekl as
         userName = getConfig("background-image").split("_")[0];
         userName = userName.substring(0, 1).toUpperCase() + userName.substring(1,userName.length());
+    }
+    
+    public String persianWeekDay(String day){
+        switch(day.toLowerCase()){
+            case "sat":
+                return "شنبه";
+            case "sun":
+                return "یکشنبه";
+            case "mon":
+                return "دوشنبه";
+            case "tue":
+                return "سه شنبه";
+            case "wed":
+                return "چهارشنبه";
+            case "thu":
+                return "پنج شنبه";
+            case "fri":
+                return "جمعه";
+            default:
+                return "";
+        }
     }
     
     public boolean isHidden(){
@@ -825,6 +1085,7 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
     
     public void exit(){
+        saveHistory();
         System.exit(0);
     }
     
@@ -832,6 +1093,9 @@ public class ChatFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel backgroundOfLabels;
+    private javax.swing.JButton buttonNextHistoryPage;
+    private javax.swing.JButton buttonPrevHistoryPage;
+    private javax.swing.JDialog dialogHistory;
     private com.pouria.pchat.PopupDialog dialogPopup;
     private javax.swing.JLabel incomingBg;
     private javax.swing.JMenuBar jMenuBar1;
@@ -847,11 +1111,14 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenuItem menuResetModem;
     private javax.swing.JPopupMenu menuRightClick;
+    private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JLabel outgoingBg;
     private javax.swing.JPanel panelPopup;
+    private javax.swing.JScrollPane scrollPaneHistory;
     private javax.swing.JScrollPane scrollPaneIncoming;
     private javax.swing.JScrollPane scrollPaneOutgoing;
     private javax.swing.JTable tableEmojis;
+    private javax.swing.JTable tableHistory;
     private javax.swing.JEditorPane textAreaIncoming;
     private javax.swing.JEditorPane textAreaOutgoing;
     // End of variables declaration//GEN-END:variables
