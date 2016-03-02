@@ -16,8 +16,8 @@ import java.sql.Statement;
  * @author SH
  */
 public abstract class AbstractPagination {
-    protected int limit;
-    protected int page;
+    protected int limit = 10;
+    protected int page = 0;
     protected boolean hasMore = true;
     protected String[] resultSet;
     protected String query;
@@ -28,8 +28,6 @@ public abstract class AbstractPagination {
         this.query = query;
         this.dbPath = dbPath;
         
-        this.limit = 10;
-        page = 0;
         resultSet = new String[this.limit];
     }
     
@@ -38,7 +36,6 @@ public abstract class AbstractPagination {
         this.dbPath = dbPath;
         this.limit = limit;
         
-        page = 0;
         resultSet = new String[this.limit];
     }
 
@@ -57,8 +54,8 @@ public abstract class AbstractPagination {
             c.setAutoCommit(false);
 
             stmt = c.createStatement();
-            int l1 = (page == 0)? 0 : page*limit;
-            int l2 = (page+1)*limit;
+            int l1 = page * limit;
+            int l2 = limit;
             rs = stmt.executeQuery( query + " LIMIT " + l1 + "," + l2 );
             
             int count = doPopulate(rs);

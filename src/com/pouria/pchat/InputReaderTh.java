@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 /**
  *
@@ -50,7 +48,7 @@ public class InputReaderTh implements Runnable{
             try{
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             }catch(IOException e){
-                gui.message("could not open socket input stream: " + e.getMessage());
+                (new CommandInvokeLater(new CommandMessage("could not open socket input stream: " + e.getMessage()))).execute();
                 c = false;
             }
             
@@ -59,47 +57,41 @@ public class InputReaderTh implements Runnable{
         else{
             reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
             if(reader == null){
-                gui.message("could not open STDIN");
+                (new CommandInvokeLater(new CommandMessage("could not open STDIN"))).execute();
                 c = false;
             }
         }
         
         try{
-            while(c){  
+            while(c){
                 line = reader.readLine();
                 //unexpected close
                 if(line == null){
                     //agar hanuz hidden ast faghat kharej sahvim
                     if(gui.isHidden())
-                        gui.exit();
+                        c = false;
                     
-                    int o = JOptionPane.showConfirmDialog(null, "اتصال قطع شد. خروج؟", "اتصال قطع شد", JOptionPane.YES_NO_OPTION);
-                    if(o == JOptionPane.YES_OPTION){ 
-                        c = false; 
-                    }
-                    else{
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                gui.setLabelStatus("اتصال قطع شد!");
-                            }
-                        });
-                        return;
-                    }
+                    (new CommandInvokeLater(new Command[]{
+                        new CommandSetLabelStatus(gui, "اتصال قطع شد"), 
+                        new CommandEndSession(gui, "اتصال قطع شد")
+                    })).execute();
+
+                    return;
+                    
                 }
                 //exit message
                 else if(line.equals(Chatman.SPECIAL_BYE)){
                     //agar hanuz hidden ast faghat kharej sahvim
                     if(gui.isHidden())
-                        gui.exit();
+                        c = false;
                     
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            gui.setLabelStatus("اتصال قطع شد!");
-                            gui.endSession();
-                        }
-                    });
+                    (new CommandInvokeLater(new Command[]{
+                        new CommandSetLabelStatus(gui, "اتصال قطع شد"), 
+                        new CommandEndSession(gui, "طرف مقابل از برنامه خارج شد")
+                    })).execute();
+                    
                     return;
-
+                    
                 }
                 //file message
                 else if(line.equals(Chatman.SPECIAL_FILE)){
@@ -113,27 +105,20 @@ public class InputReaderTh implements Runnable{
                                 saveDir.mkdir();
                             Files.write(BaseEncoding.base64().decode(fileData), new File(location + fileName));
                             
-                            SwingUtilities.invokeLater(new Runnable() {
-                                public void run() {
-                                    gui.updateIncomingText("فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName);
-                                }
-                            });
+                            (new CommandInvokeLater(new CommandUpdateIncomingText(gui, "فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName))).execute();
+
                             
                         }catch(IOException e){
-                            gui.message("could not save received file: " + e.getMessage());
+                            (new CommandInvokeLater(new CommandMessage("could not save received file: " + e.getMessage()))).execute();
                         }
                 }
                 //normal message
                 else{
-                    SwingUtilities.invokeLater(new Runnable(){
-                        public void run(){
-                            gui.updateIncomingText(line);
-                        }
-                    });
+                    (new CommandInvokeLater(new CommandUpdateIncomingText(gui,line))).execute();
                 }
             }//end of while
         }catch(IOException e){
-            gui.message("closing applicaation. could not read input stream: " + e.getMessage());
+            (new CommandInvokeLater(new CommandMessage("closing applicaation. could not read input stream: " + e.getMessage()))).execute();
         }
         //che exception rokh bede ya nade(while tamum she) ya exceptioni bashe ke catch nashode in code ejra mishe
         finally{
@@ -143,7 +128,7 @@ public class InputReaderTh implements Runnable{
                 if(reader != null)
                     reader.close();
             }catch(IOException e){
-                gui.message("could not close the streams: "+e.getMessage());
+                (new CommandInvokeLater(new CommandMessage("could not close the streams: "+e.getMessage()))).execute();
             }
         }
         gui.exit();

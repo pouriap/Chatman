@@ -32,6 +32,13 @@ public class ChatmanServer extends Chatman {
     }
     
     @Override
+    public void stop(){
+        writer = null;
+        if(inputReaderThread.isAlive())
+            inputReaderThread.interrupt();
+    }
+    
+    @Override
     public void connect(boolean retry){
     }
     

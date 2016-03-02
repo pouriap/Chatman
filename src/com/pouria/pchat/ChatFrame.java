@@ -27,11 +27,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -463,7 +459,6 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
-        chatman.sendBye();
         exit();
     }//GEN-LAST:event_formWindowClosing
 
@@ -937,6 +932,7 @@ public class ChatFrame extends javax.swing.JFrame {
         t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
         //file links
         t = t.replaceAll("(file:\\/\\/([^\\.]*\\.[\\w\\d]{3,5}))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
+        
         //emoticons
         //masale ei ke inja vojud dare ine ke vaghti khodemun message mifrestim ham be hamin tabe miad
         //va ezafe mishe be textAreaIncoming. pas vaghti ma emoticon mifrestim avval tabdil be URL mishe
@@ -1033,8 +1029,8 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }
     
-    public void endSession(){
-        updateOutgoingText("<span style='font-size:20px;'>طرف مقابل از برنامه خارج شد</span>", false);
+    public void endSession(String message){
+        updateOutgoingText("<span style='font-size:20px;'>" + message + "</span>", false);
         textAreaOutgoing.setEnabled(false);
     }
     
@@ -1085,6 +1081,15 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
     
     public void exit(){
+        
+        if(chatman.getMode() == Chatman.MOD_CLIENT){
+            if(chatman.isServerSocketSet())
+                chatman.sendBye();
+        }
+        else
+            chatman.sendBye();
+        
+        chatman.stop();
         saveHistory();
         System.exit(0);
     }

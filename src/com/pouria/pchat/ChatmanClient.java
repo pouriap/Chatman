@@ -47,6 +47,21 @@ public class ChatmanClient extends Chatman{
     }
     
     @Override
+    public void stop(){
+        try{
+            if(isServerSocketSet()){
+                serverSocket.close();
+                serverSocket = null;
+            }
+            writer = null;
+            if(inputReaderThread.isAlive())
+                inputReaderThread.interrupt();
+        }catch(Exception e){
+            gui.message("could not stop chatman client: " + e.getMessage());
+        }
+    }
+    
+    @Override
     public void connect(boolean retry){
         //connects to server. if server-ip is specified in config then connects directly
         //else it scans the subnet-mask for live servers
