@@ -27,16 +27,10 @@ public class ChatmanServer extends Chatman {
         writer = new PrintWriter(new OutputStreamWriter(System.out), true);
         gui.setLabelStatus("سرور در حال اجرا");
 
-        inputReaderThread = new Thread(new InputReaderTh(gui));
+        th = new InputReaderTh(gui);
+        inputReaderThread = new Thread(th);
         inputReaderThread.start();
     }
-    
-    @Override
-    public void stop(){
-        writer = null;
-        if(inputReaderThread != null)
-            if(inputReaderThread.isAlive())
-                inputReaderThread.interrupt();
-    }
+
 
 }

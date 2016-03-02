@@ -20,6 +20,7 @@ public abstract class Chatman {
     protected final int mode;
     protected final ChatFrame gui;
     protected PrintWriter writer;
+    protected InputReaderTh th;
     protected Thread inputReaderThread;
     final static int MOD_SERVER = 1, MOD_CLIENT = 2;
     final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile";
@@ -43,6 +44,8 @@ public abstract class Chatman {
     }
     
     public void sendBye(){
+        //reason of goToComa is explained in InputReaderTh
+        th.goToComa();
         send(SPECIAL_BYE);
     }
     
@@ -52,7 +55,5 @@ public abstract class Chatman {
     
     //abstract methods
     public abstract void start();
-    
-    public abstract void stop();
-        
+            
 }

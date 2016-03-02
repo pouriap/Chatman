@@ -26,8 +26,7 @@ public class InputReaderTh implements Runnable{
     
     private Socket socket;
     private final ChatFrame gui;
-    private String line; //baraye inke tooye anonymous class faghat be variable haye kelasy ke 
-                         //anonymous tooye oone dastresi darim va be variable haye final
+    private boolean inComa = false;
     
     //when we are client
     InputReaderTh(ChatFrame g, Socket s){
@@ -40,8 +39,8 @@ public class InputReaderTh implements Runnable{
     }
 
     public void run(){
-        BufferedReader reader = null;
         boolean c = true;
+        BufferedReader reader = null;
         
         //client uses socket input stream
         if (gui.getChatmanInstance().getMode() == Chatman.MOD_CLIENT){
@@ -63,14 +62,30 @@ public class InputReaderTh implements Runnable{
         }
         
         try{
+            String line = "";
             while(c){
                 line = reader.readLine();
+                
+                //If we are in coma do nothing
+                //we are in coma when we want to have outgoing connection but not incoming connection
+                //if we interrupt this thread socket will be closed and the outgoing connection will be 
+                //dead as well. so we go to coma
+                //when do we want to have outgoing but not incoming? when we send byebyebye
+                //because after we send bye the other side closes the connection before we close the application
+                //which causes a null line to be read from the stream and the if(line == null) code to be run
+                //which intervenes with the logic of the application
+                if(inComa){
+                    while(true){
+                        try{Thread.sleep(1000);}catch(InterruptedException e){}
+                    }
+                }
+                
                 //unexpected close
                 if(line == null){
                     //agar hanuz hidden ast faghat kharej sahvim
                     if(gui.isHidden())
                         c = false;
-                    
+
                     (new CommandInvokeLater(new Command[]{
                         new CommandSetLabelStatus(gui, "اتصال قطع شد"), 
                         new CommandEndSession(gui, "اتصال قطع شد")
@@ -107,19 +122,24 @@ public class InputReaderTh implements Runnable{
                             
                             (new CommandInvokeLater(new CommandUpdateIncomingText(gui, "فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName))).execute();
 
-                            
                         }catch(IOException e){
                             (new CommandInvokeLater(new CommandMessage("could not save received file: " + e.getMessage()))).execute();
                         }
                 }
                 //normal message
                 else{
+                    //note:
+                    //former bug here
+                    //if instead of sending "line" to an object we directly give it to invokeLater
+                    //the gui will be updated with the wrong text because invokeLater is executed later
+                    //when "line" has changed
                     (new CommandInvokeLater(new CommandUpdateIncomingText(gui,line))).execute();
                 }
             }//end of while
         }catch(IOException e){
-            (new CommandInvokeLater(new CommandMessage("closing applicaation. could not read input stream: " + e.getMessage()))).execute();
+            (new CommandInvokeLater(new CommandMessage("closing applicaation. could not read input stream: " + e.getMessage()))).execute();    
         }
+        //!!!IMPORTANT this is run even after we return
         //che exception rokh bede ya nade(while tamum she) ya exceptioni bashe ke catch nashode in code ejra mishe
         finally{
             try{
@@ -127,11 +147,17 @@ public class InputReaderTh implements Runnable{
                     socket.close();
                 if(reader != null)
                     reader.close();
+
             }catch(IOException e){
                 (new CommandInvokeLater(new CommandMessage("could not close the streams: "+e.getMessage()))).execute();
             }
         }
+
         gui.exit();
     }//end of run()
     
+    public void goToComa(){
+        inComa = true;
+    }
+
 }

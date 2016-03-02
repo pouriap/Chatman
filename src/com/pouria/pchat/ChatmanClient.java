@@ -43,7 +43,8 @@ public class ChatmanClient extends Chatman{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
             gui.setLabelStatus("اتصال با " + serverSocket.getInetAddress().getHostAddress() + " برقرار شد");
 
-            inputReaderThread = new Thread(new InputReaderTh(gui, serverSocket));
+            th = new InputReaderTh(gui, serverSocket);
+            inputReaderThread = new Thread(th);
             inputReaderThread.start();
         }catch(UnknownHostException e){
             gui.message("could not find host"+e.getMessage());
@@ -54,27 +55,6 @@ public class ChatmanClient extends Chatman{
         }
     }
     
-    @Override
-    public void stop(){
-        try{
-            if(isServerSocketSet()){
-                serverSocket.close();
-                serverSocket = null;
-            }
-            writer = null;
-            
-            if(inputReaderThread != null)
-                if(inputReaderThread.isAlive())
-                    inputReaderThread.interrupt();
-            
-            if(scanner != null)
-                if(scanner.isAlive())
-                    scanner.interrupt();
-            
-        }catch(Exception e){
-            gui.message("could not stop chatman client: " + e.getMessage());
-        }
-    }
     
     public void connect(boolean retry){
         //connects to server. if server-ip is specified in config then connects directly

@@ -21,7 +21,10 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
@@ -984,7 +987,7 @@ public class ChatFrame extends javax.swing.JFrame {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
-            c.setAutoCommit(false);
+            c.setAutoCommit(false);            
 
             stmt = c.prepareStatement("INSERT INTO chat_sessions (date, text) Values(? , ?)");
             stmt.setString(1, String.valueOf(date.getTime()));
@@ -995,6 +998,7 @@ public class ChatFrame extends javax.swing.JFrame {
             stmt.close();
             c.close();
         } catch ( Exception e ) {
+            System.out.println("could not save chat history: " + e.getMessage());
             message("could not save chat history: " + e.getMessage());
         }
     }
@@ -1089,7 +1093,6 @@ public class ChatFrame extends javax.swing.JFrame {
         else
             chatman.sendBye();
         
-        chatman.stop();
         saveHistory();
         System.exit(0);
     }
