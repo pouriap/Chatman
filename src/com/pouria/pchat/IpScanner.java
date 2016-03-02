@@ -14,6 +14,7 @@ import java.util.Enumeration;
  *
  * @author PouriaP
  */
+//is only run when we are client
 //takes a subnet mask and scans that subnet
 //num-hosts-to-scan in the config files determines how many hosts in the subnet should we scan
 //when finds a live server calls the setserversocket() on chatmanclient which is used as a flag
@@ -53,11 +54,12 @@ public class IpScanner implements Runnable {
                 }
             }
         }catch(SocketException e){
-            gui.message("could not find local computer's ip");
+            (new CommandInvokeLater(new CommandMessage("could not find local computer's ip"))).execute();
             gui.exit();
         }
         if(localIp != null){
             //start scanning the network
+            //the first ip that successfully connect to a server will start the session and any other would-be servers will be ignored
             Thread[] scanners = new Thread[numHosts];
             for(int i=1, j=0;i<numHosts+1;i++,j++){
                 String addr = subnet.replace("*", String.valueOf(i));
@@ -75,7 +77,7 @@ public class IpScanner implements Runnable {
                 try{
                     Thread.sleep(3000);
                 }catch(InterruptedException e){
-                    gui.message("could not wait for threads");
+                    (new CommandInvokeLater(new CommandMessage("could not wait for threads"))).execute();
                 }
                 for(Thread scanner: scanners){
                     //ooni ke IP local bood va continue dade budim null ast
@@ -85,11 +87,11 @@ public class IpScanner implements Runnable {
             }while(c);  
             //if serversocket is not set after all threads are finished means we have not found a server
             //connect(true) shows a connection failed to the user and asks them if we should retry
-            if(!gui.getChatmanInstance().isServerSocketSet())
-                gui.getChatmanInstance().connect(true);
+            if(!((ChatmanClient)gui.getChatmanInstance()).isServerSocketSet())
+                ((ChatmanClient)gui.getChatmanInstance()).connect(true);
         }
         else{
-            gui.message("could not find local computer's ip");
+            (new CommandInvokeLater(new CommandMessage("could not find local computer's ip"))).execute();
             gui.exit();
         }
     }

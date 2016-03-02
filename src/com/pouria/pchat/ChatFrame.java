@@ -877,7 +877,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //Client?
         else if(arguments.length == 0){ 
             chatman = new ChatmanClient(this);
-            chatman.connect(false);
+            chatman.start();
             this.setVisible(true);
         }
         else{
@@ -890,7 +890,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void send(){
         //is run when Enter is pressed or Ersal is pressed
         if(chatman.getMode() == Chatman.MOD_CLIENT)
-            if(!chatman.isServerSocketSet()){
+            if(!((ChatmanClient)chatman).isServerSocketSet()){
                 message("در حال جستجوی شبکه. لطفا منتظر بمانید.");
                 return;
         }
@@ -1083,7 +1083,7 @@ public class ChatFrame extends javax.swing.JFrame {
     public void exit(){
         
         if(chatman.getMode() == Chatman.MOD_CLIENT){
-            if(chatman.isServerSocketSet())
+            if(((ChatmanClient)chatman).isServerSocketSet())
                 chatman.sendBye();
         }
         else

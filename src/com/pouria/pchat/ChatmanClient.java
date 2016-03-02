@@ -29,6 +29,14 @@ public class ChatmanClient extends Chatman{
     
     @Override
     public void start(){
+        //we could put connets()'s content here but connect needs and arguments and we want to 
+        //use the abstract start() so we do this
+        connect(false);
+    }
+        
+    public void start2(){
+        //this method does what start() does in ChatmanServer, however because in cilent we need
+        //to stablish a socket connection first, the start() method in client does that.
         //stablishes the input and output streams as a client
         //is only called from IpConnector when it finds an alive server
         try{
@@ -54,14 +62,20 @@ public class ChatmanClient extends Chatman{
                 serverSocket = null;
             }
             writer = null;
-            if(inputReaderThread.isAlive())
-                inputReaderThread.interrupt();
+            
+            if(inputReaderThread != null)
+                if(inputReaderThread.isAlive())
+                    inputReaderThread.interrupt();
+            
+            if(scanner != null)
+                if(scanner.isAlive())
+                    scanner.interrupt();
+            
         }catch(Exception e){
             gui.message("could not stop chatman client: " + e.getMessage());
         }
     }
     
-    @Override
     public void connect(boolean retry){
         //connects to server. if server-ip is specified in config then connects directly
         //else it scans the subnet-mask for live servers
@@ -88,7 +102,6 @@ public class ChatmanClient extends Chatman{
 
     }
     
-    @Override
     //this is called from the scanner thread. acts as a flag for us to know if the 
     //scanner thread has found a live server
     public void setServerSocket(Socket s){
@@ -98,7 +111,6 @@ public class ChatmanClient extends Chatman{
             this.serverSocket = s;
     }
     
-    @Override
     public boolean isServerSocketSet(){
         return this.serverSocket != null;
     }

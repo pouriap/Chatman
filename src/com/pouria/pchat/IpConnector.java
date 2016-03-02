@@ -13,6 +13,7 @@ import java.net.Socket;
  *
  * @author SH
  */
+//is only run when we are client
 //takes an ip and port and connects to it
 //is only called when we have the ip of the live server
 //which we acquire either by scanning or from the config file
@@ -38,14 +39,14 @@ public class IpConnector implements Runnable{
         try{
             Socket socket = new Socket();           
             socket.connect(new InetSocketAddress(ip, port), 3000);
-            gui.getChatmanInstance().setServerSocket(socket);
-            gui.getChatmanInstance().start();
+            ((ChatmanClient)gui.getChatmanInstance()).setServerSocket(socket);
+            ((ChatmanClient)gui.getChatmanInstance()).start2();
         }catch(IOException ex){ 
             //verbose is false when we are scanning network for servers and don't want a "not found"
             //message for each failed connect
             if(verbose){
                 exceptionMessage = ex.getMessage();
-                gui.getChatmanInstance().connect(true);
+                ((ChatmanClient)gui.getChatmanInstance()).connect(true);
             }
         }catch(IllegalArgumentException e){
             //server socket already set
