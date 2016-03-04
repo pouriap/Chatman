@@ -13,8 +13,8 @@ public class CommandUpdateIncomingText implements Command{
     ChatFrame gui;
     String text;
     
-    public CommandUpdateIncomingText(ChatFrame gui, String text){
-        this.gui = gui;
+    public CommandUpdateIncomingText(String text){
+        this.gui = ChatFrame.getInstance();
         this.text = text;
     }
     

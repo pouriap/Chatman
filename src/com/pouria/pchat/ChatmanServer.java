@@ -7,7 +7,6 @@ package com.pouria.pchat;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.Socket;
 
 /**
  *
@@ -17,8 +16,8 @@ import java.net.Socket;
 //Input:  STDIN
 public class ChatmanServer extends Chatman {
     
-    ChatmanServer(ChatFrame gui){
-        super(gui, MOD_SERVER);
+    ChatmanServer(){
+        super(MOD_SERVER);
     }
     
     @Override
@@ -27,7 +26,7 @@ public class ChatmanServer extends Chatman {
         writer = new PrintWriter(new OutputStreamWriter(System.out), true);
         gui.setLabelStatus("سرور در حال اجرا");
 
-        th = new InputReaderTh(gui);
+        th = new InputReaderTh();
         inputReaderThread = new Thread(th);
         inputReaderThread.start();
     }

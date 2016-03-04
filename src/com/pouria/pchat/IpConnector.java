@@ -25,8 +25,8 @@ public class IpConnector implements Runnable{
     private final boolean verbose;
     private static String exceptionMessage;
     
-    IpConnector(ChatFrame g, String h, int p, boolean r){
-        this.gui = g;
+    IpConnector(String h, int p, boolean r){
+        this.gui = ChatFrame.getInstance();
         this.port = p;
         this.ip = h;
         this.verbose = r;

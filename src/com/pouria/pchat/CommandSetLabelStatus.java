@@ -13,8 +13,8 @@ public class CommandSetLabelStatus implements Command{
     ChatFrame gui;
     String text;
     
-    public CommandSetLabelStatus(ChatFrame gui, String text){
-        this.gui = gui;
+    public CommandSetLabelStatus(String text){
+        this.gui = ChatFrame.getInstance();
         this.text = text;
     }
     

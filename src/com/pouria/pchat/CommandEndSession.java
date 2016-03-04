@@ -13,8 +13,8 @@ public class CommandEndSession implements Command{
     ChatFrame gui;
     String message; 
     
-    public CommandEndSession(ChatFrame gui, String message){
-        this.gui = gui;
+    public CommandEndSession(String message){
+        this.gui = ChatFrame.getInstance();
         this.message = message;
     }
     

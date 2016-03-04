@@ -21,22 +21,19 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
@@ -49,26 +46,37 @@ import javax.swing.text.html.HTMLEditorKit;
  */
 public class ChatFrame extends javax.swing.JFrame {
 
+    private static ChatFrame instance = null; 
+    private static int mode = -1;
     private Chatman chatman;
-    private String[] arguments;
     private String[] defaultTextAreaHtml;
     private String incomingTextAll;
     private String textAreaIncomingContentBeforeHistory;
-    HistoryTablePagination historyPagination;
+    private HistoryTablePagination historyPagination;
     private String[][] emoticonsArray;
-    private String userName;
-    private List<String> config;
-    private String[] backgrounds;
 
     
-    public ChatFrame(String[] args){
-        
-        arguments = args;
+    private ChatFrame(){
         
         initComponents();
         
-        myInits();
 
+        SwingUtilities.invokeLater(new Runnable(){
+            @Override
+            public void run(){
+                myInits();
+            }
+        });
+
+
+    }
+    
+    
+    public static ChatFrame getInstance(){
+        if(instance == null)
+            instance = new ChatFrame();
+        
+        return instance;
     }
     
 
@@ -479,13 +487,11 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void menuChangeBgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuChangeBgActionPerformed
         // TODO add your handling code here:
-
-        int bgIndex = Arrays.asList(backgrounds).indexOf(getConfig("background-image"));
-        bgIndex++;
-        String bg = (bgIndex < backgrounds.length)? backgrounds[bgIndex] : backgrounds[0];
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/" + bg)));
-        writeConfig("background-image", bg);
-        updateUserName();
+        
+        Background.getInstance().next();
+        labelFrameBg.setIcon(new javax.swing.ImageIcon(Background.getInstance().getCurrent()));
+        if(chatman != null)
+            chatman.updateUserName();
         
         menuFile.doClick();
 
@@ -498,8 +504,10 @@ public class ChatFrame extends javax.swing.JFrame {
          
         String name = emoticonsArray[row][col];
         URL url = getClass().getResource("/resources/emoticons_large/" + name + ".png");
-        if(url != null)
-            name = url.toString();
+        if(url == null)
+            return;
+        
+        name = url.toString();
         String img = "<img src='" + name + "'  height=50 width=50 />";
         
         updateOutgoingText(img, true);
@@ -597,7 +605,6 @@ public class ChatFrame extends javax.swing.JFrame {
         
         textAreaIncomingContentBeforeHistory = incomingTextAll;
         historyPagination = new HistoryTablePagination(
-                this, 
                 tableHistory,
                 "history.sqlite",
                 "SELECT date,text FROM chat_sessions ORDER BY date DESC"
@@ -687,11 +694,22 @@ public class ChatFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        final String[] a = args;
+        if(args.length == 1){
+            ChatFrame.mode = Chatman.MOD_SERVER;
+        }
+        //Client?
+        else if(args.length == 0){ 
+            ChatFrame.mode = Chatman.MOD_CLIENT;
+        }
+        else{
+            ChatFrame.mode = -1;
+        }
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ChatFrame(a);
+                //new ChatFrame(mode);
+                ChatFrame.getInstance();
             }
         });
     }
@@ -699,11 +717,6 @@ public class ChatFrame extends javax.swing.JFrame {
     private void myInits(){ 
         //Variable inits
         incomingTextAll = "";
-        backgrounds = new String[]{
-            "batman_1.jpg", "batman_2.jpg", "batman_3.jpg", "batman_4.jpg", 
-            "bane_1.jpg", "bane_2.jpg", "bane_3.jpg", "bane_4.jpg", 
-            "alien_1.jpg", "alien_2.jpg", "alien_3.jpg", "alien_4.jpg"
-        };
         
         //!!!IMPORTANT: dar esme emoticon ha nabayad adad va alamat bashe. faghat horuf.
         //!!!IMPORTANT: emoticon ha bayad .png bashand va dar foldere emoticons bashand. vagarna bayad regex eslah shavad
@@ -716,17 +729,7 @@ public class ChatFrame extends javax.swing.JFrame {
             {"yes","grumpyno","grumpy","dog","epicface"},
             {"snail","bat","wifi","reset","question"},
         };
-        
-        
-        //Read config file
-        try{
-            File f = new File("config.conf");
-            config = Files.readLines(f, Charsets.UTF_8);
-        }catch(IOException e){
-            message("could not read config file: " + e.getMessage());
-            exit();
-        }
-        
+       
         
         //TextArea Dorp
         textAreaOutgoing.setDropTarget(new DropTarget() {
@@ -836,9 +839,9 @@ public class ChatFrame extends javax.swing.JFrame {
 
         
         //Frame BG
-        String bg = getConfig("background-image");
+        String bg = ChatmanConfig.getInstance().get("background-image");
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/" + bg)));
-        updateUserName();
+
        
         
         //Default HTML Texts
@@ -873,13 +876,13 @@ public class ChatFrame extends javax.swing.JFrame {
         
         //Start as server/client
         //Server?
-        if(arguments.length == 1){
-            chatman = new ChatmanServer(this);
+        if(ChatFrame.mode == Chatman.MOD_SERVER){
+            chatman = new ChatmanServer();
             chatman.start();
         }
         //Client?
-        else if(arguments.length == 0){ 
-            chatman = new ChatmanClient(this);
+        else if(ChatFrame.mode == Chatman.MOD_CLIENT){ 
+            chatman = new ChatmanClient();
             chatman.start();
             this.setVisible(true);
         }
@@ -907,8 +910,8 @@ public class ChatFrame extends javax.swing.JFrame {
         //get rid of \n and trim (baraye inke \n readline ro kharab mikone. har message bayad yek khat bashe)
         s = s.replace("\n", "").trim();
         
-        updateIncomingText("<b>" + userName + "</b>(you): " + s);
-        chatman.send("<b>" + userName + "</b>: " + s);
+        updateIncomingText("<b>You: </b>" + s);
+        chatman.send("<b>" + chatman.getUserName() + ": </b>" + s);
         
         defaultOutgoingText();
     }
@@ -1004,33 +1007,8 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     //Utility functions
-    public String getConfig(String confName){
-        if(config.indexOf(confName) != -1){
-            String r = config.get(config.indexOf(confName)+1).trim();
-            return r;
-        }
-        message("configuration " + confName + " doesn't exist in config.conf");
-        exit();
-        return "";
-    }
-    
-    public boolean isConfigAvailable(String confName){
-        if(config.indexOf(confName) != -1)
-            return true;
-        return false;
-    }
-    
-    public void writeConfig(String confName, String confValue){
-        config.set(config.indexOf(confName)+1, confValue);
-        String configAll = "";
-        try {
-            for(String line:config){
-                configAll = configAll + line + "\r\n";
-            }
-            Files.write(configAll , new File("config.conf"), Charsets.UTF_8);
-        } catch (IOException e) {
-            message("could not write configuration to file: " + e.getMessage());
-        }
+    public static void setMode(int mode){
+        ChatFrame.mode = mode;
     }
     
     public void endSession(String message){
@@ -1041,13 +1019,7 @@ public class ChatFrame extends javax.swing.JFrame {
     public Chatman getChatmanInstance(){
         return chatman;
     }
-    
-    public void updateUserName(){
-        //esme background ha be in shekl as
-        userName = getConfig("background-image").split("_")[0];
-        userName = userName.substring(0, 1).toUpperCase() + userName.substring(1,userName.length());
-    }
-    
+
     public String persianWeekDay(String day){
         switch(day.toLowerCase()){
             case "sat":

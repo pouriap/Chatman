@@ -23,8 +23,8 @@ public class ChatmanClient extends Chatman{
     private Socket serverSocket;
     private Thread scanner;
     
-    ChatmanClient(ChatFrame gui){
-        super(gui, MOD_CLIENT);
+    ChatmanClient(){
+        super(MOD_CLIENT);
     }
     
     @Override
@@ -41,16 +41,16 @@ public class ChatmanClient extends Chatman{
         //is only called from IpConnector when it finds an alive server
         try{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
-            gui.setLabelStatus("اتصال با " + serverSocket.getInetAddress().getHostAddress() + " برقرار شد");
+            (new CommandInvokeLater(new CommandSetLabelStatus("اتصال با " + serverSocket.getInetAddress().getHostAddress() + " برقرار شد"))).execute();
 
-            th = new InputReaderTh(gui, serverSocket);
+            th = new InputReaderTh(serverSocket);
             inputReaderThread = new Thread(th);
             inputReaderThread.start();
         }catch(UnknownHostException e){
-            gui.message("could not find host"+e.getMessage());
+            (new CommandInvokeLater(new CommandMessage("could not find host" + e.getMessage()))).execute();
             gui.exit();
         }catch(IOException e){
-            gui.message("could not open stream"+e.getMessage());
+            (new CommandInvokeLater(new CommandMessage("could not open stream" + e.getMessage()))).execute();
             gui.exit();
         }
     }
@@ -67,16 +67,16 @@ public class ChatmanClient extends Chatman{
 
         gui.setLabelStatus("در حال جستجوی شبکه");
 
-        int serverPort = Integer.valueOf(gui.getConfig("server-port"));
+        int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
         //if we have server's ip we don't scan the network
-        if(gui.isConfigAvailable("server-ip")){
-            String serverIp = gui.getConfig("server-ip");
-            scanner = new Thread(new IpConnector(gui, serverIp, serverPort, true));
+        if(ChatmanConfig.getInstance().isSet("server-ip")){
+            String serverIp = ChatmanConfig.getInstance().get("server-ip");
+            scanner = new Thread(new IpConnector(serverIp, serverPort, true));
             scanner.start();
         }
         else{
-            String subnet = gui.getConfig("subnet-mask");
-            scanner = new Thread(new IpScanner(gui, subnet, serverPort));
+            String subnet = ChatmanConfig.getInstance().get("subnet-mask");
+            scanner = new Thread(new IpScanner(subnet, serverPort));
             scanner.start();
         }
 

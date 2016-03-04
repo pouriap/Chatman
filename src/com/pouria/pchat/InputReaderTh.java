@@ -29,13 +29,13 @@ public class InputReaderTh implements Runnable{
     private boolean inComa = false;
     
     //when we are client
-    InputReaderTh(ChatFrame g, Socket s){
-        gui = g;
+    InputReaderTh(Socket s){
+        gui = ChatFrame.getInstance();
         socket = s;
     }
     //when we are server
-    InputReaderTh(ChatFrame g){
-        gui = g;
+    InputReaderTh(){
+        gui = ChatFrame.getInstance();
     }
 
     public void run(){
@@ -87,8 +87,8 @@ public class InputReaderTh implements Runnable{
                         c = false;
 
                     (new CommandInvokeLater(new Command[]{
-                        new CommandSetLabelStatus(gui, "اتصال قطع شد"), 
-                        new CommandEndSession(gui, "اتصال قطع شد")
+                        new CommandSetLabelStatus("اتصال قطع شد"), 
+                        new CommandEndSession("اتصال قطع شد")
                     })).execute();
 
                     return;
@@ -101,8 +101,8 @@ public class InputReaderTh implements Runnable{
                         c = false;
                     
                     (new CommandInvokeLater(new Command[]{
-                        new CommandSetLabelStatus(gui, "اتصال قطع شد"), 
-                        new CommandEndSession(gui, "طرف مقابل از برنامه خارج شد")
+                        new CommandSetLabelStatus("اتصال قطع شد"), 
+                        new CommandEndSession("طرف مقابل از برنامه خارج شد")
                     })).execute();
                     
                     return;
@@ -120,7 +120,7 @@ public class InputReaderTh implements Runnable{
                                 saveDir.mkdir();
                             Files.write(BaseEncoding.base64().decode(fileData), new File(location + fileName));
                             
-                            (new CommandInvokeLater(new CommandUpdateIncomingText(gui, "فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName))).execute();
+                            (new CommandInvokeLater(new CommandUpdateIncomingText("فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName))).execute();
 
                         }catch(IOException e){
                             (new CommandInvokeLater(new CommandMessage("could not save received file: " + e.getMessage()))).execute();
@@ -133,7 +133,7 @@ public class InputReaderTh implements Runnable{
                     //if instead of sending "line" to an object we directly give it to invokeLater
                     //the gui will be updated with the wrong text because invokeLater is executed later
                     //when "line" has changed
-                    (new CommandInvokeLater(new CommandUpdateIncomingText(gui,line))).execute();
+                    (new CommandInvokeLater(new CommandUpdateIncomingText(line))).execute();
                 }
             }//end of while
         }catch(IOException e){

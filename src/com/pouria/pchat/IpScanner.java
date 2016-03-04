@@ -25,8 +25,8 @@ public class IpScanner implements Runnable {
     private final String subnet;
     private final int port;
     
-    IpScanner(ChatFrame g, String s, int p){
-        this.gui = g;
+    IpScanner(String s, int p){
+        this.gui = ChatFrame.getInstance();
         this.port = p;
         this.subnet = s;
     }
@@ -37,7 +37,7 @@ public class IpScanner implements Runnable {
         //find local ip address
         String sub = subnet.replace(".*","");
         String localIp = null;
-        int numHosts = Integer.parseInt(gui.getConfig("num-hosts-to-scan"));
+        int numHosts = Integer.parseInt(ChatmanConfig.getInstance().get("num-hosts-to-scan"));
         try{
             Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
             while(n.hasMoreElements())
@@ -67,7 +67,7 @@ public class IpScanner implements Runnable {
                 if(addr.equals(localIp))
                     continue;
 
-                scanners[j] = new Thread(new IpConnector(gui, addr, port, false));
+                scanners[j] = new Thread(new IpConnector(addr, port, false));
                 scanners[j].start();
             }
             //wait until the scanning is finished

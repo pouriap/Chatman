@@ -21,9 +21,9 @@ public class HistoryTablePagination extends AbstractPagination{
     ChatFrame gui;
     JTable table;
     
-    public HistoryTablePagination(ChatFrame gui, JTable table, String dbPath, String query){
+    public HistoryTablePagination(JTable table, String dbPath, String query){
         super(dbPath, query);
-        this.gui = gui;
+        this.gui = ChatFrame.getInstance();
         this.table = table;
     }
     

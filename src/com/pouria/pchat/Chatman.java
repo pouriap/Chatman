@@ -6,7 +6,6 @@
 package com.pouria.pchat;
 
 import java.io.PrintWriter;
-import java.net.Socket;
 
 /**
  *
@@ -22,37 +21,62 @@ public abstract class Chatman {
     protected PrintWriter writer;
     protected InputReaderTh th;
     protected Thread inputReaderThread;
+    protected String userName, peerName;
     final static int MOD_SERVER = 1, MOD_CLIENT = 2;
     final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile";
     
-    Chatman(ChatFrame gui, int mode){
-        this.gui = gui;
+    public Chatman(int mode){
+        this.gui = ChatFrame.getInstance();
         this.mode = mode;
+        updateUserName();
     }
     
-    public void send(String s){
+    public final void send(String s){
         if(writer == null)
             throw new NullPointerException();
         else
             writer.println(s);
     }
 
-    public  void sendFile(String fileName, String fileContent){
+    public final void sendFile(String fileName, String fileContent){
         send(SPECIAL_FILE);
         send(fileName);
         send(fileContent);
     }
     
-    public void sendBye(){
+    public final void sendBye(){
         //reason of goToComa is explained in InputReaderTh
         th.goToComa();
         send(SPECIAL_BYE);
     }
     
-    public int getMode(){
+    public final int getMode(){
         return this.mode;
     }
     
+    public final void setUserName(String name){
+        userName = name;
+    }
+    
+    public final void setPeerName(String name){
+        peerName = name;
+    }
+    
+    public final String getUserName(){
+        return userName;
+    }
+    
+    public final String getPeerName(){
+        return peerName;
+    }
+    
+    public final void updateUserName(){
+        //esme background ha be in shekl as
+        String name = ChatmanConfig.getInstance().get("background-image").split("_")[0];
+        name = name.substring(0, 1).toUpperCase() + name.substring(1,name.length());
+        setUserName(name);
+    }
+
     //abstract methods
     public abstract void start();
             
