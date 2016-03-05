@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman.gui;
 
 import java.io.File;
 import java.net.URL;

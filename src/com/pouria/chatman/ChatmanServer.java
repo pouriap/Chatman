@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -16,7 +16,7 @@ import java.io.PrintWriter;
 //Input:  STDIN
 public class ChatmanServer extends Chatman {
     
-    ChatmanServer(){
+    public ChatmanServer(){
         super(MOD_SERVER);
     }
     

@@ -3,23 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman.classes;
+
+import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
  * @author SH
  */
-public class CommandUpdateIncomingText implements Command{
+public class CommandSetLabelStatus implements Command{
     ChatFrame gui;
     String text;
     
-    public CommandUpdateIncomingText(String text){
+    public CommandSetLabelStatus(String text){
         this.gui = ChatFrame.getInstance();
         this.text = text;
     }
     
     @Override
     public void execute(){
-        gui.updateIncomingText(text);
+        gui.setLabelStatus(text);
     }
 }

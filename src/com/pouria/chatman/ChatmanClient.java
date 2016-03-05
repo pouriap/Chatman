@@ -3,13 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman;
 
+import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CommandMessage;
+import com.pouria.chatman.classes.CommandSetLabelStatus;
+import com.pouria.chatman.gui.ChatmanConfig;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 /**
@@ -20,10 +25,11 @@ import javax.swing.JOptionPane;
 //Input:  Socket.inputStream
 public class ChatmanClient extends Chatman{
     
+    private ArrayList<Socket> liveServers = new ArrayList<Socket>();
     private Socket serverSocket;
     private Thread scanner;
     
-    ChatmanClient(){
+    public ChatmanClient(){
         super(MOD_CLIENT);
     }
     
@@ -84,11 +90,26 @@ public class ChatmanClient extends Chatman{
     
     //this is called from the scanner thread. acts as a flag for us to know if the 
     //scanner thread has found a live server
+    public void addLiveServer(Socket s){
+        liveServers.add(s);
+        gui.addToServerList(s.getInetAddress().getHostAddress());
+    }
+    
+    //returns number of live servers found
+    public int numServersFound(){
+        return liveServers.size();
+    }
+    
+    //sets the socket we wnat to connect to
+    //also acts as a flag
     public void setServerSocket(Socket s){
-        if(this.serverSocket != null)
-            throw new IllegalArgumentException();
-        else
-            this.serverSocket = s;
+        serverSocket = s;
+        gui.removeServerList();
+    }
+    
+    public void setServerSocket(int index){
+        serverSocket = liveServers.get(index);
+        gui.removeServerList();
     }
     
     public boolean isServerSocketSet(){

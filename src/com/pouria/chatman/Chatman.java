@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman;
 
+import com.pouria.chatman.gui.ChatmanConfig;
+import com.pouria.chatman.gui.ChatFrame;
 import java.io.PrintWriter;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 //is responsible for sending data to streams
 //if chatmanclient extends it, output stream is a socket
@@ -22,8 +24,8 @@ public abstract class Chatman {
     protected InputReaderTh th;
     protected Thread inputReaderThread;
     protected String userName, peerName;
-    final static int MOD_SERVER = 1, MOD_CLIENT = 2;
-    final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile";
+    public final static int MOD_SERVER = 1, MOD_CLIENT = 2;
+    public final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile";
     
     public Chatman(int mode){
         this.gui = ChatFrame.getInstance();

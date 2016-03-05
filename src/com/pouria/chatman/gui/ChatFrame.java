@@ -3,12 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman.gui;
 
 import com.github.kevinsawicki.HttpRequest;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;
+import com.pouria.chatman.Chatman;
+import com.pouria.chatman.ChatmanClient;
+import com.pouria.chatman.ChatmanServer;
+import com.pouria.chatman.classes.HistoryTablePagination;
+import com.pouria.chatman.classes.ResourceBundleWrapper;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -21,11 +26,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
@@ -34,10 +35,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
-import java.util.ResourceBundle;
+import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
@@ -58,7 +59,6 @@ public class ChatFrame extends javax.swing.JFrame {
     private String incomingTextAll;
     private String textAreaIncomingContentBeforeHistory;
     private HistoryTablePagination historyPagination;
-    private String[][] emoticonsArray;
     
     public ResourceBundleWrapper l;
 
@@ -87,7 +87,7 @@ public class ChatFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        dialogPopup = new com.pouria.pchat.PopupDialog();
+        dialogPopup = new com.pouria.chatman.gui.PopupDialog();
         panelPopup = new javax.swing.JPanel();
         labelNewMessage = new javax.swing.JLabel();
         labelMessageIcon = new javax.swing.JLabel();
@@ -97,6 +97,9 @@ public class ChatFrame extends javax.swing.JFrame {
         tableHistory = new javax.swing.JTable();
         buttonNextHistoryPage = new javax.swing.JButton();
         buttonPrevHistoryPage = new javax.swing.JButton();
+        labelServers = new javax.swing.JLabel();
+        scrollPaneLiveServers = new javax.swing.JScrollPane();
+        listLiveServers = new javax.swing.JList<>();
         scrollPaneIncoming = new javax.swing.JScrollPane();
         textAreaIncoming = new javax.swing.JEditorPane();
         scrollPaneOutgoing = new javax.swing.JScrollPane();
@@ -278,6 +281,25 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().setLayout(null);
+
+        labelServers.setBackground(new java.awt.Color(255, 255, 255));
+        labelServers.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        labelServers.setForeground(new java.awt.Color(255, 255, 255));
+        labelServers.setText("Select a server to connect to");
+        getContentPane().add(labelServers);
+        labelServers.setBounds(120, 34, 240, 30);
+
+        listLiveServers.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        listLiveServers.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        listLiveServers.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                listLiveServersMouseReleased(evt);
+            }
+        });
+        scrollPaneLiveServers.setViewportView(listLiveServers);
+
+        getContentPane().add(scrollPaneLiveServers);
+        scrollPaneLiveServers.setBounds(120, 70, 240, 140);
 
         scrollPaneIncoming.setOpaque(false);
 
@@ -500,13 +522,8 @@ public class ChatFrame extends javax.swing.JFrame {
         int row = tableEmojis.getSelectedRow();
         int col = tableEmojis.getSelectedColumn();
          
-        String name = emoticonsArray[row][col];
-        URL url = getClass().getResource("/resources/emoticons_large/" + name + ".png");
-        if(url == null)
-            return;
-        
-        name = url.toString();
-        String img = "<img src='" + name + "'  height=50 width=50 />";
+        String img = (String) tableEmojis.getValueAt(row, col);
+        img = img.replaceAll("<html>(.*)emoticons(.*\\.png')\\s(\\/>)<\\/html>", "$1emoticons_large$2 height=50 width=50 $3");
         
         updateOutgoingText(img, true);
         textAreaOutgoing.requestFocus();
@@ -665,6 +682,13 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
+    private void listLiveServersMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listLiveServersMouseReleased
+        // TODO add your handling code here:
+        int index = listLiveServers.getSelectedIndex();
+        ((ChatmanClient)getChatmanInstance()).setServerSocket(index);
+        ((ChatmanClient)getChatmanInstance()).start2();
+    }//GEN-LAST:event_listLiveServersMouseReleased
+
     /**
      * @param args the command line arguments
      */
@@ -712,50 +736,20 @@ public class ChatFrame extends javax.swing.JFrame {
         });
     }
      
-    public void myInits(){ 
+    
+    public void myInits(){
         
         //Locale
-        try{
-            //l = ResourceBundle.getBundle("resources.locale.locale", ChatmanConfig.getInstance().getLocale());
-            l = new ResourceBundleWrapper("resources.locale.locale", ChatmanConfig.getInstance().getLocale());
-        }catch(Exception e){
-            message(e.getMessage());
-            exit();
-        }
+        mSetLocale(ChatmanConfig.getInstance().getLocale());
 
         
-        //GUI elements texts
-        labelNewMessage.setText(l.getString("new_message"));
-        dialogHistory.setTitle(l.getString("history"));
-        buttonNextHistoryPage.setText(l.getString("next_page"));
-        buttonPrevHistoryPage.setText(l.getString("prev_page"));
-        labelSend.setText(l.getString("send"));
-        labelClear.setText(l.getString("clear"));
-        labelStatusLabl.setText(l.getString("status"));
-        labelStatus.setText(l.getString("offline"));
-        menuFile.setText(l.getString("options"));
-        menuChangeBg.setText(l.getString("change_bg"));
-        menuShowHistory.setText(l.getString("show_history"));
-        menuResetModem.setText(l.getString("reset_modem"));
-        menuExit.setText(l.getString("exit"));
-        
+        //setup GUI elements texts accordig to locale
+        setupGUITexts();
+
         
         //Variable inits
         incomingTextAll = "";  
 
-        
-        //!!!IMPORTANT: dar esme emoticon ha nabayad adad va alamat bashe. faghat horuf.
-        //!!!IMPORTANT: emoticon ha bayad .png bashand va dar foldere emoticons bashand. vagarna bayad regex eslah shavad
-        //!!!IMPORTANT: height va width e emoticon ha bayad too tableEmojisMouseReleased too tage <img> neveshte beshe
-        //!!IMPORTANT: har taghiiri inja dar esm,folder,format,etc. emoticon ha haselshe bayad to regex ham lahaz she
-        emoticonsArray = new String[][]{
-            {"XD","want","tears","grin","dizzy"},
-            {"angry","pissedoff","omg","kaboom","ohno"},
-            {"onioncute","onioncool","pokerface","zombie","zZgif"},
-            {"yes","grumpyno","grumpy","dog","epicface"},
-            {"snail","bat","wifi","reset","question"},
-        };
-       
         
         //TextArea Dorp
         textAreaOutgoing.setDropTarget(new DropTarget() {
@@ -795,18 +789,6 @@ public class ChatFrame extends javax.swing.JFrame {
         
 
         //TextArea right click
-        /*Action copy = new AbstractAction("Copy") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                textAreaOutgoing.copy();
-            }
-        };
-        Action cut = new AbstractAction("Cut") {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                textAreaOutgoing.cut();
-            }
-        };*/
         Action paste = new AbstractAction(l.getString("paste")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -822,10 +804,6 @@ public class ChatFrame extends javax.swing.JFrame {
         copyAction.putValue("Name", l.getString("copy"));
         Action cutAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.cutAction);
         cutAction.putValue("Name", l.getString("cut"));
-        /*
-        Action pasteAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.pasteAction);
-        pasteAction.putValue("Name", "Paste");
-        */
         
         menuRightClick.add (paste); 
         menuRightClick.add (copyAction);
@@ -845,6 +823,17 @@ public class ChatFrame extends javax.swing.JFrame {
 
         
         //Populate Table
+        //!!!IMPORTANT: only words in emoticons name 
+        //!!!IMPORTANT: emoticons should have .png extention and be stored in /resources/emoticons folder
+        //!!!IMPORTANT: any change made here, or to emoticons names,format,folder,etc. should be also applied to regular expression accross the code
+        String[][] emoticonsArray = new String[][]{
+            {"XD","want","tears","grin","dizzy"},
+            {"angry","pissedoff","omg","kaboom","ohno"},
+            {"onioncute","onioncool","pokerface","zombie","zZgif"},
+            {"yes","grumpyno","grumpy","dog","epicface"},
+            {"snail","bat","wifi","reset","question"},
+        };
+        
         //in anonymous ro dorost mikonim baraye inke editable nabashe cell ha
         AbstractTableModel model = new DefaultTableModel(5, 5){
             public boolean isCellEditable(int row, int column){
@@ -867,7 +856,6 @@ public class ChatFrame extends javax.swing.JFrame {
         //Frame BG
         String bg = ChatmanConfig.getInstance().get("background-image");
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/" + bg)));
-
        
         
         //Empty HTML Texts
@@ -883,14 +871,20 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneOutgoing.getViewport().setOpaque(false);
         scrollPaneIncoming.setOpaque(false);
         scrollPaneIncoming.getViewport().setOpaque(false);
+        
+        
+        //Make server list invisible
+        labelServers.setVisible(true);
+        scrollPaneLiveServers.setVisible(true);
               
         
         //Icons
+        //main frame
         java.net.URL url = getClass().getResource("/resources/icon.png");
         Toolkit kit = Toolkit.getDefaultToolkit();
         Image img = kit.createImage(url);
         this.setIconImage(img);
-        
+        //history dialog
         url = getClass().getResource("/resources/history.png");
         img = kit.createImage(url);
         dialogHistory.setIconImage(img);
@@ -919,11 +913,39 @@ public class ChatFrame extends javax.swing.JFrame {
         
     } 
     
+    //Called from myInits()
+    public void mSetLocale(Locale locale){
+        try{
+            l = new ResourceBundleWrapper("resources.locale.locale", locale);
+        }catch(Exception e){
+            message(e.getMessage());
+            exit();
+        }
+    }
+    
+    //Called from myInits()
+    public void setupGUITexts(){
+        labelNewMessage.setText(l.getString("new_message"));
+        dialogHistory.setTitle(l.getString("history"));
+        buttonNextHistoryPage.setText(l.getString("next_page"));
+        buttonPrevHistoryPage.setText(l.getString("prev_page"));
+        labelSend.setText(l.getString("send"));
+        labelClear.setText(l.getString("clear"));
+        labelStatusLabl.setText(l.getString("status"));
+        labelStatus.setText(l.getString("offline"));
+        menuFile.setText(l.getString("options"));
+        menuChangeBg.setText(l.getString("change_bg"));
+        menuShowHistory.setText(l.getString("show_history"));
+        menuResetModem.setText(l.getString("reset_modem"));
+        menuExit.setText(l.getString("exit"));
+    }
+    
+    //General functions
     private void send(){
         //is run when Enter is pressed or Ersal is pressed
         if(chatman.getMode() == Chatman.MOD_CLIENT)
             if(!((ChatmanClient)chatman).isServerSocketSet()){
-                message(l.getString("wait_searching_network"));
+                message(l.getString("not_connected"));
                 return;
         }
         
@@ -933,7 +955,7 @@ public class ChatFrame extends javax.swing.JFrame {
         if(s.isEmpty())
             return;
 
-        //get rid of \n and trim (baraye inke \n readline ro kharab mikone. har message bayad yek khat bashe)
+        //'\n' should only be at the end of the message because we use readline()
         s = s.replace("\n", "").trim();
         
         updateIncomingText("<b>" + l.getString("you") + ": </b>" + s);
@@ -1004,6 +1026,25 @@ public class ChatFrame extends javax.swing.JFrame {
     
     public void defaultOutgoingText(){
         textAreaOutgoing.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
+    }
+    
+    public void addToServerList(String server){
+        if(listLiveServers.getModel().getSize() == 0)
+            listLiveServers.setModel(new DefaultListModel<String>());
+        
+        ((DefaultListModel) listLiveServers.getModel()).addElement("<html><b style='text-align:center'>" + server + "</b></html>");
+    }
+    
+    public void showServerList(){
+        labelServers.setVisible(true);
+        scrollPaneLiveServers.setVisible(true);
+    }
+    
+    public void removeServerList(){
+        this.remove(scrollPaneLiveServers);
+        this.remove(labelServers);
+        this.repaint();
+        this.revalidate();
     }
     
     public void saveHistory(){
@@ -1081,7 +1122,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
     private javax.swing.JDialog dialogHistory;
-    private com.pouria.pchat.PopupDialog dialogPopup;
+    private com.pouria.chatman.gui.PopupDialog dialogPopup;
     private javax.swing.JLabel incomingBg;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel labelClear;
@@ -1089,8 +1130,10 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelMessageIcon;
     private javax.swing.JLabel labelNewMessage;
     private javax.swing.JLabel labelSend;
+    private javax.swing.JLabel labelServers;
     private javax.swing.JLabel labelStatus;
     private javax.swing.JLabel labelStatusLabl;
+    private javax.swing.JList<String> listLiveServers;
     private javax.swing.JMenuItem menuChangeBg;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
@@ -1101,6 +1144,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelPopup;
     private javax.swing.JScrollPane scrollPaneHistory;
     private javax.swing.JScrollPane scrollPaneIncoming;
+    private javax.swing.JScrollPane scrollPaneLiveServers;
     private javax.swing.JScrollPane scrollPaneOutgoing;
     private javax.swing.JTable tableEmojis;
     private javax.swing.JTable tableHistory;

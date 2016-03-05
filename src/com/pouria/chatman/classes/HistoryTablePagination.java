@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman.classes;
 
+import com.pouria.chatman.gui.ChatFrame;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -55,10 +56,11 @@ public class HistoryTablePagination extends AbstractPagination{
                 int todayNumber = Integer.valueOf(dateFormat.format(now));
                 dateFormat = new SimpleDateFormat("D");
                 int dayNumber = Integer.valueOf(dateFormat.format(d));
+                
                 long distance =  now.getTime() - d.getTime();
                 //because we only want it to be applied to last week
                 //it doesn't work on new years first week but whatever! ;)
-                if(distance < 7 * oneDay){
+                if(distance < (7 * oneDay)){
                     switch(todayNumber - dayNumber){
                         case 0:
                             format = "'" + gui.l.getString("today") + "'   HH:mm ";
@@ -69,10 +71,10 @@ public class HistoryTablePagination extends AbstractPagination{
                         case 2:
                             format = "'" + gui.l.getString("two_days_ago") + "'   HH:mm ";
                             break;
-                        case 4:
+                        case 3:
                             format = "'" + gui.l.getString("three_days_ago") + "'   HH:mm ";
                             break;
-                        case 5:
+                        case 4:
                             format = "'" + gui.l.getString("four_days_ago") + "'   HH:mm ";
                             break;
                         default:

@@ -3,8 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman;
 
+import com.pouria.chatman.classes.CommandUpdateIncomingText;
+import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.Command;
+import com.pouria.chatman.classes.CommandMessage;
+import com.pouria.chatman.classes.CommandEndSession;
+import com.pouria.chatman.classes.CommandSetLabelStatus;
+import com.pouria.chatman.gui.ChatFrame;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;

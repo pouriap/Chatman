@@ -3,23 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman.classes;
+
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author SH
  */
-public class CommandEndSession implements Command{
-    ChatFrame gui;
-    String message; 
+public class CommandMessage implements Command{
+    String message;
     
-    public CommandEndSession(String message){
-        this.gui = ChatFrame.getInstance();
+    public CommandMessage(String message){
         this.message = message;
     }
     
     @Override
     public void execute(){
-        gui.endSession(message);
+        JOptionPane.showMessageDialog(null, message);
     }
+    
 }

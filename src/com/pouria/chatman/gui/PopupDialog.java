@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pouria.pchat;
+package com.pouria.chatman.gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -73,7 +73,7 @@ public class PopupDialog extends JDialog{
             if(this.clip != null)
                 this.clip.close();
         }catch(Exception e){
-            System.out.println(ChatFrame.getInstance().l.getString("audio_close_fail") + e.getMessage());
+            ChatFrame.getInstance().message(ChatFrame.getInstance().l.getString("audio_close_fail") + e.getMessage());
         }
         finally{
             this.dispose();
