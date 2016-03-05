@@ -7,12 +7,9 @@ package com.pouria.pchat;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.IOException;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -33,21 +30,8 @@ public class PopupDialog extends JDialog{
             clip.start();
             return;
             
-        }catch(NullPointerException e){
-            JOptionPane.showMessageDialog(null, "could not open audio stream: "+e.getMessage());
-            return;
-        }catch(IOException e){
-            JOptionPane.showMessageDialog(null, "cold not open audio file: "+e.getMessage());
-            return;
-        }catch(IllegalArgumentException e){
-            JOptionPane.showMessageDialog(null, "format not supported: "+e.getMessage());
-            return;
-        }
-        catch(LineUnavailableException e){
-            JOptionPane.showMessageDialog(null, "line unavailable: "+e.getMessage());
-            return;
-        }catch(UnsupportedAudioFileException e){
-            JOptionPane.showMessageDialog(null, "unsupported audio file"+e.getMessage());
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, ChatFrame.getInstance().l.getString("audio_play_fail") + e.getMessage());
             return;
         }
     }
@@ -88,10 +72,8 @@ public class PopupDialog extends JDialog{
                 this.audioStream.close();
             if(this.clip != null)
                 this.clip.close();
-        }catch(IOException e){
-            System.out.println("could not close audio stream: "+e.getMessage());
-        }catch(NullPointerException e){
-            System.out.println("could not close handles in popup: "+e.getMessage());
+        }catch(Exception e){
+            System.out.println(ChatFrame.getInstance().l.getString("audio_close_fail") + e.getMessage());
         }
         finally{
             this.dispose();

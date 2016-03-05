@@ -54,7 +54,7 @@ public class IpScanner implements Runnable {
                 }
             }
         }catch(SocketException e){
-            (new CommandInvokeLater(new CommandMessage("could not find local computer's ip"))).execute();
+            (new CommandInvokeLater(new CommandMessage(gui.l.getString("local_ip_fail")))).execute();
             gui.exit();
         }
         if(localIp != null){
@@ -77,7 +77,7 @@ public class IpScanner implements Runnable {
                 try{
                     Thread.sleep(3000);
                 }catch(InterruptedException e){
-                    (new CommandInvokeLater(new CommandMessage("could not wait for threads"))).execute();
+                    (new CommandInvokeLater(new CommandMessage(gui.l.getString("thread_sleep_fail")))).execute();
                 }
                 for(Thread scanner: scanners){
                     //ooni ke IP local bood va continue dade budim null ast
@@ -91,7 +91,7 @@ public class IpScanner implements Runnable {
                 ((ChatmanClient)gui.getChatmanInstance()).connect(true);
         }
         else{
-            (new CommandInvokeLater(new CommandMessage("could not find local computer's ip"))).execute();
+            (new CommandInvokeLater(new CommandMessage(gui.l.getString("local_ip_fail")))).execute();
             gui.exit();
         }
     }

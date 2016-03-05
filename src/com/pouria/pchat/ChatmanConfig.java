@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  *
@@ -23,8 +24,10 @@ import java.util.List;
 public class ChatmanConfig {
     
     private ChatFrame gui;
-    private final String configFile = "config.conf";
+    private final String configPath = "config.conf";
+    private final File configFile = new File(configPath);
     private List<String> defaultConfigs, configs = new ArrayList();
+    private final char commentCharacter = '#';
     
     private ChatmanConfig(){
         this.gui = ChatFrame.getInstance();
@@ -32,24 +35,30 @@ public class ChatmanConfig {
             "background-image", "batman_1.jpg",
             "server-port", "9988",
             "subnet-mask", "192.168.1.*",
-            "num-hosts-to-scan", "10"
+            "num-hosts-to-scan", "10",
+            "max-file-size", "20",
+            "locale", "en_US"
         });
         
         try{
-            String config;
-            File f = new File(configFile);
-            BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
+            String config; 
+            BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
             
             while((config = r.readLine()) != null){
-                // '/' is comment character
-                if(config.charAt(0) != '/')
-                    configs.add(config);
+                //ignore empty lines
+                if(config.isEmpty())
+                    continue;
+                //ignore comments
+                if(config.charAt(0) == commentCharacter)
+                    continue;
+                
+                configs.add(config);
             }
             
             r.close();
             
         }catch(IOException e){
-            gui.message("could not read configuration file: " + e.getMessage());
+            gui.message(gui.l.getString("config_read_fail") + e.getMessage());
             gui.exit();
         }
         
@@ -67,28 +76,56 @@ public class ChatmanConfig {
         }
         //no? then it's fatal
         else{
-            gui.message("configuration " + confName + " doesn't exist in config.conf");
+            gui.message(gui.l.getString("configuration") + confName + gui.l.getString("is_not_in_config"));
             gui.exit();
             return "";
         }
     }
     
-    public void set(String confName, String confValue){
-        configs.set(configs.indexOf(confName)+1, confValue);
-        String configAll = "";
+    public void set(String confName, String confValue) {
+        configs.set(configs.indexOf(confName) + 1, confValue);
+        String s = "";
         try {
-            for(String line: configs){
-                configAll = configAll + line + "\r\n";
+            BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
+            String line;
+            while ((line = r.readLine()) != null) {
+
+                s += line + "\r\n";
+
+                if (line.isEmpty())
+                    continue;
+                
+                if (line.charAt(0) == commentCharacter)
+                    continue;
+
+                //line is not empty and not comment so it is a config name
+                //if we have this name in config, change it's value to the one we have in config
+                int index = configs.indexOf(line);
+                if (index != -1) {
+                    //add the value of this config to s
+                    s += configs.get(index + 1) + "\r\n";
+                    //skip the line in the current config file
+                    r.readLine();
+                }
+
             }
-            Files.write(configAll , new File(configFile), Charsets.UTF_8);
+            r.close();
+            
+            Files.write(s, configFile, Charsets.UTF_8);
+            
             
         } catch (IOException e) {
-            gui.message("could not write configuration to file: " + e.getMessage());
+            gui.message(gui.l.getString("config_write_fail") + e.getMessage());
         }
     }
     
     public boolean isSet(String confName){
         return configs.contains(confName);
+    }
+    
+    public Locale getLocale(){
+        String[] l = get("locale").split("_");
+        return new Locale(l[0], l[1]);
     }
     
     

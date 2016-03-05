@@ -41,16 +41,16 @@ public class ChatmanClient extends Chatman{
         //is only called from IpConnector when it finds an alive server
         try{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
-            (new CommandInvokeLater(new CommandSetLabelStatus("اتصال با " + serverSocket.getInetAddress().getHostAddress() + " برقرار شد"))).execute();
+            (new CommandInvokeLater(new CommandSetLabelStatus(gui.l.getString("connection_with") + serverSocket.getInetAddress().getHostAddress() + gui.l.getString("stablished")))).execute();
 
             th = new InputReaderTh(serverSocket);
             inputReaderThread = new Thread(th);
             inputReaderThread.start();
         }catch(UnknownHostException e){
-            (new CommandInvokeLater(new CommandMessage("could not find host" + e.getMessage()))).execute();
+            (new CommandInvokeLater(new CommandMessage(gui.l.getString("find_host_fail") + e.getMessage()))).execute();
             gui.exit();
         }catch(IOException e){
-            (new CommandInvokeLater(new CommandMessage("could not open stream" + e.getMessage()))).execute();
+            (new CommandInvokeLater(new CommandMessage(gui.l.getString("stream_open_fail") + e.getMessage()))).execute();
             gui.exit();
         }
     }
@@ -62,10 +62,10 @@ public class ChatmanClient extends Chatman{
         //if retry is true, shows a dialog asking the user whether to retry connection
         
         if(retry)
-            if(JOptionPane.showConfirmDialog(null, "سروری در شبکه پیدا نشد. تلاش دوباره؟", "سرور پیدا نشد", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
+            if(JOptionPane.showConfirmDialog(null, gui.l.getString("server_retry_confirm"), gui.l.getString("server_not_found"), JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                 gui.exit();
 
-        gui.setLabelStatus("در حال جستجوی شبکه");
+        gui.setLabelStatus(gui.l.getString("searching_network"));
 
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
         //if we have server's ip we don't scan the network

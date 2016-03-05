@@ -21,7 +21,11 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
@@ -30,10 +34,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
+import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
@@ -54,20 +59,13 @@ public class ChatFrame extends javax.swing.JFrame {
     private String textAreaIncomingContentBeforeHistory;
     private HistoryTablePagination historyPagination;
     private String[][] emoticonsArray;
+    
+    public ResourceBundleWrapper l;
 
     
     private ChatFrame(){
         
         initComponents();
-        
-
-        SwingUtilities.invokeLater(new Runnable(){
-            @Override
-            public void run(){
-                myInits();
-            }
-        });
-
 
     }
     
@@ -358,7 +356,7 @@ public class ChatFrame extends javax.swing.JFrame {
         tableEmojis.setBounds(300, 330, 170, 150);
 
         labelSend.setBackground(new java.awt.Color(51, 51, 51));
-        labelSend.setFont(new java.awt.Font("B Traffic", 1, 14)); // NOI18N
+        labelSend.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelSend.setForeground(new java.awt.Color(255, 255, 255));
         labelSend.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelSend.setText("ارسال");
@@ -374,7 +372,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelSend.setBounds(20, 490, 130, 30);
 
         labelClear.setBackground(new java.awt.Color(51, 51, 51));
-        labelClear.setFont(new java.awt.Font("B Traffic", 1, 14)); // NOI18N
+        labelClear.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelClear.setForeground(new java.awt.Color(255, 255, 255));
         labelClear.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelClear.setText("پاک کردن");
@@ -527,9 +525,9 @@ public class ChatFrame extends javax.swing.JFrame {
                 else
                     Desktop.getDesktop().browse(evt.getURL().toURI());
             }catch(IOException e){
-                message("could not open URL: "+e.getMessage());
+                message(l.getString("url_open_fail") + e.getMessage());
             }catch(URISyntaxException e){
-                message("bad URL syntax: "+e.getMessage());
+                message(l.getString("bad_url") + e.getMessage());
             }
         }
     }//GEN-LAST:event_textAreaIncomingHyperlinkUpdate
@@ -567,7 +565,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void menuResetModemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuResetModemActionPerformed
         // TODO add your handling code here:
-        int reset = JOptionPane.showConfirmDialog(null, "مودم ریست شود؟", "ریست", JOptionPane.YES_NO_OPTION);
+        int reset = JOptionPane.showConfirmDialog(null, l.getString("modem_reset_confirm"), l.getString("reset"), JOptionPane.YES_NO_OPTION);
         if(reset == JOptionPane.NO_OPTION)
             return;
         
@@ -592,7 +590,7 @@ public class ChatFrame extends javax.swing.JFrame {
                 .header("Referer", "http://192.168.1.1/html/management/reset.asp")
                 .header("Cookie", "FirstMenu=Admin_0; SecondMenu=Admin_0_0; ThirdMenu=Admin_0_0_0; Language=en; " + cookie);
         if(request.body().isEmpty()){
-            message("could not reset modem :( ");
+            message(l.getString("modem_reset_fail"));
         }
         else{
             exit();    
@@ -614,7 +612,7 @@ public class ChatFrame extends javax.swing.JFrame {
             historyPagination.nextPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
         }catch(SQLException e){
-            message("could not load history: " + e.getMessage());
+            message(l.getString("history_fail") + e.getMessage());
         }
 
     }//GEN-LAST:event_dialogHistoryWindowOpened
@@ -652,7 +650,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
-            message("could not load history :" + e.getMessage());
+            message(l.getString("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
 
@@ -663,7 +661,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
-            message("could not load history :" + e.getMessage());
+            message(l.getString("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
@@ -708,15 +706,43 @@ public class ChatFrame extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                //new ChatFrame(mode);
-                ChatFrame.getInstance();
+                ChatFrame frame = ChatFrame.getInstance();
+                frame.myInits();
             }
         });
     }
      
-    private void myInits(){ 
+    public void myInits(){ 
+        
+        //Locale
+        try{
+            //l = ResourceBundle.getBundle("resources.locale.locale", ChatmanConfig.getInstance().getLocale());
+            l = new ResourceBundleWrapper("resources.locale.locale", ChatmanConfig.getInstance().getLocale());
+        }catch(Exception e){
+            message(e.getMessage());
+            exit();
+        }
+
+        
+        //GUI elements texts
+        labelNewMessage.setText(l.getString("new_message"));
+        dialogHistory.setTitle(l.getString("history"));
+        buttonNextHistoryPage.setText(l.getString("next_page"));
+        buttonPrevHistoryPage.setText(l.getString("prev_page"));
+        labelSend.setText(l.getString("send"));
+        labelClear.setText(l.getString("clear"));
+        labelStatusLabl.setText(l.getString("status"));
+        labelStatus.setText(l.getString("offline"));
+        menuFile.setText(l.getString("options"));
+        menuChangeBg.setText(l.getString("change_bg"));
+        menuShowHistory.setText(l.getString("show_history"));
+        menuResetModem.setText(l.getString("reset_modem"));
+        menuExit.setText(l.getString("exit"));
+        
+        
         //Variable inits
-        incomingTextAll = "";
+        incomingTextAll = "";  
+
         
         //!!!IMPORTANT: dar esme emoticon ha nabayad adad va alamat bashe. faghat horuf.
         //!!!IMPORTANT: emoticon ha bayad .png bashand va dar foldere emoticons bashand. vagarna bayad regex eslah shavad
@@ -743,9 +769,9 @@ public class ChatFrame extends javax.swing.JFrame {
 
                         textAreaOutgoing.setText(file.getAbsolutePath());
                         try{
-                            //10MB
-                            if(file.length()> 20*1000*1000){
-                                message("حداکثر حجم فایل قابل انتقال ۲۰مگابایت است");
+                            int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
+                            if(file.length()> max*1000*1000){
+                                message(l.getString("max_file_size") + max + "MB");
                                 continue;
                             }
                             
@@ -755,10 +781,10 @@ public class ChatFrame extends javax.swing.JFrame {
                             String base64data = BaseEncoding.base64().encode(data);
                             chatman.sendFile(name, base64data);
                             
-                            updateIncomingText("File sent: " + file.getName());
+                            updateIncomingText(l.getString("file_sent") + file.getName());
                             defaultOutgoingText();
                         }catch(IOException e){
-                            message("could not open file");
+                            message(l.getString("open_file_fail"));
                         }
                     }
                 } catch (Exception ex) {
@@ -781,7 +807,7 @@ public class ChatFrame extends javax.swing.JFrame {
                 textAreaOutgoing.cut();
             }
         };*/
-        Action paste = new AbstractAction("Paste") {
+        Action paste = new AbstractAction(l.getString("paste")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 textAreaOutgoing.paste();
@@ -793,9 +819,9 @@ public class ChatFrame extends javax.swing.JFrame {
         }; 
         
         Action copyAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.copyAction);
-        copyAction.putValue("Name", "Copy");
+        copyAction.putValue("Name", l.getString("copy"));
         Action cutAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.cutAction);
-        cutAction.putValue("Name", "Cut");
+        cutAction.putValue("Name", l.getString("cut"));
         /*
         Action pasteAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.pasteAction);
         pasteAction.putValue("Name", "Paste");
@@ -844,7 +870,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
        
         
-        //Default HTML Texts
+        //Empty HTML Texts
         defaultTextAreaHtml = new String[2];
         defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px }</style></head><body><div id=\"text\">";
         defaultTextAreaHtml[1] = "</div></body></html>";
@@ -869,7 +895,7 @@ public class ChatFrame extends javax.swing.JFrame {
         img = kit.createImage(url);
         dialogHistory.setIconImage(img);
         
-        
+
         //Center
         this.setLocationRelativeTo(null);
         
@@ -887,7 +913,7 @@ public class ChatFrame extends javax.swing.JFrame {
             this.setVisible(true);
         }
         else{
-            message("invalid command line arguments");
+            message(l.getString("invalid_args"));
             exit();
         }
         
@@ -897,7 +923,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //is run when Enter is pressed or Ersal is pressed
         if(chatman.getMode() == Chatman.MOD_CLIENT)
             if(!((ChatmanClient)chatman).isServerSocketSet()){
-                message("در حال جستجوی شبکه. لطفا منتظر بمانید.");
+                message(l.getString("wait_searching_network"));
                 return;
         }
         
@@ -910,7 +936,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //get rid of \n and trim (baraye inke \n readline ro kharab mikone. har message bayad yek khat bashe)
         s = s.replace("\n", "").trim();
         
-        updateIncomingText("<b>You: </b>" + s);
+        updateIncomingText("<b>" + l.getString("you") + ": </b>" + s);
         chatman.send("<b>" + chatman.getUserName() + ": </b>" + s);
         
         defaultOutgoingText();
@@ -1001,8 +1027,7 @@ public class ChatFrame extends javax.swing.JFrame {
             stmt.close();
             c.close();
         } catch ( Exception e ) {
-            System.out.println("could not save chat history: " + e.getMessage());
-            message("could not save chat history: " + e.getMessage());
+            message(l.getString("history_save_fail") + e.getMessage());
         }
     }
     
@@ -1020,26 +1045,6 @@ public class ChatFrame extends javax.swing.JFrame {
         return chatman;
     }
 
-    public String persianWeekDay(String day){
-        switch(day.toLowerCase()){
-            case "sat":
-                return "شنبه";
-            case "sun":
-                return "یکشنبه";
-            case "mon":
-                return "دوشنبه";
-            case "tue":
-                return "سه شنبه";
-            case "wed":
-                return "چهارشنبه";
-            case "thu":
-                return "پنج شنبه";
-            case "fri":
-                return "جمعه";
-            default:
-                return "";
-        }
-    }
     
     public boolean isHidden(){
         if(!this.isVisible() && !dialogPopup.isVisible())

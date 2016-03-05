@@ -47,7 +47,7 @@ public class InputReaderTh implements Runnable{
             try{
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
             }catch(IOException e){
-                (new CommandInvokeLater(new CommandMessage("could not open socket input stream: " + e.getMessage()))).execute();
+                (new CommandInvokeLater(new CommandMessage(gui.l.getString("socket_open_fail") + e.getMessage()))).execute();
                 c = false;
             }
             
@@ -56,7 +56,7 @@ public class InputReaderTh implements Runnable{
         else{
             reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
             if(reader == null){
-                (new CommandInvokeLater(new CommandMessage("could not open STDIN"))).execute();
+                (new CommandInvokeLater(new CommandMessage(gui.l.getString("stdin_open_failed")))).execute();
                 c = false;
             }
         }
@@ -87,8 +87,8 @@ public class InputReaderTh implements Runnable{
                         c = false;
 
                     (new CommandInvokeLater(new Command[]{
-                        new CommandSetLabelStatus("اتصال قطع شد"), 
-                        new CommandEndSession("اتصال قطع شد")
+                        new CommandSetLabelStatus(gui.l.getString("connection_lost")), 
+                        new CommandEndSession(gui.l.getString("connection_lost"))
                     })).execute();
 
                     return;
@@ -101,8 +101,8 @@ public class InputReaderTh implements Runnable{
                         c = false;
                     
                     (new CommandInvokeLater(new Command[]{
-                        new CommandSetLabelStatus("اتصال قطع شد"), 
-                        new CommandEndSession("طرف مقابل از برنامه خارج شد")
+                        new CommandSetLabelStatus(gui.l.getString("connection_lost")), 
+                        new CommandEndSession(gui.l.getString("other_side_closed"))
                     })).execute();
                     
                     return;
@@ -120,10 +120,10 @@ public class InputReaderTh implements Runnable{
                                 saveDir.mkdir();
                             Files.write(BaseEncoding.base64().decode(fileData), new File(location + fileName));
                             
-                            (new CommandInvokeLater(new CommandUpdateIncomingText("فایل دریافت شده: " + fileName + " - ذخیره شد در file://" + location + fileName))).execute();
+                            (new CommandInvokeLater(new CommandUpdateIncomingText(gui.l.getString("file_recieved") + fileName + " - " + gui.l.getString("saved_in") + "file://" + location + fileName))).execute();
 
                         }catch(IOException e){
-                            (new CommandInvokeLater(new CommandMessage("could not save received file: " + e.getMessage()))).execute();
+                            (new CommandInvokeLater(new CommandMessage(gui.l.getString("file_save_fail") + e.getMessage()))).execute();
                         }
                 }
                 //normal message
@@ -137,7 +137,7 @@ public class InputReaderTh implements Runnable{
                 }
             }//end of while
         }catch(IOException e){
-            (new CommandInvokeLater(new CommandMessage("closing applicaation. could not read input stream: " + e.getMessage()))).execute();    
+            (new CommandInvokeLater(new CommandMessage(gui.l.getString("inputstream_read_fail") + e.getMessage()))).execute();    
         }
         //!!!IMPORTANT this is run even after we return
         //che exception rokh bede ya nade(while tamum she) ya exceptioni bashe ke catch nashode in code ejra mishe
@@ -149,7 +149,7 @@ public class InputReaderTh implements Runnable{
                     reader.close();
 
             }catch(IOException e){
-                (new CommandInvokeLater(new CommandMessage("could not close the streams: "+e.getMessage()))).execute();
+                (new CommandInvokeLater(new CommandMessage(gui.l.getString("stream_close_fail") + e.getMessage()))).execute();
             }
         }
 
