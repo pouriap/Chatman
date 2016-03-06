@@ -509,7 +509,8 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         
         Background.getInstance().next();
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(Background.getInstance().getCurrent()));
+        labelFrameBg.setIcon(new javax.swing.ImageIcon(Background.getInstance().getCurrent()));        
+        
         if(chatman != null)
             chatman.updateUserName();
         
@@ -833,9 +834,10 @@ public class ChatFrame extends javax.swing.JFrame {
             {"yes","grumpyno","grumpy","dog","epicface"},
             {"snail","bat","wifi","reset","question"},
         };
-        
-        //in anonymous ro dorost mikonim baraye inke editable nabashe cell ha
+             
+        //make tableEmoji's cells uneditable
         AbstractTableModel model = new DefaultTableModel(5, 5){
+            @Override
             public boolean isCellEditable(int row, int column){
                 return false;
             }
@@ -854,8 +856,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
         
         //Frame BG
-        String bg = ChatmanConfig.getInstance().get("background-image");
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/" + bg)));
+        labelFrameBg.setIcon(new javax.swing.ImageIcon(Background.getInstance().getCurrent()));
        
         
         //Empty HTML Texts

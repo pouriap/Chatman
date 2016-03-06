@@ -22,8 +22,11 @@ import java.util.ResourceBundle;
  */
 public class ResourceBundleWrapper {
     
-    ResourceBundle bundle = null;
-    Properties props = null;
+    private ResourceBundle bundle = null;
+    private Properties props = null;
+    
+    private final String localeFolder = "locale";
+    
     
     public ResourceBundleWrapper(String path, Locale locale) throws Exception{
 
@@ -33,7 +36,7 @@ public class ResourceBundleWrapper {
             props = new Properties();
             InputStreamReader r;
 
-            File f = new File("locale/locale_" + locale.toString() + ".properties");
+            File f = new File(localeFolder + "/locale_" + locale.toString() + ".properties");
             r = new InputStreamReader(new FileInputStream(f), "UTF-8");
             props.load(r);
 

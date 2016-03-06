@@ -32,7 +32,7 @@ public class ChatmanConfig {
     private ChatmanConfig(){
         this.gui = ChatFrame.getInstance();
         this.defaultConfigs = Arrays.asList(new String[]{
-            "background-image", "batman_1.jpg",
+            "background-image", getClass().getResource("/resources/bg/batman_1.jpg").getPath(),
             "server-port", "9988",
             "subnet-mask", "192.168.1.*",
             "num-hosts-to-scan", "10",
@@ -42,25 +42,36 @@ public class ChatmanConfig {
         });
         
         try{
-            String config; 
+            String configLine; 
             BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
             
-            while((config = r.readLine()) != null){
+            while((configLine = r.readLine()) != null){
+                
                 //ignore empty lines
-                if(config.isEmpty())
-                    continue;
-                //ignore comments
-                if(config.charAt(0) == commentCharacter)
+                if(configLine.isEmpty())
                     continue;
                 
-                configs.add(config);
+                //ignore comments
+                if(configLine.charAt(0) == commentCharacter)
+                    continue;
+
+                configs.add(configLine);
+                
             }
             
             r.close();
             
-        }catch(IOException e){
+        }catch(Exception e){
+            
+            try{
             gui.message(gui.l.getString("config_read_fail") + e.getMessage());
             gui.exit();
+            }catch(Exception eee){
+                System.out.println(eee.getMessage());
+                 eee.printStackTrace();
+            }
+            
+            
         }
         
     }
