@@ -5,8 +5,12 @@
  */
 package com.pouria.chatman;
 
+import com.pouria.chatman.classes.CommandClientConnect;
+import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandMessage;
+import com.pouria.chatman.classes.CommandSetLabelStatus;
+import com.pouria.chatman.classes.CommandShowServerList;
 import com.pouria.chatman.gui.ChatmanConfig;
 import com.pouria.chatman.gui.ChatFrame;
 import java.net.InetAddress;
@@ -69,11 +73,9 @@ public class IpScanner implements Runnable {
             Thread[] scanners = new Thread[numHosts];
             for(int i=1, j=0;i<numHosts+1;i++,j++){
                 String addr = subnet.replace("*", String.valueOf(i));
-                //don't scan local ip
-                if(addr.equals(localIp) && false      )
-                    continue;
                 
-              if(addr.equals("192.168.1.5")      )
+                //don't scan local ip
+                if(addr.equals(localIp))
                     continue;
 
                 scanners[j] = new Thread(new IpConnector(addr, port, false));
@@ -97,19 +99,24 @@ public class IpScanner implements Runnable {
             
             //now we have finished scanning the network for live servers
             int foundServers = ((ChatmanClient)gui.getChatmanInstance()).numServersFound();
-            gui.setLabelStatus(foundServers + gui.l.getString("servers_found"));
+            (new CommandInvokeLater(new CommandSetLabelStatus(foundServers + gui.l.getString("servers_found")))).execute();
             
             if(foundServers == 0){
-                //connect(true) shows a connection failed to the user and asks them if we should retry
-                ((ChatmanClient)gui.getChatmanInstance()).connect(true);
+                (new CommandInvokeLater(new CommandConfirmDialog(
+                        new CommandClientConnect(),
+                        gui.l.getString("server_retry_confirm"),
+                        gui.l.getString("server_not_found")
+                ))).execute();
+
             }
             else if (foundServers == 1){
                 //if only one server is found don't show the list, connect to it
                 ((ChatmanClient)gui.getChatmanInstance()).setServerSocket(0);
-                ((ChatmanClient)gui.getChatmanInstance()).start2();
+                ((ChatmanClient)gui.getChatmanInstance()).start();
             }
             else{
-                gui.showServerList();
+                (new CommandInvokeLater(new CommandShowServerList())).execute();
+
             }
 
         }

@@ -19,7 +19,7 @@ import java.util.Locale;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class ChatmanConfig {
     
@@ -37,7 +37,8 @@ public class ChatmanConfig {
             "subnet-mask", "192.168.1.*",
             "num-hosts-to-scan", "10",
             "max-file-size", "20",
-            "locale", "en_US"
+            "locale", "en_US",
+            "user-id", "Chatman User"
         });
         
         try{

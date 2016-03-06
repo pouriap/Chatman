@@ -135,11 +135,6 @@ public class InputReaderTh implements Runnable{
                 }
                 //normal message
                 else{
-                    //note:
-                    //former bug here
-                    //if instead of sending "line" to an object we directly give it to invokeLater
-                    //the gui will be updated with the wrong text because invokeLater is executed later
-                    //when "line" has changed
                     (new CommandInvokeLater(new CommandUpdateIncomingText(line))).execute();
                 }
             }//end of while

@@ -15,7 +15,7 @@ import javax.swing.table.DefaultTableModel;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class HistoryTablePagination extends AbstractPagination{
     

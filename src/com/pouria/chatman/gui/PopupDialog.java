@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class PopupDialog extends JDialog{
     private AudioInputStream audioStream;

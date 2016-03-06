@@ -9,7 +9,7 @@ import javax.swing.SwingUtilities;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class CommandInvokeLater implements Command{
     Command[] innerCommands;

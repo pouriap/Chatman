@@ -25,7 +25,7 @@ public abstract class Chatman {
     protected Thread inputReaderThread;
     protected String userName, peerName;
     public final static int MOD_SERVER = 1, MOD_CLIENT = 2;
-    public final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile";
+    public final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid";
     
     public Chatman(int mode){
         this.gui = ChatFrame.getInstance();
@@ -52,6 +52,12 @@ public abstract class Chatman {
         send(SPECIAL_BYE);
     }
     
+    //public final void sendUserId(){
+    //    String userId = ChatmanConfig.getInstance().get("user-id");
+    //    send(SPECIAL_ID);
+    //    send(userId);
+    //}
+    
     public final int getMode(){
         return this.mode;
     }
@@ -60,17 +66,17 @@ public abstract class Chatman {
         userName = name;
     }
     
-    public final void setPeerName(String name){
-        peerName = name;
-    }
-    
     public final String getUserName(){
         return userName;
     }
     
-    public final String getPeerName(){
-        return peerName;
-    }
+    //public final void setPeerName(String name){
+    //    peerName = name;
+    //}
+    
+    //public final String getPeerName(){
+    //    return peerName;
+    //}
     
     public final void updateUserName(){
         //esme background ha be in shekl as

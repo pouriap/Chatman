@@ -9,7 +9,7 @@ import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class CommandSetLabelStatus implements Command{
     ChatFrame gui;

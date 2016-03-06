@@ -9,7 +9,7 @@ import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class CommandUpdateIncomingText implements Command{
     ChatFrame gui;

@@ -15,11 +15,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 //Output: Socket.OutputStream
 //Input:  Socket.inputStream
@@ -29,22 +28,18 @@ public class ChatmanClient extends Chatman{
     private Socket serverSocket;
     private Thread scanner;
     
+    public static final boolean RETRY = true, NORETRY = false;
+    
     public ChatmanClient(){
         super(MOD_CLIENT);
     }
     
+
     @Override
     public void start(){
-        //we could put connets()'s content here but connect needs and arguments and we want to 
-        //use the abstract start() so we do this
-        connect(false);
-    }
-        
-    public void start2(){
-        //this method does what start() does in ChatmanServer, however because in cilent we need
-        //to stablish a socket connection first, the start() method in client does that.
         //stablishes the input and output streams as a client
         //is only called from IpConnector when it finds an alive server
+        //hence needs to be thread safe
         try{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
             (new CommandInvokeLater(new CommandSetLabelStatus(gui.l.getString("connection_with") + serverSocket.getInetAddress().getHostAddress() + gui.l.getString("stablished")))).execute();
@@ -62,14 +57,9 @@ public class ChatmanClient extends Chatman{
     }
     
     
-    public void connect(boolean retry){
+    public void connect(){
         //connects to server. if server-ip is specified in config then connects directly
         //else it scans the subnet-mask for live servers
-        //if retry is true, shows a dialog asking the user whether to retry connection
-        
-        if(retry)
-            if(JOptionPane.showConfirmDialog(null, gui.l.getString("server_retry_confirm"), gui.l.getString("server_not_found"), JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
-                gui.exit();
 
         gui.setLabelStatus(gui.l.getString("searching_network"));
 
@@ -92,7 +82,7 @@ public class ChatmanClient extends Chatman{
     //scanner thread has found a live server
     public void addLiveServer(Socket s){
         liveServers.add(s);
-        gui.addToServerList(s.getInetAddress().getHostAddress());
+        gui.addToServerList( s.getInetAddress().getHostAddress() + "(" + s.getInetAddress().getHostName() + ")" );
     }
     
     //returns number of live servers found
@@ -101,18 +91,20 @@ public class ChatmanClient extends Chatman{
     }
     
     //sets the socket we wnat to connect to
-    //also acts as a flag
     public void setServerSocket(Socket s){
         serverSocket = s;
         gui.removeServerList();
-    }
+    }    
     
     public void setServerSocket(int index){
         serverSocket = liveServers.get(index);
         gui.removeServerList();
     }
     
-    public boolean isServerSocketSet(){
-        return this.serverSocket != null;
+    public boolean isConnected(){
+        if(serverSocket == null)
+            return false;
+        
+        return this.serverSocket.isConnected();
     }
 }

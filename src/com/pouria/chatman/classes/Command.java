@@ -7,7 +7,7 @@ package com.pouria.chatman.classes;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public interface Command {
     public void execute();

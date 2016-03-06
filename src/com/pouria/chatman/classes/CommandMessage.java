@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class CommandMessage implements Command{
     String message;

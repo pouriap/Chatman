@@ -5,6 +5,9 @@
  */
 package com.pouria.chatman;
 
+import com.pouria.chatman.classes.CommandClientConnect;
+import com.pouria.chatman.classes.CommandConfirmDialog;
+import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -12,7 +15,7 @@ import java.net.Socket;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 //is only run when we are client
 //takes an ip and port and connects to it
@@ -43,7 +46,7 @@ public class IpConnector implements Runnable{
             //there is no scanning and adding to list
             if(isSignle){
                 ((ChatmanClient)gui.getChatmanInstance()).setServerSocket(socket);
-                ((ChatmanClient)gui.getChatmanInstance()).start2();
+                ((ChatmanClient)gui.getChatmanInstance()).start();
             }
             //add the live server to list
             //when scanning is finished(if isSingle is false means we are scanning), 
@@ -57,11 +60,14 @@ public class IpConnector implements Runnable{
             //message for each failed connect
             //connect(true) means retry connection
             if(isSignle){
-                ((ChatmanClient)gui.getChatmanInstance()).connect(true);
+                (new CommandInvokeLater(new CommandConfirmDialog(
+                        new CommandClientConnect(),
+                        gui.l.getString("server_retry_confirm"),
+                        gui.l.getString("server_not_found")
+                ))).execute();
             }
         }
         
     }
     
-
 }

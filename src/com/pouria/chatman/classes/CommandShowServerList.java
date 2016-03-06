@@ -11,17 +11,14 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CommandEndSession implements Command{
-    ChatFrame gui;
-    String message; 
+public class CommandShowServerList implements Command{
     
-    public CommandEndSession(String message){
-        this.gui = ChatFrame.getInstance();
-        this.message = message;
+    public CommandShowServerList(){    
     }
     
     @Override
     public void execute(){
-        gui.endSession(message);
+        ChatFrame.getInstance().showServerList();
     }
+    
 }

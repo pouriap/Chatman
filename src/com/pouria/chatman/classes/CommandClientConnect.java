@@ -5,23 +5,21 @@
  */
 package com.pouria.chatman.classes;
 
+import com.pouria.chatman.ChatmanClient;
 import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
  * @author pouriap
  */
-public class CommandEndSession implements Command{
-    ChatFrame gui;
-    String message; 
+public class CommandClientConnect implements Command{
     
-    public CommandEndSession(String message){
-        this.gui = ChatFrame.getInstance();
-        this.message = message;
+    public CommandClientConnect(){
     }
     
     @Override
     public void execute(){
-        gui.endSession(message);
-    }
+        ChatFrame gui = ChatFrame.getInstance();
+        ((ChatmanClient)gui.getChatmanInstance()).connect();
+    };
 }

@@ -10,7 +10,7 @@ import java.io.PrintWriter;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 //Output: STDOUT
 //Input:  STDIN
@@ -29,6 +29,7 @@ public class ChatmanServer extends Chatman {
         th = new InputReaderTh();
         inputReaderThread = new Thread(th);
         inputReaderThread.start();
+        
     }
 
 

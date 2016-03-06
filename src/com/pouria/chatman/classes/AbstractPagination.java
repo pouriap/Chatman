@@ -13,7 +13,7 @@ import java.sql.Statement;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public abstract class AbstractPagination {
     protected int limit = 10;

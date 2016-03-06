@@ -686,7 +686,7 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         int index = listLiveServers.getSelectedIndex();
         ((ChatmanClient)getChatmanInstance()).setServerSocket(index);
-        ((ChatmanClient)getChatmanInstance()).start2();
+        ((ChatmanClient)getChatmanInstance()).start();
     }//GEN-LAST:event_listLiveServersMouseReleased
 
     /**
@@ -874,8 +874,8 @@ public class ChatFrame extends javax.swing.JFrame {
         
         
         //Make server list invisible
-        labelServers.setVisible(true);
-        scrollPaneLiveServers.setVisible(true);
+        labelServers.setVisible(false);
+        scrollPaneLiveServers.setVisible(false);
               
         
         //Icons
@@ -903,7 +903,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //Client?
         else if(ChatFrame.mode == Chatman.MOD_CLIENT){ 
             chatman = new ChatmanClient();
-            chatman.start();
+            ((ChatmanClient)chatman).connect();
             this.setVisible(true);
         }
         else{
@@ -944,7 +944,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void send(){
         //is run when Enter is pressed or Ersal is pressed
         if(chatman.getMode() == Chatman.MOD_CLIENT)
-            if(!((ChatmanClient)chatman).isServerSocketSet()){
+            if(!((ChatmanClient)chatman).isConnected()){
                 message(l.getString("not_connected"));
                 return;
         }
@@ -1105,7 +1105,7 @@ public class ChatFrame extends javax.swing.JFrame {
     public void exit(){
         
         if(chatman.getMode() == Chatman.MOD_CLIENT){
-            if(((ChatmanClient)chatman).isServerSocketSet())
+            if(((ChatmanClient)chatman).isConnected())
                 chatman.sendBye();
         }
         else

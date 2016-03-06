@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 /**
  *
- * @author SH
+ * @author pouriap
  */
 public class Background {
     
