@@ -755,15 +755,19 @@ public class ChatFrame extends javax.swing.JFrame {
 
         
         //TextArea Dorp
+        //We read the whole file as text and then base64_encode it which causes a LOT of memory
+        //to be consumed. But i'm lazy, so it's ok.
         textAreaOutgoing.setDropTarget(new DropTarget() {
             public synchronized void drop(DropTargetDropEvent evt) {
                 try {
+                    //clear any text
+                    defaultOutgoingText();
+                    
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> droppedFiles = (List<File>) evt
                             .getTransferable().getTransferData(
                                     DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
-
                         textAreaOutgoing.setText(file.getAbsolutePath());
                         try{
                             int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
@@ -988,7 +992,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //internet links
         t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
         //file links
-        t = t.replaceAll("(file:\\/\\/([^\\.]*\\.[\\w\\d]{3,5}))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
+        t = t.replaceAll("(file:\\/\\/([^\\.]*\\..*))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
         
         //emoticons
         //masale ei ke inja vojud dare ine ke vaghti khodemun message mifrestim ham be hamin tabe miad
