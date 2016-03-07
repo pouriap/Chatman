@@ -16,12 +16,16 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author pouriap
+ * 
+ * a dialog that pops up and makes a bleep
+ * we don't use some of it's functions in this application
  */
 public class PopupDialog extends JDialog{
     private AudioInputStream audioStream;
     private Clip clip;
 
-    //plays the sound
+    //plays the bleep
+    //this does not work on linux for some reason! eventhough it's .wav
     public void playSound(){
         try{ 
             audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification.wav"));
@@ -36,6 +40,7 @@ public class PopupDialog extends JDialog{
         }
     }
 
+    //shows the popup dialog in bottom-right corner of the screen and hides window decorations of it
     public void showPopup(){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = (int) screenSize.getWidth();
@@ -49,7 +54,8 @@ public class PopupDialog extends JDialog{
         this.setVisible(true);
     }
     
-    public void showPopup(int x, int y, boolean undecorated, boolean hideMainFrame){
+    //fancy version of the previous function
+    public void showPopup(int x, int y, boolean undecorated){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = (int) screenSize.getWidth();
         int screenHeight = (int) screenSize.getHeight();
@@ -62,10 +68,13 @@ public class PopupDialog extends JDialog{
         this.setVisible(true);
     }
     
+    //gues what?
     public void hidePopup(){
         this.setVisible(false);
     }
     
+    /*
+    //useless
     public void closePopup(){
         try{
             if(this.audioStream != null)
@@ -80,6 +89,7 @@ public class PopupDialog extends JDialog{
         }
         
     }
+    */
     
 }
     

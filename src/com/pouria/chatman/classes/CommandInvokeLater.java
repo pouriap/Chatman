@@ -10,6 +10,8 @@ import javax.swing.SwingUtilities;
 /**
  *
  * @author pouriap
+ * 
+ * get one or more Command objects and runs their Execute() method in a thread-safe manner
  */
 public class CommandInvokeLater implements Command{
     Command[] innerCommands;

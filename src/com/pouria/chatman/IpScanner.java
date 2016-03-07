@@ -20,13 +20,14 @@ import java.util.Enumeration;
 
 /**
  *
- * @author PouriaP
+ * @author pouriap
+ * 
+ * is only used when we are client
+ * takes a subnet mask and scans that subnet
+ * num-hosts-to-scan in the config file determines how many hosts in the subnet should we scan
+ * when scanning is finished we decide what to do based on number of servers found
  */
-//is only run when we are client
-//takes a subnet mask and scans that subnet
-//num-hosts-to-scan in the config files determines how many hosts in the subnet should we scan
-//when finds a live server calls the setserversocket() on chatmanclient which is used as a flag
-//retries on fail
+
 public class IpScanner implements Runnable {
 
     private final ChatFrame gui;
@@ -81,6 +82,7 @@ public class IpScanner implements Runnable {
                 scanners[j] = new Thread(new IpConnector(addr, port, false));
                 scanners[j].start();
             }
+            
             //wait until the scanning is finished
             boolean c;
             do{
@@ -90,6 +92,7 @@ public class IpScanner implements Runnable {
                 }catch(InterruptedException e){
                     (new CommandInvokeLater(new CommandMessage(gui.l.getString("thread_sleep_fail")))).execute();
                 }
+                //keep sleeping if we have live threads
                 for(Thread scanner: scanners){
                     //ooni ke IP local bood va continue dade budim null ast
                     if(scanner != null)

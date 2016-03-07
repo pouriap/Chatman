@@ -12,11 +12,13 @@ import java.io.PrintWriter;
 /**
  *
  * @author pouriap
+ * 
+ * is responsible for sending data to streams
+ * inputReaderTh is responsible for input streams
+ * if ChatmanClient extends it, output stream(writer) is a socket
+ * if ChatmanServer extends it, output stream(writer) is STDOUT
  */
-//is responsible for sending data to streams
-//if chatmanclient extends it, output stream is a socket
-//if chatmanserver extends it, output stream is STDOUT
-//inputreaderth is responsible for input streams
+
 public abstract class Chatman {
     protected final int mode;
     protected final ChatFrame gui;
@@ -78,6 +80,8 @@ public abstract class Chatman {
     //    return peerName;
     //}
     
+    //username is determined based on the file name of the current background
+    //i deliberately did this
     public final void updateUserName(){
         //background names are like batman_1.jpg or batman.png
         String name = Background.getInstance().getCurrent().split("\\.")[0].split("_")[0];        

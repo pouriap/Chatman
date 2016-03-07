@@ -10,6 +10,10 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author pouriap
+ * 
+ * shows a confirm dialog and executes the commandToRunOnYes and commandToRunOnNO based on user choice
+ * yesCommand is a Command object that will be Execute()ed when the user chooses yes
+ * noCommand is a Command object that will be Execute()ed when the user chooses no
  */
 public class CommandConfirmDialog implements Command{
     

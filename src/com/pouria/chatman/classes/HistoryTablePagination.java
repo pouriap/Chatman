@@ -16,6 +16,8 @@ import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author pouriap
+ * 
+ * our implementation of the AbstractPagination class
  */
 public class HistoryTablePagination extends AbstractPagination{
     

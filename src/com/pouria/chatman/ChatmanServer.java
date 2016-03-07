@@ -11,18 +11,21 @@ import java.io.PrintWriter;
 /**
  *
  * @author pouriap
+ * 
+ * Output: STDOUT
+ * Input:  STDIN
  */
-//Output: STDOUT
-//Input:  STDIN
+
 public class ChatmanServer extends Chatman {
     
     public ChatmanServer(){
         super(MOD_SERVER);
     }
-    
+
+    //establishes the input and output streams as a server    
     @Override
     public void start(){
-        //establishes the input and output streams as a server
+
         writer = new PrintWriter(new OutputStreamWriter(System.out), true);
         gui.setLabelStatus(gui.l.getString("server_running"));
 

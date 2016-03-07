@@ -49,6 +49,9 @@ import javax.swing.text.html.HTMLEditorKit;
 /**
  *
  * @author PouriaP
+ * 
+ * This file has the main() function and is the entry point of the application
+ * 
  */
 public class ChatFrame extends javax.swing.JFrame {
 
@@ -56,8 +59,8 @@ public class ChatFrame extends javax.swing.JFrame {
     private static int mode = -1;
     private Chatman chatman;
     private String[] defaultTextAreaHtml;
-    private String incomingTextAll;
-    private String textAreaIncomingContentBeforeHistory;
+    private String incomingTextAll = "";
+    private String textAreaIncomingContentBeforeHistory = "";
     private HistoryTablePagination historyPagination;
     
     public ResourceBundleWrapper l;
@@ -485,65 +488,68 @@ public class ChatFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_formWindowOpened
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        // TODO add your handling code here:
+
         exit();
     }//GEN-LAST:event_formWindowClosing
 
     private void textAreaOutgoingKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyReleased
-        // TODO add your handling code here:
+
         if (evt.getKeyChar() == '\n'){ 
             send();
         }
     }//GEN-LAST:event_textAreaOutgoingKeyReleased
 
     private void menuFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileActionPerformed
-        // TODO add your handling code here:
         
     }//GEN-LAST:event_menuFileActionPerformed
 
     private void menuChangeBgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuChangeBgActionPerformed
-        // TODO add your handling code here:
         
         Background.getInstance().next();
         setBackground(Background.getInstance().getCurrentURL());
 
-        
         if(chatman != null)
             chatman.updateUserName();
        
-        
+        //doClick() so user doesn't have to open menu over and over again for changing bg
         menuFile.doClick();
 
     }//GEN-LAST:event_menuChangeBgActionPerformed
 
     private void tableEmojisMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableEmojisMouseReleased
-        // TODO add your handling code here:
+
         int row = tableEmojis.getSelectedRow();
         int col = tableEmojis.getSelectedColumn();
          
+        //replace the emoticon image with the larger image. we also add the width=50 and height=50 for better display
         String img = (String) tableEmojis.getValueAt(row, col);
         img = img.replaceAll("<html>(.*)emoticons(.*\\.png')\\s(\\/>)<\\/html>", "$1emoticons_large$2 height=50 width=50 $3");
         
+        //true = append
         updateOutgoingText(img, true);
         textAreaOutgoing.requestFocus();
     
     }//GEN-LAST:event_tableEmojisMouseReleased
 
     private void textAreaIncomingHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_textAreaIncomingHyperlinkUpdate
-        // TODO add your handling code here:
+        //triggered when we click on a link
         if(evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
             try{
                 String path = evt.getURL().toString();
+                
+                //open if it was a file
                 if(path.contains("file://")){
                     path = path.substring(7);
                     Desktop.getDesktop().open(new File(path));
                 }
+                //browse if it was a URL
                 else
                     Desktop.getDesktop().browse(evt.getURL().toURI());
+                
             }catch(IOException e){
                 message(l.getString("url_open_fail") + e.getMessage());
             }catch(URISyntaxException e){
@@ -553,12 +559,12 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_textAreaIncomingHyperlinkUpdate
 
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExitActionPerformed
-        // TODO add your handling code here:
+
         exit();
     }//GEN-LAST:event_menuExitActionPerformed
 
     private void panelPopupMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelPopupMouseReleased
-        // TODO add your handling code here:
+        //close the "New Message" popup and show the application window
         dialogPopup.hidePopup();
         //Show
         this.setVisible(true);
@@ -567,24 +573,24 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_panelPopupMouseReleased
 
     private void labelSendMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseReleased
-        // TODO add your handling code here:
+
         send();
     }//GEN-LAST:event_labelSendMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
-        // TODO add your handling code here:
+
         defaultOutgoingText();
     }//GEN-LAST:event_labelClearMouseReleased
 
     private void textAreaOutgoingMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaOutgoingMouseReleased
-        // TODO add your handling code here:
+        //show the right-click menu
         if(evt.getButton() == MouseEvent.BUTTON3){
             menuRightClick.show(textAreaOutgoing, evt.getX(), evt.getY());
         } 
     }//GEN-LAST:event_textAreaOutgoingMouseReleased
 
     private void menuResetModemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuResetModemActionPerformed
-        // TODO add your handling code here:
+
         int reset = JOptionPane.showConfirmDialog(null, l.getString("modem_reset_confirm"), l.getString("reset"), JOptionPane.YES_NO_OPTION);
         if(reset == JOptionPane.NO_OPTION)
             return;
@@ -619,9 +625,11 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuResetModemActionPerformed
 
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
-        // TODO add your handling code here:
+        //is run everytime history dialog opens
         
+        //store incoming text
         textAreaIncomingContentBeforeHistory = incomingTextAll;
+        
         historyPagination = new HistoryTablePagination(
                 tableHistory,
                 "history.sqlite",
@@ -631,6 +639,7 @@ public class ChatFrame extends javax.swing.JFrame {
         try{
             historyPagination.nextPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
+            
         }catch(SQLException e){
             message(l.getString("history_fail") + e.getMessage());
         }
@@ -638,33 +647,32 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_dialogHistoryWindowOpened
 
     private void menuShowHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuShowHistoryActionPerformed
-        // TODO add your handling code here:
+        //show history dialog
         dialogHistory.setLocationRelativeTo(null);
         dialogHistory.setVisible(true);
     }//GEN-LAST:event_menuShowHistoryActionPerformed
 
     private void tableHistoryMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableHistoryMouseReleased
-        // TODO add your handling code here:
+        //put selected history item in textAreaIncoming
         int row = tableHistory.getSelectedRow();
         String text = tableHistory.getModel().getValueAt(row, 1).toString();
-        //be khatere inke dige regex nashe. darim mesle halate tabii ro shabih sazi mikonim
+        //if we do updateIncomingText(text) then text will be regexed again. But it is already parsed and saved.
         incomingTextAll = text;
         updateIncomingText("<br>", false);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
     private void dialogHistoryWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosed
-        // TODO add your handling code here:
     }//GEN-LAST:event_dialogHistoryWindowClosed
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
-        // TODO add your handling code here:
+        //restore the incoming text
         incomingTextAll = "";
         updateIncomingText(textAreaIncomingContentBeforeHistory, false);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
-        // TODO add your handling code here:
+        
         try{
             historyPagination.nextPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
@@ -675,7 +683,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
 
     private void buttonPrevHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPrevHistoryPageActionPerformed
-        // TODO add your handling code here:
+
         try{
             historyPagination.prevPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
@@ -686,7 +694,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void listLiveServersMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listLiveServersMouseReleased
-        // TODO add your handling code here:
+        //connect to selected server
         int index = listLiveServers.getSelectedIndex();
         ((ChatmanClient)getChatmanInstance()).setServerSocket(index);
         ((ChatmanClient)getChatmanInstance()).start();
@@ -750,10 +758,6 @@ public class ChatFrame extends javax.swing.JFrame {
         setupGUITexts();
 
         
-        //Variable inits
-        incomingTextAll = "";  
-
-        
         //TextArea Dorp
         //We read the whole file as text and then base64_encode it which causes a LOT of memory
         //to be consumed. But i'm lazy, so it's ok.
@@ -769,33 +773,36 @@ public class ChatFrame extends javax.swing.JFrame {
                                     DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
                         textAreaOutgoing.setText(file.getAbsolutePath());
-                        try{
-                            int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
-                            if(file.length()> max*1000*1000){
-                                message(l.getString("max_file_size") + max + "MB");
-                                continue;
-                            }
-                            
-                            String name = file.getName();
-                            name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
-                            byte[] data = Files.toByteArray(file);
-                            String base64data = BaseEncoding.base64().encode(data);
-                            chatman.sendFile(name, base64data);
-                            
-                            updateIncomingText(l.getString("file_sent") + file.getName());
-                            defaultOutgoingText();
-                        }catch(IOException e){
-                            message(l.getString("open_file_fail"));
+                        
+                        //check file size
+                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
+                        if(file.length()> max*1000*1000){
+                            message(l.getString("max_file_size") + max + "MB");
+                            continue;
                         }
+
+                        //send the file
+                        String name = file.getName();
+                        name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
+                        byte[] data = Files.toByteArray(file);
+                        String base64data = BaseEncoding.base64().encode(data);
+                        chatman.sendFile(name, base64data);
+
+                        //show file sent message and clear textAreaOutgoing
+                        updateIncomingText(l.getString("file_sent") + file.getName());
+                        defaultOutgoingText();
+
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    message(l.getString("open_file_fail"));
                 }
             }
         });
         
 
         //TextArea right click
+        
+        //create a paste action because the default is problematic
         Action paste = new AbstractAction(l.getString("paste")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -807,6 +814,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         }; 
         
+        //setup copy and cut
         Action copyAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.copyAction);
         copyAction.putValue("Name", l.getString("copy"));
         Action cutAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.cutAction);
@@ -848,6 +856,8 @@ public class ChatFrame extends javax.swing.JFrame {
                 return false;
             }
         };
+        
+        //add emoticons to cells
         for(int row = 0;row<5;row++){
             for(int col = 0;col<5;col++){
                 String name = emoticonsArray[row][col];
@@ -891,6 +901,7 @@ public class ChatFrame extends javax.swing.JFrame {
         Toolkit kit = Toolkit.getDefaultToolkit();
         Image img = kit.createImage(url);
         this.setIconImage(img);
+        
         //history dialog
         url = getClass().getResource("/resources/history.png");
         img = kit.createImage(url);
@@ -930,6 +941,7 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }
     
+    //Called from myInits()
     public void setupGUITexts(){
         labelNewMessage.setText(l.getString("new_message"));
         dialogHistory.setTitle(l.getString("history"));
@@ -945,9 +957,8 @@ public class ChatFrame extends javax.swing.JFrame {
         menuResetModem.setText(l.getString("reset_modem"));
         menuExit.setText(l.getString("exit"));
     }
-
     
-    //General functions
+    //sends the content of textAreaOutgoing
     private void send(){
         //is run when Enter is pressed or Ersal is pressed
         if(chatman.getMode() == Chatman.MOD_CLIENT)
@@ -971,6 +982,8 @@ public class ChatFrame extends javax.swing.JFrame {
         defaultOutgoingText();
     }
     
+    //parses the string that is given to it and adds it to textAreaIncoming
+    //it is called both when we send a message or receive a message
     public void updateIncomingText(String t, boolean bleep){
         //updates the textareaIncoming. Is run when we say something or the other guy says something
         
@@ -989,15 +1002,14 @@ public class ChatFrame extends javax.swing.JFrame {
             return;
         }
         
-        //internet links
+        //parse web links 
         t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
-        //file links
+        
+        //parse file links
         t = t.replaceAll("(file:\\/\\/([^\\.]*\\..*))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
         
-        //emoticons
-        //masale ei ke inja vojud dare ine ke vaghti khodemun message mifrestim ham be hamin tabe miad
-        //va ezafe mishe be textAreaIncoming. pas vaghti ma emoticon mifrestim avval tabdil be URL mishe
-        //bad dar inja dobare replace mishe ba URL khodemun. vali eb nadare be nazaram :)
+        //parse emoticons
+        //(when we send emoticons, they actually get replaced by themselves, but it's ok)
         String url = getClass().getResource("/resources/emoticons_large/").toString();
         t = t.replaceAll("img\\ssrc=[^>]*emoticons_large\\/([\\w]*\\.png)", "img src=" + url + "$1");
         
@@ -1006,14 +1018,17 @@ public class ChatFrame extends javax.swing.JFrame {
         
     }
     
+    //lazy version 
     public void updateIncomingText(String t){
         updateIncomingText(t, true);
     }
     
+    //clears textAreaIncoming
     public void defaultIncomingText(){
         textAreaIncoming.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
     }
     
+    //is called when we want to add something to the outgoing text like emoticons, paste stuff, or disconnect message
     public void updateOutgoingText(String t, boolean append){
 
         if(append){
@@ -1024,6 +1039,8 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }
     
+    //because i couldn't find a way to get the text in a clean manner, i am extracting stuff between <div></div> tags
+    //which i have added for this porpuse to defaultTextAreaHtml
     public String getOutgoingText(){
         String s = textAreaOutgoing.getText();
         if(!s.contains("<div id=\"text\">"))
@@ -1031,15 +1048,17 @@ public class ChatFrame extends javax.swing.JFrame {
         return s.substring((s.indexOf("<div id=\"text\">"))+15, (s.indexOf("</div>"))-1).trim();
     }
     
+    //clears textAreaOutgoing
     public void defaultOutgoingText(){
         textAreaOutgoing.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
     }
     
-    
+    //well, sets the background
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
     }
     
+    //well,...
     public void addToServerList(String server){
         if(listLiveServers.getModel().getSize() == 0)
             listLiveServers.setModel(new DefaultListModel<String>());
@@ -1047,11 +1066,13 @@ public class ChatFrame extends javax.swing.JFrame {
         ((DefaultListModel) listLiveServers.getModel()).addElement("<html><b style='text-align:center'>" + server + "</b></html>");
     }
     
+    //umm..., shows the server list?
     public void showServerList(){
         labelServers.setVisible(true);
         scrollPaneLiveServers.setVisible(true);
     }
     
+    //let me guess... removes the serverlist!
     public void removeServerList(){
         this.remove(scrollPaneLiveServers);
         this.remove(labelServers);
@@ -1059,13 +1080,16 @@ public class ChatFrame extends javax.swing.JFrame {
         this.revalidate();
     }
     
+    
     public void saveHistory(){
+        //we don't want to save empty stuff
         if(incomingTextAll.isEmpty())
             return;
-
+        
         Connection c = null;
         PreparedStatement stmt = null;
         Date date = new Date();
+        
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
@@ -1084,38 +1108,40 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }
     
-    //Utility functions
-    public static void setMode(int mode){
-        ChatFrame.mode = mode;
-    }
-    
+    //disable textAreaOutgoing and put a message in it
     public void endSession(String message){
         updateOutgoingText("<span style='font-size:20px;'>" + message + "</span>", false);
         textAreaOutgoing.setEnabled(false);
     }
     
+    //gives us the hero that we don't deserve
     public Chatman getChatmanInstance(){
         return chatman;
     }
 
-    
+    //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
         if(!this.isVisible() && !dialogPopup.isVisible())
             return true;
+        
         return false;
     }
     
+    //sets the status label at the bottom
     public void setLabelStatus(String s){
         labelStatus.setText(s);
     }
     
+    //shows a message
     public void message(String m){
         m = "<html><span style='font-size:14px;'>" + m + "</span></html>";
         JOptionPane.showMessageDialog(null, m);
     } 
     
+    //the end of chatman. that's it. no auto pilot :(
     public void exit(){
         
+        //we need to check if we are connected when we're client but server is always connected
         if(chatman.getMode() == Chatman.MOD_CLIENT){
             if(((ChatmanClient)chatman).isConnected())
                 chatman.sendBye();
@@ -1124,6 +1150,7 @@ public class ChatFrame extends javax.swing.JFrame {
             chatman.sendBye();
         
         saveHistory();
+        
         System.exit(0);
     }
     

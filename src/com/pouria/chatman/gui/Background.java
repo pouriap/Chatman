@@ -16,6 +16,9 @@ import java.util.Arrays;
 /**
  *
  * @author pouriap
+ * 
+ * this class is responsible for loading and changing backgrounds
+ * it's a singleton
  */
 public class Background {
     
@@ -33,7 +36,7 @@ public class Background {
             
             //first add from background folder
             if(bgsPath.exists()){
-                _backgrounds = bgsPath.list(new JpegFileFilter());
+                _backgrounds = bgsPath.list(new imgFilenameFilter());
                 if(_backgrounds.length > 0){
                     backgrounds.addAll(Arrays.asList(_backgrounds));
                 }
@@ -45,12 +48,12 @@ public class Background {
             
         }catch(Exception e){
             //i know. i just don't care
-            System.out.println(e.getMessage());
-            e.printStackTrace();
         }
 
     }
     
+    //sets 'current' to next background in the list
+    //changes the config accordingly
     public void next(){     
         if(backgrounds.isEmpty())
             return;
@@ -60,6 +63,7 @@ public class Background {
         ChatmanConfig.getInstance().set("background-image", current);
     }
 
+    //gets the filename of the current background
     public String getCurrent(){
         File currentBgFile = new File(bgFolder + "/" + current);
         if(!currentBgFile.exists())
@@ -68,6 +72,7 @@ public class Background {
         return current;
     }
 
+    //gets the URL of the current background
     public URL getCurrentURL(){
         File currentBgFile = new File(bgFolder + "/" + current);
         if(!currentBgFile.exists()){
@@ -95,8 +100,9 @@ public class Background {
         private static final Background INSTANCE = new Background();
     }
     
-    //only accepts jpeg files
-    private class JpegFileFilter implements FilenameFilter{
+    
+    //only accepts jpeg and png files
+    private class imgFilenameFilter implements FilenameFilter{
         
         @Override
         public boolean accept(File dir, String fileName){

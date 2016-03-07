@@ -24,11 +24,13 @@ import java.nio.charset.StandardCharsets;
 
 /**
  *
- * @author PouriaP
+ * @author pouriap
+ * 
+ * is responsible for reading input streams
+ * input stream can be STDIN our SocketInputStream
+ * is created from ChatmanClient or ChatmanServer
  */
-//is responsible for reading input streams
-//we need a thread for input and not for output
-//is created from chatmanclient or chatmanserver
+
 public class InputReaderTh implements Runnable{
     
     private Socket socket;
@@ -40,11 +42,13 @@ public class InputReaderTh implements Runnable{
         gui = ChatFrame.getInstance();
         socket = s;
     }
+    
     //when we are server
     InputReaderTh(){
         gui = ChatFrame.getInstance();
     }
 
+    @Override
     public void run(){
         boolean c = true;
         BufferedReader reader = null;
@@ -53,6 +57,7 @@ public class InputReaderTh implements Runnable{
         if (gui.getChatmanInstance().getMode() == Chatman.MOD_CLIENT){
             try{
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                
             }catch(IOException e){
                 (new CommandInvokeLater(new CommandMessage(gui.l.getString("socket_open_fail") + e.getMessage()))).execute();
                 c = false;
@@ -89,7 +94,7 @@ public class InputReaderTh implements Runnable{
                 
                 //unexpected close
                 if(line == null){
-                    //agar hanuz hidden ast faghat kharej sahvim
+                    //if we are still hidden, just exit silently
                     if(gui.isHidden())
                         c = false;
 
@@ -101,9 +106,10 @@ public class InputReaderTh implements Runnable{
                     return;
                     
                 }
+                
                 //exit message
                 else if(line.equals(Chatman.SPECIAL_BYE)){
-                    //agar hanuz hidden ast faghat kharej sahvim
+                    //if we are still hidden, just exit silently
                     if(gui.isHidden())
                         c = false;
                     
@@ -115,12 +121,16 @@ public class InputReaderTh implements Runnable{
                     return;
                     
                 }
+                
                 //file message
                 else if(line.equals(Chatman.SPECIAL_FILE)){
+                        //get file
                         String f = reader.readLine();
                         final String fileName = new String(BaseEncoding.base64().decode(f), Charsets.UTF_8);
                         String fileData = reader.readLine();
                         final String location = System.getProperty("user.home") + "\\My Documents\\Chatman Downloads\\";
+                        
+                        //save file
                         try{
                             File saveDir = new File(location);
                             if(!saveDir.isDirectory())
@@ -133,16 +143,18 @@ public class InputReaderTh implements Runnable{
                             (new CommandInvokeLater(new CommandMessage(gui.l.getString("file_save_fail") + e.getMessage()))).execute();
                         }
                 }
+                
                 //normal message
                 else{
                     (new CommandInvokeLater(new CommandUpdateIncomingText(line))).execute();
                 }
+                
             }//end of while
         }catch(IOException e){
             (new CommandInvokeLater(new CommandMessage(gui.l.getString("inputstream_read_fail") + e.getMessage()))).execute();    
         }
-        //!!!IMPORTANT this is run even after we return
-        //che exception rokh bede ya nade(while tamum she) ya exceptioni bashe ke catch nashode in code ejra mishe
+        
+        //this is run even after we return
         finally{
             try{
                 if(socket != null)

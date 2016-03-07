@@ -19,9 +19,11 @@ import java.util.ArrayList;
 /**
  *
  * @author pouriap
+ * 
+ * Output: Socket.OutputStream
+ * Input:  Socket.inputStream
  */
-//Output: Socket.OutputStream
-//Input:  Socket.inputStream
+
 public class ChatmanClient extends Chatman{
     
     private ArrayList<Socket> liveServers = new ArrayList<Socket>();
@@ -34,12 +36,11 @@ public class ChatmanClient extends Chatman{
         super(MOD_CLIENT);
     }
     
-
+    //stablishes the input and output streams as a client
+    //is only called from IpConnector when it finds an alive server
+    //hence needs to be thread safe
     @Override
     public void start(){
-        //stablishes the input and output streams as a client
-        //is only called from IpConnector when it finds an alive server
-        //hence needs to be thread safe
         try{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
             (new CommandInvokeLater(new CommandSetLabelStatus(gui.l.getString("connection_with") + serverSocket.getInetAddress().getHostAddress() + gui.l.getString("stablished")))).execute();
@@ -47,6 +48,7 @@ public class ChatmanClient extends Chatman{
             th = new InputReaderTh(serverSocket);
             inputReaderThread = new Thread(th);
             inputReaderThread.start();
+            
         }catch(UnknownHostException e){
             (new CommandInvokeLater(new CommandMessage(gui.l.getString("find_host_fail") + e.getMessage()))).execute();
             gui.exit();
@@ -56,14 +58,13 @@ public class ChatmanClient extends Chatman{
         }
     }
     
-    
+    //connects to server. if server-ip is specified in config then connects directly
+    //else it scans the subnet-mask for live servers    
     public void connect(){
-        //connects to server. if server-ip is specified in config then connects directly
-        //else it scans the subnet-mask for live servers
-
         gui.setLabelStatus(gui.l.getString("searching_network"));
 
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
+        
         //if we have server's ip we don't scan the network
         if(ChatmanConfig.getInstance().isSet("server-ip")){
             String serverIp = ChatmanConfig.getInstance().get("server-ip");
@@ -96,6 +97,7 @@ public class ChatmanClient extends Chatman{
         gui.removeServerList();
     }    
     
+    //when we click on a server in the serverlist, we only have it's index so...
     public void setServerSocket(int index){
         serverSocket = liveServers.get(index);
         gui.removeServerList();

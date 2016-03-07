@@ -15,10 +15,11 @@ import java.util.ResourceBundle;
 /**
  *
  * @author pouriap
- * This class wraps ResourceBundle and Properties classes
- * Lets the user specify her own locale file
- * If locale is not found in the application/locale directory then locale is loaded from JAR
- * If no such locale is available en_US is loaded
+ * 
+ * this class wraps ResourceBundle and Properties classes
+ * lets the user specify her own locale file
+ * if locale is not found in the application/locale directory then locale is loaded from JAR
+ * if no such locale is available en_US is loaded
  */
 public class ResourceBundleWrapper {
     

@@ -14,6 +14,9 @@ import java.sql.Statement;
 /**
  *
  * @author pouriap
+ * 
+ * an abstract pagination class
+ * gets the query and limit and returns limit-sized results of that query
  */
 public abstract class AbstractPagination {
     protected int limit = 10;
@@ -23,7 +26,7 @@ public abstract class AbstractPagination {
     protected String query;
     protected String dbPath;
     
-
+    //default limit is 10
     public AbstractPagination(String dbPath, String query){
         this.query = query;
         this.dbPath = dbPath;
@@ -39,12 +42,13 @@ public abstract class AbstractPagination {
         resultSet = new String[this.limit];
     }
 
-    
+    //loads one page(fetches a limit-sezed result of the given query)
     private void loadPage(int page) throws SQLException{
    
         Connection c;
         Statement stmt;
         ResultSet rs;
+        
         //pages start from 1 but indices start from 0
         page--;
         
@@ -58,18 +62,26 @@ public abstract class AbstractPagination {
             int l2 = limit;
             rs = stmt.executeQuery( query + " LIMIT " + l1 + "," + l2 );
             
+            //the doPopulate(ResultSet) method is abstract
+            //user should implement it and do whatever he wants with the result set and return the number of results
+            //because Java is stupid and doesn't even have a function to give us the number of results
             int count = doPopulate(rs);
+            
+            //if number of results is the same as limit it means we have more
+            //unless in the occasion that we have exactly the same number of records as limit
+            //we know about that occassion, we just don't care
             hasMore = count == limit;
 
             rs.close();
             stmt.close();
             c.close();
         }catch(ClassNotFoundException e){
-            e.printStackTrace();
+            //i know. i just don't care. (it's a reference from the batman movie)
         }
 
     }
     
+    //loads the next page. the doPopulate method is called during the process
     public boolean nextPage() throws SQLException{
         if(!hasNext())
             return false;
@@ -80,6 +92,7 @@ public abstract class AbstractPagination {
        
     }
     
+    //loads the previous page. the doPopulate method is called during the process
     public boolean prevPage() throws SQLException{
         if(!hasPrev())
             return false;

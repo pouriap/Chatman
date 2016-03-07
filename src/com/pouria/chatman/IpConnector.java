@@ -16,11 +16,13 @@ import java.net.Socket;
 /**
  *
  * @author pouriap
+ * 
+ * is only used when we are client
+ * takes an ip and port and connects to it
+ * is only called when we have the ip of the live server
+ * which we acquire either by scanning or from the config server-ip
  */
-//is only run when we are client
-//takes an ip and port and connects to it
-//is only called when we have the ip of the live server
-//which we acquire either by scanning or from the config file
+
 public class IpConnector implements Runnable{
 
     private final ChatFrame gui;
@@ -42,23 +44,22 @@ public class IpConnector implements Runnable{
             Socket socket = new Socket();           
             socket.connect(new InetSocketAddress(ip, port), 3000);
             
-            //isSingle means we have the server ip and we are connecting to it
+            //isSingle = we have the server ip and we are connecting to it
             //there is no scanning and adding to list
             if(isSignle){
                 ((ChatmanClient)gui.getChatmanInstance()).setServerSocket(socket);
                 ((ChatmanClient)gui.getChatmanInstance()).start();
             }
-            //add the live server to list
-            //when scanning is finished(if isSingle is false means we are scanning), 
-            //we decide what to do in IpScanner
+            //we are scanning
+            //so we just add the live server to list
+            //when scanning is finished we decide what to do in IpScanner
             else{
                 ((ChatmanClient)gui.getChatmanInstance()).addLiveServer(socket);
             }
             
         }catch(IOException ex){ 
-            //is single is false when we are scanning network for servers and don't want a "not found"
-            //message for each failed connect
-            //connect(true) means retry connection
+            //is single is false when we are scanning network for servers and don't want a "not found" message for each failed connect
+            //we show a confirm dialog asking retry?
             if(isSignle){
                 (new CommandInvokeLater(new CommandConfirmDialog(
                         new CommandClientConnect(),

@@ -20,6 +20,9 @@ import java.util.Locale;
 /**
  *
  * @author pouriap
+ * 
+ * a class for setting and getting configurations
+ * it's a singleton
  */
 public class ChatmanConfig {
     
@@ -31,6 +34,8 @@ public class ChatmanConfig {
     
     private ChatmanConfig(){
         this.gui = ChatFrame.getInstance();
+        
+        //default configs for the occasion that a config was missing
         this.defaultConfigs = Arrays.asList(new String[]{
             "background-image", "none",
             "server-port", "9988",
@@ -41,6 +46,8 @@ public class ChatmanConfig {
             //"user-id", "Chatman User"
         });
         
+        //read config file
+        //configs are stored line by line. each config value must be the line after config name. otherwise we're screwed.
         try{
             String configLine; 
             BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
@@ -61,22 +68,15 @@ public class ChatmanConfig {
             
             r.close();
             
+        //we are doomed if we can't read configs
         }catch(Exception e){
-            
-            try{
             gui.message(gui.l.getString("config_read_fail") + e.getMessage());
             gui.exit();
-            }catch(Exception eee){
-                System.out.println(eee.getMessage());
-                 eee.printStackTrace();
-            }
-            
-            
         }
         
     }
 
-
+    //gets a config value
     public String get(String confName) {      
         if(configs.contains(confName)){
             //confige value is one line after config name in config file
@@ -94,12 +94,17 @@ public class ChatmanConfig {
         }
     }
     
+    //set a config. when we set a config we also save the config file.
     public void set(String confName, String confValue) {
         configs.set(configs.indexOf(confName) + 1, confValue);
         String s = "";
+        
         try {
             BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
             String line;
+            
+            //read the config file line by line and replace it whenever it differs from out runtime 'configs' array
+            //we store all config in 's' then save s to the config file because it's easier
             while ((line = r.readLine()) != null) {
 
                 s += line + "\r\n";
@@ -131,10 +136,12 @@ public class ChatmanConfig {
         }
     }
     
+    //do we have this config?
     public boolean isSet(String confName){
         return configs.contains(confName);
     }
     
+    //a special treatment for locale
     public Locale getLocale(){
         String[] l = get("locale").split("_");
         return new Locale(l[0], l[1]);
