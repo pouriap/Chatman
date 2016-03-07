@@ -19,28 +19,28 @@ import java.util.Arrays;
  */
 public class Background {
     
-    ArrayList<String> backgrounds = new ArrayList<String>();
-    private String current;
+    ArrayList<File> backgrounds = new ArrayList<File>();
+    private File current;
     private final String bgFolder = "backgrounds";
     private final String defaultBg = "batman.jpg";
     
     private Background(){
         File bgsPath;
-        String [] _backgrounds;
+        File[] _backgrounds;
         
         try{
             bgsPath = new File(bgFolder);
             
             //first add from background folder
             if(bgsPath.exists()){
-                _backgrounds = bgsPath.list(new JpegFileFilter());
+                _backgrounds = bgsPath.listFiles(new JpegFileFilter());
                 if(_backgrounds.length > 0){
                     backgrounds.addAll(Arrays.asList(_backgrounds));
                 }
             }
 
             //then initialize current bg
-            current = ChatmanConfig.getInstance().get("background-image");
+            current = new File(ChatmanConfig.getInstance().get("background-image"));
 
             
         }catch(Exception e){
@@ -57,32 +57,25 @@ public class Background {
         
         int nextIndex = backgrounds.indexOf(current) + 1;
         current = (nextIndex < backgrounds.size())? backgrounds.get(nextIndex) : backgrounds.get(0);
-        ChatmanConfig.getInstance().set("background-image", current);
+        ChatmanConfig.getInstance().set("background-image", current.getPath());
     }
+    
+    //public Object getCurrent(){
+    //    if(!current.exists())
+    //        return getClass().getResource("/resources/bg/" + defaultBg);
+    //    return current.getPath(); current.toURI().toURL();
+    //}
 
-    public String getCurrent(){
-        File currentBgFile = new File(bgFolder + "/" + current);
-        if(!currentBgFile.exists())
-            current = defaultBg;
-        
-        return current;
-    }
-
-    public URL getCurrentURL(){
-        File currentBgFile = new File(bgFolder + "/" + current);
-        if(!currentBgFile.exists()){
-            current = defaultBg;
+    public URL getCurrent(){
+        if(!current.exists())
             return getClass().getResource("/resources/bg/" + defaultBg);
-        }
         
         try{
-            return currentBgFile.toURI().toURL();
+            return current.toURI().toURL();
         }catch(MalformedURLException e){
             return getClass().getResource("/resources/bg/" + defaultBg);
         }
     }
-    
-    
     
     //Singleton stuff
     public static Background getInstance() {

@@ -32,13 +32,13 @@ public class ChatmanConfig {
     private ChatmanConfig(){
         this.gui = ChatFrame.getInstance();
         this.defaultConfigs = Arrays.asList(new String[]{
-            "background-image", getClass().getResource("/resources/bg/batman_1.jpg").getPath(),
+            "background-image", "none",
             "server-port", "9988",
             "subnet-mask", "192.168.1.*",
             "num-hosts-to-scan", "10",
             "max-file-size", "20",
             "locale", "en_US",
-            "user-id", "Chatman User"
+            //"user-id", "Chatman User"
         });
         
         try{

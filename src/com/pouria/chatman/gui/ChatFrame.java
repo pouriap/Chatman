@@ -424,7 +424,7 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(backgroundOfLabels);
         backgroundOfLabels.setBounds(0, 560, 500, 40);
 
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman_1.jpg"))); // NOI18N
+        labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
         getContentPane().add(labelFrameBg);
         labelFrameBg.setBounds(0, 0, 500, 600);
 
@@ -509,10 +509,12 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         
         Background.getInstance().next();
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(Background.getInstance().getCurrent()));        
+        setBackground(Background.getInstance().getCurrentURL());
+
         
         if(chatman != null)
             chatman.updateUserName();
+       
         
         menuFile.doClick();
 
@@ -856,7 +858,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
         
         //Frame BG
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(Background.getInstance().getCurrent()));
+        setBackground(Background.getInstance().getCurrentURL());
        
         
         //Empty HTML Texts
@@ -924,7 +926,6 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }
     
-    //Called from myInits()
     public void setupGUITexts(){
         labelNewMessage.setText(l.getString("new_message"));
         dialogHistory.setTitle(l.getString("history"));
@@ -940,6 +941,7 @@ public class ChatFrame extends javax.swing.JFrame {
         menuResetModem.setText(l.getString("reset_modem"));
         menuExit.setText(l.getString("exit"));
     }
+
     
     //General functions
     private void send(){
@@ -1027,6 +1029,11 @@ public class ChatFrame extends javax.swing.JFrame {
     
     public void defaultOutgoingText(){
         textAreaOutgoing.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
+    }
+    
+    
+    public void setBackground(URL url){
+        labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
     }
     
     public void addToServerList(String server){

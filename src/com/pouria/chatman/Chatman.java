@@ -5,7 +5,7 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.gui.ChatmanConfig;
+import com.pouria.chatman.gui.Background;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.PrintWriter;
 
@@ -79,8 +79,8 @@ public abstract class Chatman {
     //}
     
     public final void updateUserName(){
-        //esme background ha be in shekl as
-        String name = ChatmanConfig.getInstance().get("background-image").split("_")[0];
+        //background names are like batman_1.jpg or batman.png
+        String name = Background.getInstance().getCurrent().split("\\.")[0].split("_")[0];        
         name = name.substring(0, 1).toUpperCase() + name.substring(1,name.length());
         setUserName(name);
     }
