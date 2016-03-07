@@ -589,6 +589,7 @@ public class ChatFrame extends javax.swing.JFrame {
         } 
     }//GEN-LAST:event_textAreaOutgoingMouseReleased
 
+    //this is for resetting my modem. don't mint it.
     private void menuResetModemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuResetModemActionPerformed
 
         int reset = JOptionPane.showConfirmDialog(null, l.getString("modem_reset_confirm"), l.getString("reset"), JOptionPane.YES_NO_OPTION);
@@ -603,7 +604,8 @@ public class ChatFrame extends javax.swing.JFrame {
                 .header("DNT", "1")
                 .header("Referer", "http://192.168.1.1/")
                 .header("Cookie", "FirstMenu=Admin_0; SecondMenu=Admin_0_0; ThirdMenu=Admin_0_0_0; Language=en;")
-                .send("Username=admin&Password=Nzc3MjA3NTk%3D");
+                //it's safe to add this here because menu is only shown if "modem-user-pass" is set
+                .send(ChatmanConfig.getInstance().get("modem-user-pass"));
 
         String cookie = (request.header("Set-Cookie"));
         
@@ -757,6 +759,12 @@ public class ChatFrame extends javax.swing.JFrame {
         //setup GUI elements texts accordig to locale
         setupGUITexts();
 
+        
+        //don't show modem reset to strangers
+        if(!ChatmanConfig.getInstance().isSet("modem-user-pass")){
+            menuResetModem.setVisible(false);
+        }
+        
         
         //TextArea Dorp
         //We read the whole file as text and then base64_encode it which causes a LOT of memory
