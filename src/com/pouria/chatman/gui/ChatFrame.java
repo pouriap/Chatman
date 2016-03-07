@@ -121,6 +121,7 @@ public class ChatFrame extends javax.swing.JFrame {
         menuChangeBg = new javax.swing.JMenuItem();
         menuShowHistory = new javax.swing.JMenuItem();
         menuResetModem = new javax.swing.JMenuItem();
+        menuAbout = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
         dialogPopup.setAlwaysOnTop(true);
@@ -471,6 +472,15 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuResetModem);
 
+        menuAbout.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuAbout.setText("درباره");
+        menuAbout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuAboutActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuAbout);
+
         menuExit.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         menuExit.setText("خروج");
         menuExit.addActionListener(new java.awt.event.ActionListener() {
@@ -701,6 +711,11 @@ public class ChatFrame extends javax.swing.JFrame {
         ((ChatmanClient)getChatmanInstance()).setServerSocket(index);
         ((ChatmanClient)getChatmanInstance()).start();
     }//GEN-LAST:event_listLiveServersMouseReleased
+
+    private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(null, l.getString("license"), l.getString("about"), JOptionPane.PLAIN_MESSAGE, null);
+    }//GEN-LAST:event_menuAboutActionPerformed
 
     /**
      * @param args the command line arguments
@@ -963,6 +978,7 @@ public class ChatFrame extends javax.swing.JFrame {
         menuChangeBg.setText(l.getString("change_bg"));
         menuShowHistory.setText(l.getString("show_history"));
         menuResetModem.setText(l.getString("reset_modem"));
+        menuAbout.setText(l.getString("about"));
         menuExit.setText(l.getString("exit"));
     }
     
@@ -1181,6 +1197,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelStatus;
     private javax.swing.JLabel labelStatusLabl;
     private javax.swing.JList<String> listLiveServers;
+    private javax.swing.JMenuItem menuAbout;
     private javax.swing.JMenuItem menuChangeBg;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
