@@ -56,7 +56,6 @@ import javax.swing.text.html.HTMLEditorKit;
 public class ChatFrame extends javax.swing.JFrame {
 
     private static ChatFrame instance = null; 
-    private static int mode = -1;
     private Chatman chatman;
     private String[] defaultTextAreaHtml;
     private String incomingTextAll = "";
@@ -744,15 +743,18 @@ public class ChatFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        final int mode;
+
         if(args.length == 1){
-            ChatFrame.setMode(Chatman.MOD_SERVER);
+            mode = Chatman.MOD_SERVER;
         }
-        //Client?
         else if(args.length == 0){ 
-            ChatFrame.setMode(Chatman.MOD_CLIENT);
+            mode = Chatman.MOD_CLIENT;
         }
         else{
-            ChatFrame.setMode(-1);
+            System.out.println("invalid arguments");
+            System.exit(0);
+            mode = -1;
         }
         
         /* Create and display the form */
@@ -760,6 +762,7 @@ public class ChatFrame extends javax.swing.JFrame {
             public void run() {
                 ChatFrame frame = ChatFrame.getInstance();
                 frame.myInits();
+                frame.startChatman(mode);
             }
         });
     }
@@ -933,26 +936,30 @@ public class ChatFrame extends javax.swing.JFrame {
 
         //Center
         this.setLocationRelativeTo(null);
+
         
-        
-        //Start as server/client
-        //Server?
-        if(ChatFrame.mode == Chatman.MOD_SERVER){
+    } 
+    
+    //start Chatman as client/server
+    public void startChatman(int mode){
+        //server
+        if(mode == Chatman.MOD_SERVER){
             chatman = new ChatmanServer();
             chatman.start();
         }
-        //Client?
-        else if(ChatFrame.mode == Chatman.MOD_CLIENT){ 
+        //client
+        else if(mode == Chatman.MOD_CLIENT){ 
             chatman = new ChatmanClient();
-            ((ChatmanClient)chatman).connect();
+            chatman.start();
             this.setVisible(true);
         }
         else{
             message(l.getString("invalid_args"));
-            exit();
+            exit(true);
         }
         
-    } 
+    }
+    
     
     //Called from myInits()
     public void mSetLocale(Locale locale){
@@ -1142,12 +1149,7 @@ public class ChatFrame extends javax.swing.JFrame {
     public Chatman getChatmanInstance(){
         return chatman;
     }
-    
-    //sets application mode to client or server
-    //must be called before instantiating
-    public static void setMode(int mode){
-        ChatFrame.mode = mode;
-    }
+
 
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
@@ -1184,6 +1186,16 @@ public class ChatFrame extends javax.swing.JFrame {
         ChatmanConfig.getInstance().save();
         
         System.exit(0);
+    }
+    
+    //reckless exit. used in tests
+    public void exit(boolean reckless){
+        if(reckless){
+            System.exit(0);
+        }
+        else{
+            exit();
+        }
     }
     
 
