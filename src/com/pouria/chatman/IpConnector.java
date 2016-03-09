@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandClientConnect;
+import com.pouria.chatman.classes.CommandClientStart;
 import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.gui.ChatFrame;
@@ -73,7 +73,7 @@ public class IpConnector implements Runnable{
             //we show a confirm dialog asking retry?
             if(isSignle){
                 (new CommandInvokeLater(new CommandConfirmDialog(
-                        new CommandClientConnect(),
+                        new CommandClientStart(),
                         gui.l.getString("server_retry_confirm"),
                         gui.l.getString("server_not_found")
                 ))).execute();

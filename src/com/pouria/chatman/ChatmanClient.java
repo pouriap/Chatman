@@ -48,10 +48,16 @@ public class ChatmanClient extends Chatman{
     }
     
     //stablishes the input and output streams as a client
-    //is only called from IpConnector when it finds an alive server
-    //hence needs to be thread safe
+    //is called from IpConnector when it finds an alive server hence needs to be thread safe
+    //if we are not connected calls connect() and returns. threads in connect() call start() again once they find a live server
     @Override
     public void start(){
+        
+        if(!isConnected()){
+            connect();
+            return;
+        }
+        
         try{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
             (new CommandInvokeLater(new CommandSetLabelStatus(gui.l.getString("connection_with") + serverSocket.getInetAddress().getHostAddress() + gui.l.getString("stablished")))).execute();
@@ -66,12 +72,15 @@ public class ChatmanClient extends Chatman{
         }catch(IOException e){
             (new CommandInvokeLater(new CommandMessage(gui.l.getString("stream_open_fail") + e.getMessage()))).execute();
             gui.exit();
+        }catch(Exception e){
+            (new CommandInvokeLater(new CommandMessage(gui.l.getString("client_start_fail") + e.getMessage()))).execute();
+            gui.exit();
         }
     }
     
     //connects to server. if server-ip is specified in config then connects directly
     //else it scans the subnet-mask for live servers    
-    public void connect(){
+    private void connect(){
         gui.setLabelStatus(gui.l.getString("searching_network"));
 
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));

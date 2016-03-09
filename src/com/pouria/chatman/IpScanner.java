@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandClientConnect;
+import com.pouria.chatman.classes.CommandClientStart;
 import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandMessage;
@@ -117,7 +117,7 @@ public class IpScanner implements Runnable {
             
             if(foundServers == 0){
                 (new CommandInvokeLater(new CommandConfirmDialog(
-                        new CommandClientConnect(),
+                        new CommandClientStart(),
                         gui.l.getString("server_retry_confirm"),
                         gui.l.getString("server_not_found")
                 ))).execute();
