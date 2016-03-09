@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -42,6 +43,7 @@ public class ChatmanConfig {
     private final File configFile = new File(configPath);
     private List<String> defaultConfigs, configs = new ArrayList();
     private final char commentCharacter = '#';
+    private boolean hasChanged = false;
     
     private ChatmanConfig(){
         this.gui = ChatFrame.getInstance();
@@ -78,7 +80,7 @@ public class ChatmanConfig {
             }
             
             r.close();
-            
+                        
         //we are doomed if we can't read configs
         }catch(Exception e){
             gui.message(gui.l.getString("config_read_fail") + e.getMessage());
@@ -107,44 +109,56 @@ public class ChatmanConfig {
     
     //set a config. when we set a config we also save the config file.
     public void set(String confName, String confValue) {
-        configs.set(configs.indexOf(confName) + 1, confValue);
-        String s = "";
+        
+        //if we have this name, set it's value
+        if(configs.contains(confName)){
+            configs.set(configs.indexOf(confName) + 1, confValue);
+        }
+        else{
+            configs.add(confName);
+            configs.add(confValue);
+        }
+        
+        hasChanged = true;
+    }
+    
+    //save to config.conf file
+    public void save(){
+        
+        if(!hasChanged)
+            return;
         
         try {
-            BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8"));
-            String line;
+            List<String> configFileLines = Files.readLines(configFile, Charsets.UTF_8);
             
-            //read the config file line by line and replace it whenever it differs from out runtime 'configs' array
-            //we store all config in 's' then save s to the config file because it's easier
-            while ((line = r.readLine()) != null) {
-
-                s += line + "\r\n";
-
-                if (line.isEmpty())
-                    continue;
-                
-                if (line.charAt(0) == commentCharacter)
-                    continue;
-
-                //line is not empty and not comment so it is a config name
-                //if we have this name in config, change it's value to the one we have in config
-                int index = configs.indexOf(line);
-                if (index != -1) {
-                    //add the value of this config to s
-                    s += configs.get(index + 1) + "\r\n";
-                    //skip the line in the current config file
-                    r.readLine();
+            for(int i=0; i<configs.size(); i++){
+                String configName = configs.get(i);
+                String configValue = configs.get(i+1);
+                i++;
+                   
+                //if we have this name, sets it's value
+                if(configFileLines.contains(configName)){
+                    configFileLines.set(configFileLines.indexOf(configName) + 1, configValue);
                 }
-
+                else{
+                    configFileLines.add(configName);
+                    configFileLines.add(configValue);
+                } 
             }
-            r.close();
             
-            Files.write(s, configFile, Charsets.UTF_8);
+            //because Files.write() only accepts a String as parameter
+            String toSave = "";
+            for(String line: configFileLines){
+                toSave += line + "\r\n";
+            }
             
+            Files.write(toSave, configFile, Charsets.UTF_8);
             
         } catch (IOException e) {
             gui.message(gui.l.getString("config_write_fail") + e.getMessage());
         }
+        
+        hasChanged = false;
     }
     
     //do we have this config?

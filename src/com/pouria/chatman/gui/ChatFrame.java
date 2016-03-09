@@ -745,14 +745,14 @@ public class ChatFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         if(args.length == 1){
-            ChatFrame.mode = Chatman.MOD_SERVER;
+            ChatFrame.setMode(Chatman.MOD_SERVER);
         }
         //Client?
         else if(args.length == 0){ 
-            ChatFrame.mode = Chatman.MOD_CLIENT;
+            ChatFrame.setMode(Chatman.MOD_CLIENT);
         }
         else{
-            ChatFrame.mode = -1;
+            ChatFrame.setMode(-1);
         }
         
         /* Create and display the form */
@@ -1142,6 +1142,12 @@ public class ChatFrame extends javax.swing.JFrame {
     public Chatman getChatmanInstance(){
         return chatman;
     }
+    
+    //sets application mode to client or server
+    //must be called before instantiating
+    public static void setMode(int mode){
+        ChatFrame.mode = mode;
+    }
 
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
@@ -1174,6 +1180,8 @@ public class ChatFrame extends javax.swing.JFrame {
             chatman.sendBye();
         
         saveHistory();
+                
+        ChatmanConfig.getInstance().save();
         
         System.exit(0);
     }
