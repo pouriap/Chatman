@@ -127,6 +127,6 @@ public class ChatmanClient extends Chatman{
         if(serverSocket == null)
             return false;
         
-        return this.serverSocket.isConnected();
+        return this.serverSocket.isConnected() && !this.serverSocket.isClosed();
     }
 }
