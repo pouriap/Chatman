@@ -37,12 +37,14 @@ import java.net.Socket;
 public class IpConnector implements Runnable{
 
     private final ChatFrame gui;
+    private final ChatmanClient client;
     private final String ip;
     private final int port;
     private final boolean isSignle;
     
-    IpConnector(String h, int p, boolean r){
+    IpConnector(String h, int p, boolean r, ChatmanClient client){
         this.gui = ChatFrame.getInstance();
+        this.client = client;
         this.port = p;
         this.ip = h;
         this.isSignle = r;
@@ -58,14 +60,14 @@ public class IpConnector implements Runnable{
             //isSingle = we have the server ip and we are connecting to it
             //there is no scanning and adding to list
             if(isSignle){
-                ((ChatmanClient)gui.getChatmanInstance()).setServerSocket(socket);
-                ((ChatmanClient)gui.getChatmanInstance()).start();
+                client.setServerSocket(socket);
+                client.start();
             }
             //we are scanning
             //so we just add the live server to list
             //when scanning is finished we decide what to do in IpScanner
             else{
-                ((ChatmanClient)gui.getChatmanInstance()).addLiveServer(socket);
+                client.addLiveServer(socket);
             }
             
         }catch(IOException ex){ 

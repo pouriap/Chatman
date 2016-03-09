@@ -88,12 +88,12 @@ public class ChatmanClient extends Chatman{
         //if we have server's ip we don't scan the network
         if(ChatmanConfig.getInstance().isSet("server-ip")){
             String serverIp = ChatmanConfig.getInstance().get("server-ip");
-            scanner = new Thread(new IpConnector(serverIp, serverPort, true));
+            scanner = new Thread(new IpConnector(serverIp, serverPort, true, this));
             scanner.start();
         }
         else{
             String subnet = ChatmanConfig.getInstance().get("subnet-mask");
-            scanner = new Thread(new IpScanner(subnet, serverPort));
+            scanner = new Thread(new IpScanner(subnet, serverPort, this));
             scanner.start();
         }
 

@@ -42,11 +42,13 @@ import java.util.Enumeration;
 public class IpScanner implements Runnable {
 
     private final ChatFrame gui;
+    private final ChatmanClient client;
     private final String subnet;
     private final int port;
     
-    IpScanner(String s, int p){
+    IpScanner(String s, int p, ChatmanClient client){
         this.gui = ChatFrame.getInstance();
+        this.client = client;
         this.port = p;
         this.subnet = s;
     }
@@ -90,7 +92,7 @@ public class IpScanner implements Runnable {
                 if(addr.equals(localIp))
                     continue;
 
-                scanners[j] = new Thread(new IpConnector(addr, port, false));
+                scanners[j] = new Thread(new IpConnector(addr, port, false, client));
                 scanners[j].start();
             }
             
@@ -112,7 +114,7 @@ public class IpScanner implements Runnable {
             }while(c);  
             
             //now we have finished scanning the network for live servers
-            int foundServers = ((ChatmanClient)gui.getChatmanInstance()).numServersFound();
+            int foundServers = client.numServersFound();
             (new CommandInvokeLater(new CommandSetLabelStatus(foundServers + gui.l.getString("servers_found")))).execute();
             
             if(foundServers == 0){
@@ -125,8 +127,8 @@ public class IpScanner implements Runnable {
             }
             else if (foundServers == 1){
                 //if only one server is found don't show the list, connect to it
-                ((ChatmanClient)gui.getChatmanInstance()).setServerSocket(0);
-                ((ChatmanClient)gui.getChatmanInstance()).start();
+                client.setServerSocket(0);
+                client.start();
             }
             else{
                 (new CommandInvokeLater(new CommandShowServerList())).execute();
