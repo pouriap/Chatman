@@ -46,17 +46,20 @@ public class InputReaderTh implements Runnable{
     
     private Socket socket;
     private final ChatFrame gui;
+    private final int mode;
     private boolean inComa = false;
     
     //when we are client
     InputReaderTh(Socket s){
         gui = ChatFrame.getInstance();
+        mode = Chatman.MOD_CLIENT;
         socket = s;
     }
     
     //when we are server
     InputReaderTh(){
         gui = ChatFrame.getInstance();
+        mode = Chatman.MOD_SERVER;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class InputReaderTh implements Runnable{
         BufferedReader reader = null;
         
         //client uses socket input stream
-        if (gui.getChatmanInstance().getMode() == Chatman.MOD_CLIENT){
+        if (mode == Chatman.MOD_CLIENT){
             try{
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 
