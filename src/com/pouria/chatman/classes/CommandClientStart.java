@@ -25,14 +25,14 @@ import com.pouria.chatman.gui.ChatFrame;
  * 
  * it may seem that this Command doesn't do any GUI-related thing. but some GUI-related things happen in Chatman.connect()
  */
-public class CommandClientConnect implements Command{
+public class CommandClientStart implements Command{
     
-    public CommandClientConnect(){
+    public CommandClientStart(){
     }
     
     @Override
     public void execute(){
         ChatFrame gui = ChatFrame.getInstance();
-        ((ChatmanClient)gui.getChatmanInstance()).connect();
+        ((ChatmanClient)gui.getChatmanInstance()).start();
     };
 }
