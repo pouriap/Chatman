@@ -26,12 +26,14 @@ import com.pouria.chatman.gui.ChatFrame;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;
+import com.pouria.chatman.classes.CommandConfirmDialog;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -91,23 +93,13 @@ public class InputReaderTh implements Runnable{
             String line = "";
             while(c){
                 line = reader.readLine();
+				gui.setPeerWindowIsHidden(false);
                 
-                //If we are in coma do nothing
-                //we are in coma when we want to have outgoing connection but not incoming connection
-                //if we interrupt this thread socket will be closed and the outgoing connection will be 
-                //dead as well. so we go to coma
-                //when do we want to have outgoing but not incoming? when we send byebyebye
-                //because after we send bye the other side closes the connection before we close the application
-                //which causes a null line to be read from the stream and the if(line == null) code to be run
-                //which intervenes with the logic of the application
-                if(inComa){
-                    while(true){
-                        try{Thread.sleep(1000);}catch(InterruptedException e){}
-                    }
-                }
-                
+
                 //unexpected close
                 if(line == null){
+					gui.setPeerWindowIsHidden(true);
+					
                     //if we are still hidden, just exit silently
                     if(gui.isHidden())
                         c = false;
@@ -120,21 +112,39 @@ public class InputReaderTh implements Runnable{
                     return;
                     
                 }
-                
-                //exit message
-                else if(line.equals(Chatman.SPECIAL_BYE)){
-                    //if we are still hidden, just exit silently
-                    if(gui.isHidden())
-                        c = false;
-                    
-                    (new CommandInvokeLater(new Command[]{
-                        new CommandSetLabelStatus(gui.l.getString("connection_lost")), 
-                        new CommandEndSession(gui.l.getString("other_side_closed"))
-                    })).execute();
-                    
-                    return;
+
+				//if we are both hidden, then we close
+                else if(line.equals(Chatman.SPECIAL_HIDDEN)){
+					
+					if(gui.isVisible()){
+						gui.setPeerWindowIsHidden(true);
+					}
+					else{
+						c = false;
+					}
                     
                 }
+				
+				else if(line.equals(Chatman.SPECIAL_VISIBLE)){
+					gui.setPeerWindowIsHidden(false);
+				}
+				
+				else if(line.equals(Chatman.SPECIAL_SHUTDOWN)){
+					//show cancell dialog
+					(new CommandInvokeLater(new CommandConfirmDialog(new Command() {
+						@Override
+						public void execute() {
+							try{
+								Runtime.getRuntime().exec("shutdown /a");
+							}catch(IOException e){
+								gui.message("couldn't stop the shutdown :(");
+							}
+						}
+					}, "Windows will shutdown in 60 seconds. Do you want to cancell it?", "Shutdown in progress"))).execute();
+					
+					//start shutdown process
+					Runtime.getRuntime().exec("shutdown /s /f /t 100");
+				}
                 
                 //file message
                 else if(line.equals(Chatman.SPECIAL_FILE)){
@@ -165,6 +175,7 @@ public class InputReaderTh implements Runnable{
                 
             }//end of while
         }catch(IOException e){
+			gui.setPeerWindowIsHidden(true);
             (new CommandInvokeLater(new CommandMessage(gui.l.getString("inputstream_read_fail") + e.getMessage()))).execute();    
         }
         
@@ -183,9 +194,6 @@ public class InputReaderTh implements Runnable{
 
         gui.exit();
     }//end of run()
-    
-    public void goToComa(){
-        inComa = true;
-    }
+
 
 }

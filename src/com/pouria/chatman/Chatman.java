@@ -38,7 +38,7 @@ public abstract class Chatman {
     protected Thread inputReaderThread;
     protected String userName, peerName;
     public final static int MOD_SERVER = 1, MOD_CLIENT = 2;
-    public final static String SPECIAL_BYE = "byebyebye", SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid";
+    public final static String SPECIAL_HIDDEN="hidhidhid", SPECIAL_VISIBLE="visvisvis", SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid", SPECIAL_SHUTDOWN="sdsdsd";
     
     public Chatman(int mode){
         this.gui = ChatFrame.getInstance();
@@ -58,18 +58,18 @@ public abstract class Chatman {
         send(fileName);
         send(fileContent);
     }
-    
-    public final void sendBye(){
-        //reason of goToComa is explained in InputReaderTh
-        th.goToComa();
-        send(SPECIAL_BYE);
-    }
-    
-    //public final void sendUserId(){
-    //    String userId = ChatmanConfig.getInstance().get("user-id");
-    //    send(SPECIAL_ID);
-    //    send(userId);
-    //}
+	
+	public final void sendHidden(){
+		send(SPECIAL_HIDDEN);
+	}
+	
+	public final void sendVisible(){
+		send(SPECIAL_VISIBLE);
+	}
+	
+	public final void sendShutdown(){
+		send(SPECIAL_SHUTDOWN);
+	}
     
     public final int getMode(){
         return this.mode;
@@ -82,14 +82,6 @@ public abstract class Chatman {
     public final String getUserName(){
         return userName;
     }
-    
-    //public final void setPeerName(String name){
-    //    peerName = name;
-    //}
-    
-    //public final String getPeerName(){
-    //    return peerName;
-    //}
     
     //username is determined based on the file name of the current background
     //i deliberately did this

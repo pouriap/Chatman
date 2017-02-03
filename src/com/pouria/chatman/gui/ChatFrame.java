@@ -25,6 +25,8 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -39,6 +41,7 @@ import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
@@ -61,14 +64,14 @@ public class ChatFrame extends javax.swing.JFrame {
     private String incomingTextAll = "";
     private String textAreaIncomingContentBeforeHistory = "";
     private HistoryTablePagination historyPagination;
+	
+	private boolean peerWindowIsHidden = false;
     
     public ResourceBundleWrapper l;
 
     
     private ChatFrame(){
-        
         initComponents();
-
     }
     
     
@@ -120,6 +123,7 @@ public class ChatFrame extends javax.swing.JFrame {
         menuChangeBg = new javax.swing.JMenuItem();
         menuShowHistory = new javax.swing.JMenuItem();
         menuResetModem = new javax.swing.JMenuItem();
+        menuShutdownPC = new javax.swing.JMenuItem();
         menuAbout = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
@@ -270,7 +274,7 @@ public class ChatFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Chatman - (This isn't a chat)");
         setFocusable(false);
         setMinimumSize(new java.awt.Dimension(500, 650));
@@ -464,12 +468,22 @@ public class ChatFrame extends javax.swing.JFrame {
 
         menuResetModem.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         menuResetModem.setText("ریست مودم");
+        menuResetModem.setEnabled(false);
         menuResetModem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuResetModemActionPerformed(evt);
             }
         });
         menuFile.add(menuResetModem);
+
+        menuShutdownPC.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuShutdownPC.setText("خاموش کردن کامپیوتر");
+        menuShutdownPC.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuShutdownPCActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuShutdownPC);
 
         menuAbout.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         menuAbout.setText("درباره");
@@ -502,7 +516,14 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
 
-        exit();
+		//if peer is also hidden then exit
+		if(peerWindowIsHidden){
+			exit();
+		}
+		//else just hide window
+		else{
+			hideWindow();
+		}
     }//GEN-LAST:event_formWindowClosing
 
     private void textAreaOutgoingKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyReleased
@@ -576,7 +597,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //close the "New Message" popup and show the application window
         dialogPopup.hidePopup();
         //Show
-        this.setVisible(true);
+        showWindow();
         //Focus
         textAreaOutgoing.requestFocus();
     }//GEN-LAST:event_panelPopupMouseReleased
@@ -716,6 +737,11 @@ public class ChatFrame extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, l.getString("license"), l.getString("about"), JOptionPane.PLAIN_MESSAGE, null);
     }//GEN-LAST:event_menuAboutActionPerformed
 
+    private void menuShutdownPCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuShutdownPCActionPerformed
+        // TODO add your handling code here:
+		chatman.sendShutdown();
+    }//GEN-LAST:event_menuShutdownPCActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -782,8 +808,8 @@ public class ChatFrame extends javax.swing.JFrame {
         if(!ChatmanConfig.getInstance().isSet("modem-user-pass")){
             menuResetModem.setVisible(false);
         }
-        
-        
+
+		
         //TextArea Dorp
         //We read the whole file as text and then base64_encode it which causes a LOT of memory
         //to be consumed. But i'm lazy, so it's ok.
@@ -1042,7 +1068,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //parse emoticons
         //(when we send emoticons, they actually get replaced by themselves, but it's ok)
         String url = getClass().getResource("/resources/emoticons_large/").toString();
-        t = t.replaceAll("img\\ssrc=[^>]*emoticons_large\\/([\\w]*\\.png)", "img src=" + url + "$1");
+		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.png)\"", "src=\"" + url + "$1\"");
         
         incomingTextAll = incomingTextAll + t + "<br />";
         textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
@@ -1150,15 +1176,6 @@ public class ChatFrame extends javax.swing.JFrame {
         return chatman;
     }
 
-
-    //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
-    public boolean isHidden(){
-        if(!this.isVisible() && !dialogPopup.isVisible())
-            return true;
-        
-        return false;
-    }
-    
     //sets the status label at the bottom
     public void setLabelStatus(String s){
         labelStatus.setText(s);
@@ -1170,22 +1187,61 @@ public class ChatFrame extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, m);
     } 
     
-    //the end of chatman. that's it. no auto pilot :(
-    public void exit(){
+    //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
+    public boolean isHidden(){
+        if(!this.isVisible() && !dialogPopup.isVisible())
+            return true;
         
+        return false;
+    }
+	
+	public void setPeerWindowIsHidden(boolean b){
+		peerWindowIsHidden = b;
+	}
+	
+	//hides the chatman windows
+	public void hideWindow(){
+		
+		this.setVisible(false);
+		
         //we need to check if we are connected when we're client but server is always connected
         if(chatman.getMode() == Chatman.MOD_CLIENT){
             if(((ChatmanClient)chatman).isConnected())
-                chatman.sendBye();
+                chatman.sendHidden();
         }
-        else
-            chatman.sendBye();
-        
+		else{
+            chatman.sendHidden();
+		}
+
+	}
+	
+	//shows the chatman window
+	public void showWindow(){
+		
+		this.setVisible(true);
+		
+        //we need to check if we are connected when we're client but server is always connected
+        if(chatman.getMode() == Chatman.MOD_CLIENT){
+            if(((ChatmanClient)chatman).isConnected())
+                chatman.sendVisible();
+        }
+		else{
+            chatman.sendVisible();
+		}
+		
+	}
+	
+    //the end of chatman. that's it. no auto pilot :(
+    public void exit(){
+		
+		hideWindow();
+
         saveHistory();
                 
         ChatmanConfig.getInstance().save();
         
         System.exit(0);
+		
     }
     
     //reckless exit. used in tests
@@ -1224,6 +1280,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuResetModem;
     private javax.swing.JPopupMenu menuRightClick;
     private javax.swing.JMenuItem menuShowHistory;
+    private javax.swing.JMenuItem menuShutdownPC;
     private javax.swing.JLabel outgoingBg;
     private javax.swing.JPanel panelPopup;
     private javax.swing.JScrollPane scrollPaneHistory;

@@ -53,6 +53,12 @@ public class PopupDialog extends JDialog{
 
     //shows the popup dialog in bottom-right corner of the screen and hides window decorations of it
     public void showPopup(){
+		
+		if(this.isDisplayable()){
+			this.setVisible(true);
+			return;
+		}
+		
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = (int) screenSize.getWidth();
         int screenHeight = (int) screenSize.getHeight();
