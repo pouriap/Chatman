@@ -564,7 +564,13 @@ public class ChatFrame extends javax.swing.JFrame {
          
         //replace the emoticon image with the larger image. we also add the width=50 and height=50 for better display
         String img = (String) tableEmojis.getValueAt(row, col);
-        img = img.replaceAll("<html>(.*)emoticons(.*\\.png')\\s(\\/>)<\\/html>", "$1emoticons_large$2 height=50 width=50 $3");
+		if(img.contains("wide")){
+			img = img.replaceAll("<html>(.*)emoticons(.*\\.gif')\\s(\\/>)<\\/html>", "$1emoticons_large$2 height=50 width=70 $3");
+		}
+		else{
+			img = img.replaceAll("<html>(.*)emoticons(.*\\.gif')\\s(\\/>)<\\/html>", "$1emoticons_large$2 height=50 width=50 $3");
+		}
+        
         
         //true = append
         updateOutgoingText(img, true);
@@ -908,12 +914,12 @@ public class ChatFrame extends javax.swing.JFrame {
         
         //Populate Table
         //!!!IMPORTANT: only words in emoticons name 
-        //!!!IMPORTANT: emoticons should have .png extention and be stored in /resources/emoticons folder
+        //!!!IMPORTANT: emoticons should have .gif extention and be stored in /resources/emoticons folder
         //!!!IMPORTANT: any change made here, or to emoticons names,format,folder,etc. should be also applied to regular expression accross the code
         String[][] emoticonsArray = new String[][]{
-            {"XD","want","tears","grin","dizzy"},
-            {"angry","pissedoff","omg","kaboom","ohno"},
-            {"onioncute","onioncool","pokerface","zombie","zZgif"},
+            {"hi", "smoke", "xd", "amazing", "victory"},
+            {"bleed", "desperate", "spiral", "shake", "shooting"},
+            {"calmdownwide", "killwide", "getout", "wallbangwide", "extraordinary"},
             {"yes","grumpyno","grumpy","dog","epicface"},
             {"snail","bat","wifi","reset","question"},
         };
@@ -930,7 +936,7 @@ public class ChatFrame extends javax.swing.JFrame {
         for(int row = 0;row<5;row++){
             for(int col = 0;col<5;col++){
                 String name = emoticonsArray[row][col];
-                URL url = getClass().getResource("/resources/emoticons/" + name + ".png");
+                URL url = getClass().getResource("/resources/emoticons/" + name + ".gif");
                 if(url != null)
                     name = url.toString();
                 String h = "<html><img src='" + name + "' /></html>";
@@ -1087,7 +1093,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //parse emoticons
         //(when we send emoticons, they actually get replaced by themselves, but it's ok)
         String url = getClass().getResource("/resources/emoticons_large/").toString();
-		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.png)\"", "src=\"" + url + "$1\"");
+		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
         
         incomingTextAll = incomingTextAll + t + "<br />";
         textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
