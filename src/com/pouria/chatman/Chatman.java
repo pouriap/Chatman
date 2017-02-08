@@ -38,8 +38,10 @@ public abstract class Chatman {
     protected Thread inputReaderThread;
     protected String userName, peerName;
     public final static int MOD_SERVER = 1, MOD_CLIENT = 2;
-    public final static String SPECIAL_HIDDEN="hidhidhid", SPECIAL_VISIBLE="visvisvis", SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid", SPECIAL_SHUTDOWN="sdsdsd";
-    
+    public final static String SPECIAL_HIDDEN="hidhidhid", SPECIAL_VISIBLE="visvisvis", 
+			SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid", SPECIAL_SHUTDOWN="sdsdsd";    
+	
+	
     public Chatman(int mode){
         this.gui = ChatFrame.getInstance();
         this.mode = mode;

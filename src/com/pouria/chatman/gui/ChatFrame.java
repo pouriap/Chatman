@@ -25,8 +25,6 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -41,7 +39,6 @@ import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
@@ -65,7 +62,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private String textAreaIncomingContentBeforeHistory = "";
     private HistoryTablePagination historyPagination;
 	
-	private boolean peerWindowIsHidden = false;
+	private boolean peerWindowIsHidden = true;
     
     public ResourceBundleWrapper l;
 
@@ -124,6 +121,7 @@ public class ChatFrame extends javax.swing.JFrame {
         menuShowHistory = new javax.swing.JMenuItem();
         menuResetModem = new javax.swing.JMenuItem();
         menuShutdownPC = new javax.swing.JMenuItem();
+        menuWakeOnLan = new javax.swing.JMenuItem();
         menuAbout = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
@@ -485,6 +483,15 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuShutdownPC);
 
+        menuWakeOnLan.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuWakeOnLan.setText("از خواب پا شه");
+        menuWakeOnLan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuWakeOnLanActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuWakeOnLan);
+
         menuAbout.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         menuAbout.setText("درباره");
         menuAbout.addActionListener(new java.awt.event.ActionListener() {
@@ -741,6 +748,16 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
 		chatman.sendShutdown();
     }//GEN-LAST:event_menuShutdownPCActionPerformed
+
+    private void menuWakeOnLanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuWakeOnLanActionPerformed
+        // TODO add your handling code here:
+		try{
+			Runtime.getRuntime().exec("wolcmd 9C5C8E719827 192.168.2.21 255.255.255.0");
+			
+		}catch(IOException e){
+			message(l.getString("wakeonlan_fail"));
+		}
+    }//GEN-LAST:event_menuWakeOnLanActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1011,6 +1028,8 @@ public class ChatFrame extends javax.swing.JFrame {
         menuChangeBg.setText(l.getString("change_bg"));
         menuShowHistory.setText(l.getString("show_history"));
         menuResetModem.setText(l.getString("reset_modem"));
+		menuShutdownPC.setText(l.getString("shutdown"));
+		menuWakeOnLan.setText(l.getString("wakeonlan"));
         menuAbout.setText(l.getString("about"));
         menuExit.setText(l.getString("exit"));
     }
@@ -1281,6 +1300,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu menuRightClick;
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuShutdownPC;
+    private javax.swing.JMenuItem menuWakeOnLan;
     private javax.swing.JLabel outgoingBg;
     private javax.swing.JPanel panelPopup;
     private javax.swing.JScrollPane scrollPaneHistory;
