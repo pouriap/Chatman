@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -152,7 +152,7 @@ public class InputReaderTh implements Runnable{
                         String f = reader.readLine();
                         final String fileName = new String(BaseEncoding.base64().decode(f), Charsets.UTF_8);
                         String fileData = reader.readLine();
-                        final String location = System.getProperty("user.home") + "\\My Documents\\Chatman Downloads\\";
+                        final String location = (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
                         
                         //save file
                         try{
