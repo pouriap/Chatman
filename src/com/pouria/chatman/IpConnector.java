@@ -40,14 +40,14 @@ public class IpConnector implements Runnable{
     private final ChatmanClient client;
     private final String ip;
     private final int port;
-    private final boolean isSignle;
+	private final boolean askRetry;
     
-    IpConnector(String h, int p, boolean r, ChatmanClient client){
+    IpConnector(String host, int port, boolean retry, ChatmanClient client){
         this.gui = ChatFrame.getInstance();
         this.client = client;
-        this.port = p;
-        this.ip = h;
-        this.isSignle = r;
+        this.port = port;
+        this.ip = host;
+		this.askRetry = retry;
     }
 
     @Override
@@ -57,29 +57,19 @@ public class IpConnector implements Runnable{
             Socket socket = new Socket();           
             socket.connect(new InetSocketAddress(ip, port), 3000);
             
-            //isSingle = we have the server ip and we are connecting to it
-            //there is no scanning and adding to list
-            if(isSignle){
-                client.setServerSocket(socket);
-                client.start();
-            }
-            //we are scanning
-            //so we just add the live server to list
-            //when scanning is finished we decide what to do in IpScanner
-            else{
-                client.addLiveServer(socket);
-            }
+			client.setServerSocket(socket);
+			client.start();
+
             
         }catch(IOException ex){ 
-            //is single is false when we are scanning network for servers and don't want a "not found" message for each failed connect
-            //we show a confirm dialog asking retry?
-            if(isSignle){
-                (new CommandInvokeLater(new CommandConfirmDialog(
-                        new CommandClientStart(),
-                        gui.l.getString("server_retry_confirm"),
-                        gui.l.getString("server_not_found")
-                ))).execute();
-            }
+			if(askRetry){
+				//we show a confirm dialog asking retry?
+				(new CommandInvokeLater(new CommandConfirmDialog(
+						new CommandClientStart(),
+						gui.l.getString("server_retry_confirm"),
+						gui.l.getString("server_not_found")
+				))).execute();
+			}
         }
         
     }

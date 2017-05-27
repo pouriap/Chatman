@@ -21,7 +21,6 @@ import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandMessage;
 import com.pouria.chatman.classes.CommandSetLabelStatus;
-import com.pouria.chatman.classes.CommandShowServerList;
 import com.pouria.chatman.gui.ChatmanConfig;
 import com.pouria.chatman.gui.ChatFrame;
 import java.net.InetAddress;
@@ -82,7 +81,7 @@ public class IpScanner implements Runnable {
         if(localIp != null){
             //start scanning the network
             //we will spawn threads that each one will try to connect to an ip
-            //when a live server is detected it is added to liveserverlist
+            //when a live server is detected we call ChatmanClient.setServerSocket() and break operation
             //when we are done it is decided what to do
             Thread[] scanners = new Thread[numHosts];
             for(int i=1, j=0;i<numHosts+1;i++,j++){
@@ -99,40 +98,43 @@ public class IpScanner implements Runnable {
             //wait until the scanning is finished
             boolean c;
             do{
+				
                 c = false;
+				
                 try{
                     Thread.sleep(3000);
                 }catch(InterruptedException e){
                     (new CommandInvokeLater(new CommandMessage(gui.l.getString("thread_sleep_fail")))).execute();
                 }
+				
                 //keep sleeping if we have live threads
                 for(Thread scanner: scanners){
                     //ooni ke IP local bood va continue dade budim null ast
                     if(scanner != null)
                         c = c || scanner.isAlive();
                 }
+				
+				//break if server is found
+				if(client.isServerFound()){
+					c = false;
+				}
+				
             }while(c);  
             
             //now we have finished scanning the network for live servers
-            int foundServers = client.numServersFound();
-            (new CommandInvokeLater(new CommandSetLabelStatus(foundServers + gui.l.getString("servers_found")))).execute();
-            
-            if(foundServers == 0){
+			
+            //update status and connect to server
+            if(client.isServerFound()){
+				(new CommandInvokeLater(new CommandSetLabelStatus(gui.l.getString("servers_found")))).execute();
+                client.start();
+            }
+			//show error
+            else{
                 (new CommandInvokeLater(new CommandConfirmDialog(
                         new CommandClientStart(),
                         gui.l.getString("server_retry_confirm"),
                         gui.l.getString("server_not_found")
                 ))).execute();
-
-            }
-            else if (foundServers == 1){
-                //if only one server is found don't show the list, connect to it
-                client.setServerSocket(0);
-                client.start();
-            }
-            else{
-                (new CommandInvokeLater(new CommandShowServerList())).execute();
-
             }
 
         }

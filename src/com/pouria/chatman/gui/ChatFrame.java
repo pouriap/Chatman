@@ -99,9 +99,6 @@ public class ChatFrame extends javax.swing.JFrame {
         tableHistory = new javax.swing.JTable();
         buttonNextHistoryPage = new javax.swing.JButton();
         buttonPrevHistoryPage = new javax.swing.JButton();
-        labelServers = new javax.swing.JLabel();
-        scrollPaneLiveServers = new javax.swing.JScrollPane();
-        listLiveServers = new javax.swing.JList<>();
         scrollPaneIncoming = new javax.swing.JScrollPane();
         textAreaIncoming = new javax.swing.JEditorPane();
         scrollPaneOutgoing = new javax.swing.JScrollPane();
@@ -119,7 +116,6 @@ public class ChatFrame extends javax.swing.JFrame {
         menuFile = new javax.swing.JMenu();
         menuChangeBg = new javax.swing.JMenuItem();
         menuShowHistory = new javax.swing.JMenuItem();
-        menuResetModem = new javax.swing.JMenuItem();
         menuShutdownPC = new javax.swing.JMenuItem();
         menuWakeOnLan = new javax.swing.JMenuItem();
         menuAbout = new javax.swing.JMenuItem();
@@ -287,25 +283,6 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         getContentPane().setLayout(null);
 
-        labelServers.setBackground(new java.awt.Color(255, 255, 255));
-        labelServers.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        labelServers.setForeground(new java.awt.Color(255, 255, 255));
-        labelServers.setText("Select a server to connect to");
-        getContentPane().add(labelServers);
-        labelServers.setBounds(120, 34, 240, 30);
-
-        listLiveServers.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        listLiveServers.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        listLiveServers.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                listLiveServersMouseReleased(evt);
-            }
-        });
-        scrollPaneLiveServers.setViewportView(listLiveServers);
-
-        getContentPane().add(scrollPaneLiveServers);
-        scrollPaneLiveServers.setBounds(120, 70, 240, 140);
-
         scrollPaneIncoming.setOpaque(false);
 
         textAreaIncoming.setEditable(false);
@@ -463,16 +440,6 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         menuFile.add(menuShowHistory);
-
-        menuResetModem.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        menuResetModem.setText("ریست مودم");
-        menuResetModem.setEnabled(false);
-        menuResetModem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuResetModemActionPerformed(evt);
-            }
-        });
-        menuFile.add(menuResetModem);
 
         menuShutdownPC.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         menuShutdownPC.setText("خاموش کردن کامپیوتر");
@@ -632,43 +599,6 @@ public class ChatFrame extends javax.swing.JFrame {
         } 
     }//GEN-LAST:event_textAreaOutgoingMouseReleased
 
-    //this is for resetting my modem. don't mint it.
-    private void menuResetModemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuResetModemActionPerformed
-
-        int reset = JOptionPane.showConfirmDialog(null, l.getString("modem_reset_confirm"), l.getString("reset"), JOptionPane.YES_NO_OPTION);
-        if(reset == JOptionPane.NO_OPTION)
-            return;
-        
-        HttpRequest request = HttpRequest.post("http://192.168.1.1/index/login.cgi")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0")
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                .header("Accept-Language", "en-US,en;q=0.8,fa-IR;q=0.5,fa;q=0.3")
-                .header("Accept-Encoding", "gzip, deflate")
-                .header("DNT", "1")
-                .header("Referer", "http://192.168.1.1/")
-                .header("Cookie", "FirstMenu=Admin_0; SecondMenu=Admin_0_0; ThirdMenu=Admin_0_0_0; Language=en;")
-                //it's safe to add this here because menu is only shown if "modem-user-pass" is set
-                .send(ChatmanConfig.getInstance().get("modem-user-pass"));
-
-        String cookie = (request.header("Set-Cookie"));
-        
-        request = HttpRequest.post("http://192.168.1.1/html/management/reboot.cgi?RequestFile=/html/management/reset.asp")
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0")
-                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                .header("Accept-Language", "en-US,en;q=0.8,fa-IR;q=0.5,fa;q=0.3")
-                .header("Accept-Encoding", "gzip, deflate")
-                .header("DNT", "1")
-                .header("Referer", "http://192.168.1.1/html/management/reset.asp")
-                .header("Cookie", "FirstMenu=Admin_0; SecondMenu=Admin_0_0; ThirdMenu=Admin_0_0_0; Language=en; " + cookie);
-        if(request.body().isEmpty()){
-            message(l.getString("modem_reset_fail"));
-        }
-        else{
-            exit();    
-        }
-        
-    }//GEN-LAST:event_menuResetModemActionPerformed
-
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
         //is run everytime history dialog opens
         
@@ -737,13 +667,6 @@ public class ChatFrame extends javax.swing.JFrame {
             message(l.getString("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
-
-    private void listLiveServersMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listLiveServersMouseReleased
-        //connect to selected server
-        int index = listLiveServers.getSelectedIndex();
-        ((ChatmanClient)getChatmanInstance()).setServerSocket(index);
-        ((ChatmanClient)getChatmanInstance()).start();
-    }//GEN-LAST:event_listLiveServersMouseReleased
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
         // TODO add your handling code here:
@@ -825,12 +748,6 @@ public class ChatFrame extends javax.swing.JFrame {
         
         //setup GUI elements texts accordig to locale
         setupGUITexts();
-
-        
-        //don't show modem reset to strangers
-        if(!ChatmanConfig.getInstance().isSet("modem-user-pass")){
-            menuResetModem.setVisible(false);
-        }
 
 		
         //TextArea Dorp
@@ -963,13 +880,8 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneOutgoing.getViewport().setOpaque(false);
         scrollPaneIncoming.setOpaque(false);
         scrollPaneIncoming.getViewport().setOpaque(false);
-        
-        
-        //Make server list invisible
-        labelServers.setVisible(false);
-        scrollPaneLiveServers.setVisible(false);
-              
-        
+
+
         //Icons
         //main frame
         java.net.URL url = getClass().getResource("/resources/icon.png");
@@ -1033,7 +945,6 @@ public class ChatFrame extends javax.swing.JFrame {
         menuFile.setText(l.getString("options"));
         menuChangeBg.setText(l.getString("change_bg"));
         menuShowHistory.setText(l.getString("show_history"));
-        menuResetModem.setText(l.getString("reset_modem"));
 		menuShutdownPC.setText(l.getString("shutdown"));
 		menuWakeOnLan.setText(l.getString("wakeonlan"));
         menuAbout.setText(l.getString("about"));
@@ -1139,29 +1050,6 @@ public class ChatFrame extends javax.swing.JFrame {
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
     }
-    
-    //well,...
-    public void addToServerList(String server){
-        if(listLiveServers.getModel().getSize() == 0)
-            listLiveServers.setModel(new DefaultListModel<String>());
-        
-        ((DefaultListModel) listLiveServers.getModel()).addElement("<html><b style='text-align:center'>" + server + "</b></html>");
-    }
-    
-    //umm..., shows the server list?
-    public void showServerList(){
-        labelServers.setVisible(true);
-        scrollPaneLiveServers.setVisible(true);
-    }
-    
-    //let me guess... removes the serverlist!
-    public void removeServerList(){
-        this.remove(scrollPaneLiveServers);
-        this.remove(labelServers);
-        this.repaint();
-        this.revalidate();
-    }
-    
     
     public void saveHistory(){
         //we don't want to save empty stuff
@@ -1294,15 +1182,12 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelMessageIcon;
     private javax.swing.JLabel labelNewMessage;
     private javax.swing.JLabel labelSend;
-    private javax.swing.JLabel labelServers;
     private javax.swing.JLabel labelStatus;
     private javax.swing.JLabel labelStatusLabl;
-    private javax.swing.JList<String> listLiveServers;
     private javax.swing.JMenuItem menuAbout;
     private javax.swing.JMenuItem menuChangeBg;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
-    private javax.swing.JMenuItem menuResetModem;
     private javax.swing.JPopupMenu menuRightClick;
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuShutdownPC;
@@ -1311,7 +1196,6 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JPanel panelPopup;
     private javax.swing.JScrollPane scrollPaneHistory;
     private javax.swing.JScrollPane scrollPaneIncoming;
-    private javax.swing.JScrollPane scrollPaneLiveServers;
     private javax.swing.JScrollPane scrollPaneOutgoing;
     private javax.swing.JTable tableEmojis;
     private javax.swing.JTable tableHistory;

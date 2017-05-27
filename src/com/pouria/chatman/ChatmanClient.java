@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 /**
  *
@@ -37,8 +36,7 @@ import java.util.ArrayList;
 
 public class ChatmanClient extends Chatman{
     
-    private ArrayList<Socket> liveServers = new ArrayList<Socket>();
-    private Socket serverSocket;
+    private Socket serverSocket = null;
     private Thread scanner;
     
     public static final boolean RETRY = true, NORETRY = false;
@@ -99,29 +97,16 @@ public class ChatmanClient extends Chatman{
 
     }
     
-    //this is called from the scanner thread. acts as a flag for us to know if the 
-    //scanner thread has found a live server
-    public void addLiveServer(Socket s){
-        liveServers.add(s);
-        gui.addToServerList( s.getInetAddress().getHostAddress() + "(" + s.getInetAddress().getHostName() + ")" );
-    }
-    
-    //returns number of live servers found
-    public int numServersFound(){
-        return liveServers.size();
-    }
     
     //sets the socket we wnat to connect to
     public void setServerSocket(Socket s){
         serverSocket = s;
-        gui.removeServerList();
-    }    
-    
-    //when we click on a server in the serverlist, we only have it's index so...
-    public void setServerSocket(int index){
-        serverSocket = liveServers.get(index);
-        gui.removeServerList();
     }
+	
+	//have we found a server
+	public boolean isServerFound(){
+		return serverSocket == null;
+	}
     
     public boolean isConnected(){
         if(serverSocket == null)
