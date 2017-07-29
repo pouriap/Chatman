@@ -5,7 +5,6 @@
  */
 package com.pouria.chatman.gui;
 
-import com.github.kevinsawicki.HttpRequest;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;
@@ -33,12 +32,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
@@ -61,6 +61,8 @@ public class ChatFrame extends javax.swing.JFrame {
     private String incomingTextAll = "";
     private String textAreaIncomingContentBeforeHistory = "";
     private HistoryTablePagination historyPagination;
+	private String[][][] emoticonsArray;
+	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	
 	private boolean peerWindowIsHidden = true;
     
@@ -106,6 +108,8 @@ public class ChatFrame extends javax.swing.JFrame {
         incomingBg = new javax.swing.JLabel();
         outgoingBg = new javax.swing.JLabel();
         tableEmojis = new javax.swing.JTable();
+        labelNextEmojiPage = new javax.swing.JLabel();
+        labelPrevEmojiPage = new javax.swing.JLabel();
         labelSend = new javax.swing.JLabel();
         labelClear = new javax.swing.JLabel();
         labelStatusLabl = new javax.swing.JLabel();
@@ -359,6 +363,39 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(tableEmojis);
         tableEmojis.setBounds(300, 330, 170, 150);
 
+        labelNextEmojiPage.setBackground(new java.awt.Color(51, 51, 51));
+        labelNextEmojiPage.setFont(new java.awt.Font("Sylfaen", 1, 14)); // NOI18N
+        labelNextEmojiPage.setForeground(new java.awt.Color(255, 255, 255));
+        labelNextEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelNextEmojiPage.setText(">");
+        labelNextEmojiPage.setToolTipText("");
+        labelNextEmojiPage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        labelNextEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        labelNextEmojiPage.setOpaque(true);
+        labelNextEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                labelNextEmojiPageMouseReleased(evt);
+            }
+        });
+        getContentPane().add(labelNextEmojiPage);
+        labelNextEmojiPage.setBounds(390, 490, 50, 25);
+
+        labelPrevEmojiPage.setBackground(new java.awt.Color(51, 51, 51));
+        labelPrevEmojiPage.setFont(new java.awt.Font("Sylfaen", 1, 14)); // NOI18N
+        labelPrevEmojiPage.setForeground(new java.awt.Color(255, 255, 255));
+        labelPrevEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelPrevEmojiPage.setText("<");
+        labelPrevEmojiPage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        labelPrevEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        labelPrevEmojiPage.setOpaque(true);
+        labelPrevEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                labelPrevEmojiPageMouseReleased(evt);
+            }
+        });
+        getContentPane().add(labelPrevEmojiPage);
+        labelPrevEmojiPage.setBounds(330, 490, 50, 25);
+
         labelSend.setBackground(new java.awt.Color(51, 51, 51));
         labelSend.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelSend.setForeground(new java.awt.Color(255, 255, 255));
@@ -407,6 +444,7 @@ public class ChatFrame extends javax.swing.JFrame {
         backgroundOfLabels.setBounds(0, 560, 500, 40);
 
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
+        labelFrameBg.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         getContentPane().add(labelFrameBg);
         labelFrameBg.setBounds(0, 0, 500, 600);
 
@@ -531,12 +569,7 @@ public class ChatFrame extends javax.swing.JFrame {
          
         //replace the emoticon image with the larger image. we also add the width=50 and height=50 for better display
         String img = (String) tableEmojis.getValueAt(row, col);
-		if(img.contains("wide")){
-			img = img.replaceAll("<html>(.*)emoticons(.*\\.gif')\\s(\\/>)<\\/html>", "$1emoticons_large$2 height=50 width=70 $3");
-		}
-		else{
-			img = img.replaceAll("<html>(.*)emoticons(.*\\.gif')\\s(\\/>)<\\/html>", "$1emoticons_large$2 height=50 width=50 $3");
-		}
+		img = img.replaceAll("<html>(.*)emoticons(.*\\.gif')\\s(\\/>)<\\/html>", "$1emoticons_large$2  $3");
         
         
         //true = append
@@ -688,6 +721,16 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
     }//GEN-LAST:event_menuWakeOnLanActionPerformed
 
+    private void labelNextEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseReleased
+        // TODO add your handling code here:
+		nextEmojiPage();
+    }//GEN-LAST:event_labelNextEmojiPageMouseReleased
+
+    private void labelPrevEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseReleased
+        // TODO add your handling code here:
+		prevEmojiPage();
+    }//GEN-LAST:event_labelPrevEmojiPageMouseReleased
+
     /**
      * @param args the command line arguments
      */
@@ -833,36 +876,32 @@ public class ChatFrame extends javax.swing.JFrame {
         //!!!IMPORTANT: only words in emoticons name 
         //!!!IMPORTANT: emoticons should have .gif extention and be stored in /resources/emoticons folder
         //!!!IMPORTANT: any change made here, or to emoticons names,format,folder,etc. should be also applied to regular expression accross the code
-        String[][] emoticonsArray = new String[][]{
-            {"hi", "smoke", "xd", "amazing", "victory"},
-            {"bleed", "desperate", "spiral", "shake", "shooting"},
-            {"calmdownwide", "killwide", "getout", "wallbangwide", "extraordinary"},
-            {"yes","grumpyno","grumpy","dog","epicface"},
-            {"snail","bat","wifi","reset","question"},
+        emoticonsArray = new String[][][]{
+			{
+				{"hi", "smoke", "xd", "amazing", "victory"},
+				{"bleed", "desperate", "spiral", "shake", "shooting"},
+				{"calmdownwide", "killwide", "getout", "wallbangwide", "extraordinary"},
+				{"yes", "grumpyno", "grumpy", "dog", "epicface"},
+				{"snail", "wifi", "reset", "power", "question"}
+			},
+			{
+				{"badluck", "ballerina", "boring", "dancing", "dizzy"},
+				{"dunno", "exorcist", "flying", "happiness", "dancingg"},
+				{"happyy", "help", "killme", "killmyself", "looser"},
+				{"magic", "dreaming", "nah", "nono", "patpat"},
+				{"poking", "scratching", "sleeping", "smooth", "stars"}
+			},
+			{
+				{"steal", "taichi", "teehee", "what", "yeah"},
+				{"yesss", "yipee", "dancingg", "bat", "na"},
+				{"na", "na", "na", "na", "na"},
+				{"na", "na", "na", "na", "na"},
+				{"na", "na", "na", "na", "na"}
+			}
         };
-             
-        //make tableEmoji's cells uneditable
-        AbstractTableModel model = new DefaultTableModel(5, 5){
-            @Override
-            public boolean isCellEditable(int row, int column){
-                return false;
-            }
-        };
-        
-        //add emoticons to cells
-        for(int row = 0;row<5;row++){
-            for(int col = 0;col<5;col++){
-                String name = emoticonsArray[row][col];
-                URL url = getClass().getResource("/resources/emoticons/" + name + ".gif");
-                if(url != null)
-                    name = url.toString();
-                String h = "<html><img src='" + name + "' /></html>";
-                model.setValueAt(h, row, col);
-            }
-        }
-        tableEmojis.setModel(model);
-
-        
+		nextEmojiPage();
+		
+       
         //Frame BG
         setBackground(Background.getInstance().getCurrentURL());
        
@@ -950,6 +989,62 @@ public class ChatFrame extends javax.swing.JFrame {
         menuAbout.setText(l.getString("about"));
         menuExit.setText(l.getString("exit"));
     }
+	
+		//populates a table with emoticons and returns the table model
+	public AbstractTableModel getEmoticonTable(String[][] emoticonsArray){
+		
+			//make table cells uneditable
+			AbstractTableModel model = new DefaultTableModel(5, 5){
+				@Override
+				public boolean isCellEditable(int row, int column){
+					return false;
+				}
+			};
+
+			//add emoticons to cells
+			for(int row = 0;row<5;row++){
+				for(int col = 0;col<5;col++){
+					String name = emoticonsArray[row][col];
+					URL url = getClass().getResource("/resources/emoticons/" + name + ".gif");
+					if(url != null)
+						name = url.toString();
+					String h = "<html><img src='" + name + "' /></html>";
+					model.setValueAt(h, row, col);
+				}
+			}
+			
+			return model;
+	}
+	
+	//loads next set of emojis
+	public void nextEmojiPage(){
+		
+		if(emojisIndex >= (emoticonsArray.length - 1) ){
+			emojisIndex = 0;
+		}
+		else{
+			emojisIndex++;
+		}
+		
+		AbstractTableModel model = getEmoticonTable(emoticonsArray[emojisIndex]);
+		tableEmojis.setModel(model);
+		
+	}
+	
+	//loads previous set of emojis
+	public void prevEmojiPage(){
+		
+		if(emojisIndex <= 0){
+			emojisIndex = (emoticonsArray.length -1);
+		}
+		else{
+			emojisIndex--;
+		}
+		
+		AbstractTableModel model = getEmoticonTable(emoticonsArray[emojisIndex]);
+		tableEmojis.setModel(model);
+		
+	}
     
     //sends the content of textAreaOutgoing
     private void send(){
@@ -1102,10 +1197,7 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
-        if(!this.isVisible() && !dialogPopup.isVisible())
-            return true;
-        
-        return false;
+        return !this.isVisible() && !dialogPopup.isVisible();
     }
 	
 	public void setPeerWindowIsHidden(boolean b){
@@ -1181,6 +1273,8 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelMessageIcon;
     private javax.swing.JLabel labelNewMessage;
+    private javax.swing.JLabel labelNextEmojiPage;
+    private javax.swing.JLabel labelPrevEmojiPage;
     private javax.swing.JLabel labelSend;
     private javax.swing.JLabel labelStatus;
     private javax.swing.JLabel labelStatusLabl;

@@ -105,7 +105,7 @@ public class ChatmanClient extends Chatman{
 	
 	//have we found a server
 	public boolean isServerFound(){
-		return serverSocket == null;
+		return serverSocket != null;
 	}
     
     public boolean isConnected(){

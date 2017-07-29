@@ -116,11 +116,11 @@ public class InputReaderTh implements Runnable{
 				//if we are both hidden, then we close
                 else if(line.equals(Chatman.SPECIAL_HIDDEN)){
 					
-					if(gui.isVisible()){
-						gui.setPeerWindowIsHidden(true);
+					if(gui.isHidden()){
+						c = false;
 					}
 					else{
-						c = false;
+						gui.setPeerWindowIsHidden(true);
 					}
                     
                 }
