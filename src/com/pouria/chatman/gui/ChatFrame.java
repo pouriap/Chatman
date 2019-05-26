@@ -11,11 +11,12 @@ import com.google.common.io.Files;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanClient;
 import com.pouria.chatman.ChatmanServer;
+import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.HistoryTablePagination;
-import com.pouria.chatman.classes.ResourceBundleWrapper;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -26,20 +27,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
+import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
@@ -66,8 +67,6 @@ public class ChatFrame extends javax.swing.JFrame {
 	
 	private boolean peerWindowIsHidden = true;
     
-    public ResourceBundleWrapper l;
-
     
     private ChatFrame(){
         initComponents();
@@ -120,8 +119,12 @@ public class ChatFrame extends javax.swing.JFrame {
         menuFile = new javax.swing.JMenu();
         menuChangeBg = new javax.swing.JMenuItem();
         menuShowHistory = new javax.swing.JMenuItem();
-        menuShutdownPC = new javax.swing.JMenuItem();
+        menuSeparator1 = new javax.swing.JPopupMenu.Separator();
+        menuRemoteShutdown = new javax.swing.JMenuItem();
+        menuAbortRemoteShutdown = new javax.swing.JMenuItem();
+        menuAbortLocalShutdown = new javax.swing.JMenuItem();
         menuWakeOnLan = new javax.swing.JMenuItem();
+        menuSeparator2 = new javax.swing.JPopupMenu.Separator();
         menuAbout = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
@@ -317,8 +320,8 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         textAreaOutgoing.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                textAreaOutgoingKeyReleased(evt);
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                textAreaOutgoingKeyPressed(evt);
             }
         });
         scrollPaneOutgoing.setViewportView(textAreaOutgoing);
@@ -367,7 +370,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelNextEmojiPage.setFont(new java.awt.Font("Sylfaen", 1, 14)); // NOI18N
         labelNextEmojiPage.setForeground(new java.awt.Color(255, 255, 255));
         labelNextEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelNextEmojiPage.setText(">");
+        labelNextEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/next.png"))); // NOI18N
         labelNextEmojiPage.setToolTipText("");
         labelNextEmojiPage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         labelNextEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -378,13 +381,13 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labelNextEmojiPage);
-        labelNextEmojiPage.setBounds(390, 490, 50, 25);
+        labelNextEmojiPage.setBounds(390, 490, 30, 25);
 
         labelPrevEmojiPage.setBackground(new java.awt.Color(51, 51, 51));
         labelPrevEmojiPage.setFont(new java.awt.Font("Sylfaen", 1, 14)); // NOI18N
         labelPrevEmojiPage.setForeground(new java.awt.Color(255, 255, 255));
         labelPrevEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelPrevEmojiPage.setText("<");
+        labelPrevEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/prev.png"))); // NOI18N
         labelPrevEmojiPage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         labelPrevEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelPrevEmojiPage.setOpaque(true);
@@ -394,7 +397,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labelPrevEmojiPage);
-        labelPrevEmojiPage.setBounds(330, 490, 50, 25);
+        labelPrevEmojiPage.setBounds(350, 490, 30, 25);
 
         labelSend.setBackground(new java.awt.Color(51, 51, 51));
         labelSend.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -405,8 +408,8 @@ public class ChatFrame extends javax.swing.JFrame {
         labelSend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelSend.setOpaque(true);
         labelSend.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                labelSendMouseReleased(evt);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                labelSendMousePressed(evt);
             }
         });
         getContentPane().add(labelSend);
@@ -460,16 +463,16 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
 
-        menuChangeBg.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuChangeBg.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         menuChangeBg.setText("تغییر پس زمینه");
-        menuChangeBg.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuChangeBgActionPerformed(evt);
+        menuChangeBg.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                menuChangeBgMouseReleased(evt);
             }
         });
         menuFile.add(menuChangeBg);
 
-        menuShowHistory.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuShowHistory.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         menuShowHistory.setText("نمایش تاریخچه");
         menuShowHistory.setToolTipText("");
         menuShowHistory.addActionListener(new java.awt.event.ActionListener() {
@@ -478,26 +481,47 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         menuFile.add(menuShowHistory);
+        menuFile.add(menuSeparator1);
 
-        menuShutdownPC.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        menuShutdownPC.setText("خاموش کردن کامپیوتر");
-        menuShutdownPC.addActionListener(new java.awt.event.ActionListener() {
+        menuRemoteShutdown.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        menuRemoteShutdown.setText("خاموش کردن از راه دور");
+        menuRemoteShutdown.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuShutdownPCActionPerformed(evt);
+                menuRemoteShutdownActionPerformed(evt);
             }
         });
-        menuFile.add(menuShutdownPC);
+        menuFile.add(menuRemoteShutdown);
 
-        menuWakeOnLan.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        menuWakeOnLan.setText("از خواب پا شه");
+        menuAbortRemoteShutdown.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        menuAbortRemoteShutdown.setText("توقف خاموشی آن کامپیوتر");
+        menuAbortRemoteShutdown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuAbortRemoteShutdownActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuAbortRemoteShutdown);
+
+        menuAbortLocalShutdown.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        menuAbortLocalShutdown.setText("توقف خاموشی این کامپیوتر");
+        menuAbortLocalShutdown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuAbortLocalShutdownActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuAbortLocalShutdown);
+
+        menuWakeOnLan.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        menuWakeOnLan.setText("بیدار کردن");
+        menuWakeOnLan.setEnabled(false);
         menuWakeOnLan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuWakeOnLanActionPerformed(evt);
             }
         });
         menuFile.add(menuWakeOnLan);
+        menuFile.add(menuSeparator2);
 
-        menuAbout.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuAbout.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         menuAbout.setText("درباره");
         menuAbout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -506,7 +530,7 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuAbout);
 
-        menuExit.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        menuExit.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         menuExit.setText("خروج");
         menuExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -538,29 +562,9 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
     }//GEN-LAST:event_formWindowClosing
 
-    private void textAreaOutgoingKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyReleased
-
-        if (evt.getKeyChar() == '\n'){ 
-            send();
-        }
-    }//GEN-LAST:event_textAreaOutgoingKeyReleased
-
     private void menuFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileActionPerformed
         
     }//GEN-LAST:event_menuFileActionPerformed
-
-    private void menuChangeBgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuChangeBgActionPerformed
-        
-        Background.getInstance().next();
-        setBackground(Background.getInstance().getCurrentURL());
-
-        if(chatman != null)
-            chatman.updateUserName();
-       
-        //doClick() so user doesn't have to open menu over and over again for changing bg
-        menuFile.doClick();
-
-    }//GEN-LAST:event_menuChangeBgActionPerformed
 
     private void tableEmojisMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableEmojisMouseReleased
 
@@ -594,11 +598,12 @@ public class ChatFrame extends javax.swing.JFrame {
                     Desktop.getDesktop().browse(evt.getURL().toURI());
                 
             }catch(IOException e){
-                message(l.getString("url_open_fail") + e.getMessage());
+                message(Helper.getInstance().getStr("url_open_fail") + e.getMessage());
             }catch(URISyntaxException e){
-                message(l.getString("bad_url") + e.getMessage());
+                message(Helper.getInstance().getStr("bad_url") + e.getMessage());
             }
         }
+		
     }//GEN-LAST:event_textAreaIncomingHyperlinkUpdate
 
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExitActionPerformed
@@ -614,11 +619,6 @@ public class ChatFrame extends javax.swing.JFrame {
         //Focus
         textAreaOutgoing.requestFocus();
     }//GEN-LAST:event_panelPopupMouseReleased
-
-    private void labelSendMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseReleased
-
-        send();
-    }//GEN-LAST:event_labelSendMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
 
@@ -649,7 +649,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             
         }catch(SQLException e){
-            message(l.getString("history_fail") + e.getMessage());
+            message(Helper.getInstance().getStr("history_fail") + e.getMessage());
         }
 
     }//GEN-LAST:event_dialogHistoryWindowOpened
@@ -686,7 +686,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
-            message(l.getString("history_fail") + e.getMessage());
+            message(Helper.getInstance().getStr("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
 
@@ -697,28 +697,34 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
-            message(l.getString("history_fail") + e.getMessage());
+            message(Helper.getInstance().getStr("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
         // TODO add your handling code here:
-        JOptionPane.showMessageDialog(null, l.getString("license"), l.getString("about"), JOptionPane.PLAIN_MESSAGE, null);
+        JOptionPane.showMessageDialog(null, Helper.getInstance().getStr("license"), Helper.getInstance().getStr("about"), JOptionPane.PLAIN_MESSAGE, null);
     }//GEN-LAST:event_menuAboutActionPerformed
 
-    private void menuShutdownPCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuShutdownPCActionPerformed
+    private void menuRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRemoteShutdownActionPerformed
         // TODO add your handling code here:
-		chatman.sendShutdown();
-    }//GEN-LAST:event_menuShutdownPCActionPerformed
+		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("remote_shutdown_message"), Helper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
+        if(answer == JOptionPane.YES_OPTION){
+            chatman.sendShutdown();
+        }
+    }//GEN-LAST:event_menuRemoteShutdownActionPerformed
 
     private void menuWakeOnLanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuWakeOnLanActionPerformed
         // TODO add your handling code here:
+		throw new UnsupportedOperationException("not supported yet");
+		/*
 		try{
-			Runtime.getRuntime().exec("wolcmd 9C5C8E719827 192.168.2.21 255.255.255.0");
+			Helper.getInstance().sendWakeOnLan("remote_ip");
 			
 		}catch(IOException e){
-			message(l.getString("wakeonlan_fail"));
+			message(Helper.getInstance().getStr("wakeonlan_fail"));
 		}
+		*/
     }//GEN-LAST:event_menuWakeOnLanActionPerformed
 
     private void labelNextEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseReleased
@@ -730,6 +736,58 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
 		prevEmojiPage();
     }//GEN-LAST:event_labelPrevEmojiPageMouseReleased
+
+    private void menuAbortLocalShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortLocalShutdownActionPerformed
+        // TODO add your handling code here:
+		try{
+			Helper.getInstance().abortLocalShutdown();
+		}catch(IOException e){
+			message("couldn't stop the shutdown :(");
+		}
+    }//GEN-LAST:event_menuAbortLocalShutdownActionPerformed
+
+    private void menuChangeBgMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuChangeBgMouseReleased
+        // TODO add your handling code here:
+		
+		boolean isLeftClick = SwingUtilities.isLeftMouseButton(evt);
+		
+		if(isLeftClick){
+			Background.getInstance().next();
+		}
+		else{
+			Background.getInstance().prev();
+		}
+		
+        setBackground(Background.getInstance().getCurrentURL());
+
+        if(chatman != null)
+            chatman.updateUserName();
+       
+        //doClick() so user doesn't have to open menu over and over again for changing bg
+        menuFile.doClick();
+		
+    }//GEN-LAST:event_menuChangeBgMouseReleased
+
+    private void labelSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMousePressed
+        // TODO add your handling code here:
+		send();
+    }//GEN-LAST:event_labelSendMousePressed
+
+    private void textAreaOutgoingKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyPressed
+        // TODO add your handling code here:
+		if (evt.getKeyChar() == '\n'){ 
+			evt.consume();
+            send();
+        }
+    }//GEN-LAST:event_textAreaOutgoingKeyPressed
+
+    private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
+        // TODO add your handling code here:
+		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("abort_remote_shutdown_message"), Helper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
+        if(answer == JOptionPane.YES_OPTION){
+            chatman.sendAbortShutdown();
+        }
+    }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
     /**
      * @param args the command line arguments
@@ -786,7 +844,12 @@ public class ChatFrame extends javax.swing.JFrame {
     public void myInits(){
         
         //Locale
-        mSetLocale(ChatmanConfig.getInstance().getLocale());
+		try{
+			Helper.getInstance().setLocale(ChatmanConfig.getInstance().getLocale());
+		}catch(Exception e){
+			message(e.getMessage());
+            exit();
+		}
 
         
         //setup GUI elements texts accordig to locale
@@ -812,7 +875,7 @@ public class ChatFrame extends javax.swing.JFrame {
                         //check file size
                         int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
                         if(file.length()> max*1000*1000){
-                            message(l.getString("max_file_size") + max + "MB");
+                            message(Helper.getInstance().getStr("max_file_size") + max + "MB");
                             continue;
                         }
 
@@ -824,12 +887,12 @@ public class ChatFrame extends javax.swing.JFrame {
                         chatman.sendFile(name, base64data);
 
                         //show file sent message and clear textAreaOutgoing
-                        updateIncomingText(l.getString("file_sent") + file.getName());
+                        updateIncomingText(Helper.getInstance().getStr("file_sent") + file.getName());
                         defaultOutgoingText();
 
                     }
                 } catch (Exception ex) {
-                    message(l.getString("open_file_fail"));
+                    message(Helper.getInstance().getStr("open_file_fail"));
                 }
             }
         });
@@ -838,7 +901,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //TextArea right click
         
         //create a paste action because the default is problematic
-        Action paste = new AbstractAction(l.getString("paste")) {
+        Action paste = new AbstractAction(Helper.getInstance().getStr("paste")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 textAreaOutgoing.paste();
@@ -851,9 +914,9 @@ public class ChatFrame extends javax.swing.JFrame {
         
         //setup copy and cut
         Action copyAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.copyAction);
-        copyAction.putValue("Name", l.getString("copy"));
+        copyAction.putValue("Name", Helper.getInstance().getStr("copy"));
         Action cutAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.cutAction);
-        cutAction.putValue("Name", l.getString("cut"));
+        cutAction.putValue("Name", Helper.getInstance().getStr("cut"));
         
         menuRightClick.add (paste); 
         menuRightClick.add (copyAction);
@@ -905,10 +968,9 @@ public class ChatFrame extends javax.swing.JFrame {
         //Frame BG
         setBackground(Background.getInstance().getCurrentURL());
        
-        
         //Empty HTML Texts
         defaultTextAreaHtml = new String[2];
-        defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px }</style></head><body><div id=\"text\">";
+        defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px; }</style></head><body><div id=\"text\">";
         defaultTextAreaHtml[1] = "</div></body></html>";
         defaultOutgoingText();
         defaultIncomingText();        
@@ -919,8 +981,8 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneOutgoing.getViewport().setOpaque(false);
         scrollPaneIncoming.setOpaque(false);
         scrollPaneIncoming.getViewport().setOpaque(false);
-
-
+		
+		
         //Icons
         //main frame
         java.net.URL url = getClass().getResource("/resources/icon.png");
@@ -936,8 +998,22 @@ public class ChatFrame extends javax.swing.JFrame {
 
         //Center
         this.setLocationRelativeTo(null);
-
-        
+		
+		//Hide wake on lan menu
+		menuWakeOnLan.setVisible(false);
+		
+		//Iransans font for send and clear
+		try{
+			InputStream is = getClass().getResourceAsStream("/resources/iransans.ttf");
+			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+			Font iranSans = font.deriveFont(15f);
+			labelSend.setFont(iranSans);
+			labelClear.setFont(iranSans);
+		}catch(Exception e){
+			//font will revert to Tahoma
+		}
+		
+		       
     } 
     
     //start Chatman as client/server
@@ -954,43 +1030,36 @@ public class ChatFrame extends javax.swing.JFrame {
             this.setVisible(true);
         }
         else{
-            message(l.getString("invalid_args"));
+            message(Helper.getInstance().getStr("invalid_args"));
             exit(true);
         }
         
     }
     
-    
-    //Called from myInits()
-    public void mSetLocale(Locale locale){
-        try{
-            l = new ResourceBundleWrapper("resources.locale.locale", locale);
-        }catch(Exception e){
-            message(e.getMessage());
-            exit();
-        }
-    }
+
     
     //Called from myInits()
     public void setupGUITexts(){
-        labelNewMessage.setText(l.getString("new_message"));
-        dialogHistory.setTitle(l.getString("history"));
-        buttonNextHistoryPage.setText(l.getString("next_page"));
-        buttonPrevHistoryPage.setText(l.getString("prev_page"));
-        labelSend.setText(l.getString("send"));
-        labelClear.setText(l.getString("clear"));
-        labelStatusLabl.setText(l.getString("status"));
-        labelStatus.setText(l.getString("offline"));
-        menuFile.setText(l.getString("options"));
-        menuChangeBg.setText(l.getString("change_bg"));
-        menuShowHistory.setText(l.getString("show_history"));
-		menuShutdownPC.setText(l.getString("shutdown"));
-		menuWakeOnLan.setText(l.getString("wakeonlan"));
-        menuAbout.setText(l.getString("about"));
-        menuExit.setText(l.getString("exit"));
+        labelNewMessage.setText(Helper.getInstance().getStr("new_message"));
+        dialogHistory.setTitle(Helper.getInstance().getStr("history"));
+        buttonNextHistoryPage.setText(Helper.getInstance().getStr("next_page"));
+        buttonPrevHistoryPage.setText(Helper.getInstance().getStr("prev_page"));
+        labelSend.setText(Helper.getInstance().getStr("send"));
+        labelClear.setText(Helper.getInstance().getStr("clear"));
+        labelStatusLabl.setText(Helper.getInstance().getStr("status"));
+        labelStatus.setText(Helper.getInstance().getStr("offline"));
+        menuFile.setText(Helper.getInstance().getStr("options"));
+        menuChangeBg.setText(Helper.getInstance().getStr("change_bg"));
+        menuShowHistory.setText(Helper.getInstance().getStr("show_history"));
+		menuRemoteShutdown.setText(Helper.getInstance().getStr("remote_shutdown"));
+		menuAbortLocalShutdown.setText(Helper.getInstance().getStr("abort_local_shutdown"));
+		menuAbortRemoteShutdown.setText(Helper.getInstance().getStr("abort_remote_shutdown"));
+		menuWakeOnLan.setText(Helper.getInstance().getStr("wakeonlan"));
+        menuAbout.setText(Helper.getInstance().getStr("about"));
+        menuExit.setText(Helper.getInstance().getStr("exit"));
     }
 	
-		//populates a table with emoticons and returns the table model
+	//populates a table with emoticons and returns the table model
 	public AbstractTableModel getEmoticonTable(String[][] emoticonsArray){
 		
 			//make table cells uneditable
@@ -1048,10 +1117,11 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //sends the content of textAreaOutgoing
     private void send(){
+		
         //is run when Enter is pressed or Ersal is pressed
         if(chatman.getMode() == Chatman.MOD_CLIENT)
             if(!((ChatmanClient)chatman).isConnected()){
-                message(l.getString("not_connected"));
+                message(Helper.getInstance().getStr("not_connected"));
                 return;
         }
         
@@ -1064,10 +1134,11 @@ public class ChatFrame extends javax.swing.JFrame {
         //'\n' should only be at the end of the message because we use readline()
         s = s.replace("\n", "").trim();
         
-        updateIncomingText("<b>" + l.getString("you") + ": </b>" + s);
+        updateIncomingText("<b>" + Helper.getInstance().getStr("you") + ": </b>" + s);
         chatman.send("<b>" + chatman.getUserName() + ": </b>" + s);
         
         defaultOutgoingText();
+		
     }
     
     //parses the string that is given to it and adds it to textAreaIncoming
@@ -1100,10 +1171,31 @@ public class ChatFrame extends javax.swing.JFrame {
         //(when we send emoticons, they actually get replaced by themselves, but it's ok)
         String url = getClass().getResource("/resources/emoticons_large/").toString();
 		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
-        
-        incomingTextAll = incomingTextAll + t + "<br />";
+		
+		incomingTextAll = incomingTextAll + "<div>" + t + "</div>";
         textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
-        
+		
+		//wait 100ms in another thread and then scroll the incoming text all the way down
+		//because the fucking thing just doesn't work any other way
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				try{
+					Thread.sleep(100);
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							scrollDownIncomingText();
+						}
+					});
+				}catch(Exception e){
+					
+				}
+			}
+		};
+		Thread th = new Thread(r);
+		th.start();
+		        
     }
     
     //lazy version 
@@ -1115,6 +1207,11 @@ public class ChatFrame extends javax.swing.JFrame {
     public void defaultIncomingText(){
         textAreaIncoming.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
     }
+	
+	public void scrollDownIncomingText(){
+		JScrollBar vertical = scrollPaneIncoming.getVerticalScrollBar();
+		vertical.setValue( vertical.getMaximum() );
+	}
     
     //is called when we want to add something to the outgoing text like emoticons, paste stuff, or disconnect message
     public void updateOutgoingText(String t, boolean append){
@@ -1147,6 +1244,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     public void saveHistory(){
+		
         //we don't want to save empty stuff
         if(incomingTextAll.isEmpty())
             return;
@@ -1154,9 +1252,12 @@ public class ChatFrame extends javax.swing.JFrame {
         Connection c = null;
         PreparedStatement stmt = null;
         Date date = new Date();
+
         
         try {
-            Class.forName("org.sqlite.JDBC");
+			
+			Class.forName("org.sqlite.JDBC");
+			
             c = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
             c.setAutoCommit(false);            
 
@@ -1168,8 +1269,9 @@ public class ChatFrame extends javax.swing.JFrame {
             
             stmt.close();
             c.close();
+					
         } catch ( Exception e ) {
-            message(l.getString("history_save_fail") + e.getMessage());
+            message(Helper.getInstance().getStr("history_save_fail") + e.getMessage());
         }
     }
     
@@ -1237,13 +1339,13 @@ public class ChatFrame extends javax.swing.JFrame {
 	}
 	
     //the end of chatman. that's it. no auto pilot :(
-    public void exit(){
+    public synchronized void exit(){
 		
-		hideWindow();
-
         saveHistory();
                 
         ChatmanConfig.getInstance().save();
+		
+		hideWindow();
         
         System.exit(0);
 		
@@ -1278,13 +1380,17 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelSend;
     private javax.swing.JLabel labelStatus;
     private javax.swing.JLabel labelStatusLabl;
+    private javax.swing.JMenuItem menuAbortLocalShutdown;
+    private javax.swing.JMenuItem menuAbortRemoteShutdown;
     private javax.swing.JMenuItem menuAbout;
     private javax.swing.JMenuItem menuChangeBg;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
+    private javax.swing.JMenuItem menuRemoteShutdown;
     private javax.swing.JPopupMenu menuRightClick;
+    private javax.swing.JPopupMenu.Separator menuSeparator1;
+    private javax.swing.JPopupMenu.Separator menuSeparator2;
     private javax.swing.JMenuItem menuShowHistory;
-    private javax.swing.JMenuItem menuShutdownPC;
     private javax.swing.JMenuItem menuWakeOnLan;
     private javax.swing.JLabel outgoingBg;
     private javax.swing.JPanel panelPopup;

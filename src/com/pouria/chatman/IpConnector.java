@@ -66,8 +66,8 @@ public class IpConnector implements Runnable{
 				//we show a confirm dialog asking retry?
 				(new CommandInvokeLater(new CommandConfirmDialog(
 						new CommandClientStart(),
-						gui.l.getString("server_retry_confirm"),
-						gui.l.getString("server_not_found")
+						Helper.getInstance().getStr("server_retry_confirm"),
+						Helper.getInstance().getStr("server_not_found")
 				))).execute();
 			}
         }

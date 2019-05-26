@@ -58,20 +58,20 @@ public class ChatmanClient extends Chatman{
         
         try{
             writer = new PrintWriter(new OutputStreamWriter(serverSocket.getOutputStream()),true);
-            (new CommandInvokeLater(new CommandSetLabelStatus(gui.l.getString("connection_with") + serverSocket.getInetAddress().getHostAddress() + gui.l.getString("stablished")))).execute();
+            (new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + serverSocket.getInetAddress().getHostAddress() + Helper.getInstance().getStr("stablished")))).execute();
 
             th = new InputReaderTh(serverSocket);
             inputReaderThread = new Thread(th);
             inputReaderThread.start();
             
         }catch(UnknownHostException e){
-            (new CommandInvokeLater(new CommandMessage(gui.l.getString("find_host_fail") + e.getMessage()))).execute();
+            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("find_host_fail") + e.getMessage()))).execute();
             gui.exit();
         }catch(IOException e){
-            (new CommandInvokeLater(new CommandMessage(gui.l.getString("stream_open_fail") + e.getMessage()))).execute();
+            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("stream_open_fail") + e.getMessage()))).execute();
             gui.exit();
         }catch(Exception e){
-            (new CommandInvokeLater(new CommandMessage(gui.l.getString("client_start_fail") + e.getMessage()))).execute();
+            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("client_start_fail") + e.getMessage()))).execute();
             gui.exit();
         }
     }
@@ -79,7 +79,7 @@ public class ChatmanClient extends Chatman{
     //connects to server. if server-ip is specified in config then connects directly
     //else it scans the subnet-mask for live servers    
     private void connect(){
-        gui.setLabelStatus(gui.l.getString("searching_network"));
+        gui.setLabelStatus(Helper.getInstance().getStr("searching_network"));
 
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
         

@@ -73,6 +73,15 @@ public class Background {
         current = (nextIndex < backgrounds.size())? backgrounds.get(nextIndex) : backgrounds.get(0);
         ChatmanConfig.getInstance().set("background-image", current);
     }
+	
+	public void prev(){
+        if(backgrounds.isEmpty())
+            return;
+        
+        int prevIndex = backgrounds.indexOf(current) - 1;
+        current = (prevIndex < 0)? backgrounds.get(backgrounds.size()-1) : backgrounds.get(prevIndex);
+        ChatmanConfig.getInstance().set("background-image", current);
+	}
 
     //gets the filename of the current background
     public String getCurrent(){

@@ -75,7 +75,7 @@ public class IpScanner implements Runnable {
                 }
             }
         }catch(SocketException e){
-            (new CommandInvokeLater(new CommandMessage(gui.l.getString("local_ip_fail")))).execute();
+            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("local_ip_fail")))).execute();
             gui.exit();
         }
         if(localIp != null){
@@ -104,7 +104,7 @@ public class IpScanner implements Runnable {
                 try{
                     Thread.sleep(3000);
                 }catch(InterruptedException e){
-                    (new CommandInvokeLater(new CommandMessage(gui.l.getString("thread_sleep_fail")))).execute();
+                    (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("thread_sleep_fail")))).execute();
                 }
 				
                 //keep sleeping if we have live threads
@@ -125,21 +125,21 @@ public class IpScanner implements Runnable {
 			
             //update status and connect to server
             if(client.isServerFound()){
-				(new CommandInvokeLater(new CommandSetLabelStatus(gui.l.getString("servers_found")))).execute();
+				(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("servers_found")))).execute();
                 client.start();
             }
 			//show error
             else{
                 (new CommandInvokeLater(new CommandConfirmDialog(
                         new CommandClientStart(),
-                        gui.l.getString("server_retry_confirm"),
-                        gui.l.getString("server_not_found")
+                        Helper.getInstance().getStr("server_retry_confirm"),
+                        Helper.getInstance().getStr("server_not_found")
                 ))).execute();
             }
 
         }
         else{
-            (new CommandInvokeLater(new CommandMessage(gui.l.getString("local_ip_fail")))).execute();
+            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("local_ip_fail")))).execute();
             gui.exit();
         }
     }

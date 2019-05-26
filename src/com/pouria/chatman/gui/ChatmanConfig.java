@@ -18,6 +18,7 @@ package com.pouria.chatman.gui;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.pouria.chatman.Helper;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -83,7 +83,7 @@ public class ChatmanConfig {
                         
         //we are doomed if we can't read configs
         }catch(Exception e){
-            gui.message(gui.l.getString("config_read_fail") + e.getMessage());
+            gui.message(Helper.getInstance().getStr("config_read_fail") + e.getMessage());
             gui.exit();
         }
         
@@ -101,7 +101,7 @@ public class ChatmanConfig {
         }
         //no? then it's fatal
         else{
-            gui.message(gui.l.getString("configuration") + confName + gui.l.getString("is_not_in_config"));
+            gui.message(Helper.getInstance().getStr("configuration") + confName + Helper.getInstance().getStr("is_not_in_config"));
             gui.exit();
             return "";
         }
@@ -155,7 +155,7 @@ public class ChatmanConfig {
             Files.write(toSave, configFile, Charsets.UTF_8);
             
         } catch (IOException e) {
-            gui.message(gui.l.getString("config_write_fail") + e.getMessage());
+            gui.message(Helper.getInstance().getStr("config_write_fail") + e.getMessage());
         }
         
         hasChanged = false;

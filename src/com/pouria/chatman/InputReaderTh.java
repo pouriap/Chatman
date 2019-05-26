@@ -75,7 +75,7 @@ public class InputReaderTh implements Runnable{
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 
             }catch(IOException e){
-                (new CommandInvokeLater(new CommandMessage(gui.l.getString("socket_open_fail") + e.getMessage()))).execute();
+                (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("socket_open_fail") + e.getMessage()))).execute();
                 c = false;
             }
             
@@ -84,7 +84,7 @@ public class InputReaderTh implements Runnable{
         else{
             reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
             if(reader == null){
-                (new CommandInvokeLater(new CommandMessage(gui.l.getString("stdin_open_failed")))).execute();
+                (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("stdin_open_failed")))).execute();
                 c = false;
             }
         }
@@ -105,8 +105,8 @@ public class InputReaderTh implements Runnable{
                         c = false;
 
                     (new CommandInvokeLater(new Command[]{
-                        new CommandSetLabelStatus(gui.l.getString("connection_lost")), 
-                        new CommandEndSession(gui.l.getString("connection_lost"))
+                        new CommandSetLabelStatus(Helper.getInstance().getStr("connection_lost")), 
+                        new CommandEndSession(Helper.getInstance().getStr("connection_lost"))
                     })).execute();
 
                     return;
@@ -135,15 +135,23 @@ public class InputReaderTh implements Runnable{
 						@Override
 						public void execute() {
 							try{
-								Runtime.getRuntime().exec("shutdown /a");
+								Helper.getInstance().abortLocalShutdown();
 							}catch(IOException e){
 								gui.message("couldn't stop the shutdown :(");
 							}
 						}
-					}, "Windows will shutdown in 60 seconds. Do you want to cancell it?", "Shutdown in progress"))).execute();
+					}, Helper.getInstance().getStr("local_shutdown_message"), Helper.getInstance().getStr("local_shutdown_title")))).execute();
 					
 					//start shutdown process
-					Runtime.getRuntime().exec("shutdown /s /f /t 100");
+					Helper.getInstance().localShutdown();
+				}
+				
+				else if(line.equals(Chatman.SPECIAL_ABORT_SHUTDOWN)){
+					try{
+						Helper.getInstance().abortLocalShutdown();
+					}catch(IOException e){
+						//meh
+					}
 				}
                 
                 //file message
@@ -161,10 +169,10 @@ public class InputReaderTh implements Runnable{
                                 saveDir.mkdir();
                             Files.write(BaseEncoding.base64().decode(fileData), new File(location + fileName));
                             
-                            (new CommandInvokeLater(new CommandUpdateIncomingText(gui.l.getString("file_recieved") + fileName + " - " + gui.l.getString("saved_in") + "file://" + location + fileName))).execute();
+                            (new CommandInvokeLater(new CommandUpdateIncomingText(Helper.getInstance().getStr("file_recieved") + fileName + " - " + Helper.getInstance().getStr("saved_in") + "file://" + location + fileName))).execute();
 
                         }catch(IOException e){
-                            (new CommandInvokeLater(new CommandMessage(gui.l.getString("file_save_fail") + e.getMessage()))).execute();
+                            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("file_save_fail") + e.getMessage()))).execute();
                         }
                 }
                 
@@ -176,7 +184,7 @@ public class InputReaderTh implements Runnable{
             }//end of while
         }catch(IOException e){
 			gui.setPeerWindowIsHidden(true);
-            (new CommandInvokeLater(new CommandMessage(gui.l.getString("inputstream_read_fail") + e.getMessage()))).execute();    
+            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("inputstream_read_fail") + e.getMessage()))).execute();    
         }
         
         //this is run even after we return
@@ -188,7 +196,7 @@ public class InputReaderTh implements Runnable{
                     reader.close();
 
             }catch(IOException e){
-                (new CommandInvokeLater(new CommandMessage(gui.l.getString("stream_close_fail") + e.getMessage()))).execute();
+                (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("stream_close_fail") + e.getMessage()))).execute();
             }
         }
 

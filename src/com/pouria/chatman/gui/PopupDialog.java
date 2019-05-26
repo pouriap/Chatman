@@ -16,11 +16,15 @@
  */
 package com.pouria.chatman.gui;
 
+import com.pouria.chatman.Helper;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.BufferedInputStream;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -32,22 +36,37 @@ import javax.swing.JOptionPane;
  * we don't use some of it's functions in this application
  */
 public class PopupDialog extends JDialog{
+
+	private final int os;
     private AudioInputStream audioStream;
     private Clip clip;
-
+	
+	public PopupDialog(){
+		os = Helper.getInstance().getOS();
+	}
+	
     //plays the bleep
-    //this does not work on linux for some reason! eventhough it's .wav
     public void playSound(){
+		
         try{ 
-            audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification.wav"));
-            clip = AudioSystem.getClip();
-            clip.open(audioStream);
-            clip.start();
-            return;
-            
+			//linux sucks so...
+			if(os == Helper.getInstance().OS_WIN){
+				audioStream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/resources/notification.wav"));
+				clip = AudioSystem.getClip();
+			}
+			else{
+				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/notification.wav")); 
+				audioStream = AudioSystem.getAudioInputStream(srcStream);
+				AudioFormat format = audioStream.getFormat();
+				DataLine.Info info = new DataLine.Info(Clip.class, format);
+				clip = (Clip)AudioSystem.getLine(info);
+			}
+
+			clip.open(audioStream);
+			clip.start();
+
         }catch(Exception e){
-            JOptionPane.showMessageDialog(null, ChatFrame.getInstance().l.getString("audio_play_fail") + e.getMessage());
-            return;
+            JOptionPane.showMessageDialog(null, Helper.getInstance().getStr("audio_play_fail") + e.getMessage());
         }
     }
 
@@ -99,7 +118,7 @@ public class PopupDialog extends JDialog{
             if(this.clip != null)
                 this.clip.close();
         }catch(Exception e){
-            ChatFrame.getInstance().message(ChatFrame.getInstance().l.getString("audio_close_fail") + e.getMessage());
+            ChatFrame.getInstance().message(Helper.getInstance().getStr("audio_close_fail") + e.getMessage());
         }
         finally{
             this.dispose();

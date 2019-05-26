@@ -18,11 +18,11 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.gui.Background;
 import com.pouria.chatman.gui.ChatFrame;
-import java.io.PrintWriter;
+import java.io.PrintWriter; 
 
 /**
  *
- * @author pouriap
+ * @author pouriap 
  * 
  * is responsible for sending data to streams
  * inputReaderTh is responsible for input streams
@@ -39,7 +39,8 @@ public abstract class Chatman {
     protected String userName, peerName;
     public final static int MOD_SERVER = 1, MOD_CLIENT = 2;
     public final static String SPECIAL_HIDDEN="hidhidhid", SPECIAL_VISIBLE="visvisvis", 
-			SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid", SPECIAL_SHUTDOWN="sdsdsd";    
+			SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid", SPECIAL_SHUTDOWN="sdsdsd", 
+			SPECIAL_ABORT_SHUTDOWN = "ababab";    
 	
 	
     public Chatman(int mode){
@@ -49,10 +50,13 @@ public abstract class Chatman {
     }
     
     public final void send(String s){
-        if(writer == null)
+		
+        if(writer == null){
             throw new NullPointerException();
-        else
-            writer.println(s);
+		}
+		else{
+			writer.println(s);
+		}
     }
 
     public final void sendFile(String fileName, String fileContent){
@@ -71,6 +75,10 @@ public abstract class Chatman {
 	
 	public final void sendShutdown(){
 		send(SPECIAL_SHUTDOWN);
+	}
+	
+	public final void sendAbortShutdown(){
+		send(SPECIAL_ABORT_SHUTDOWN);
 	}
     
     public final int getMode(){

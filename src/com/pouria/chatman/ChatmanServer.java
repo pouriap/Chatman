@@ -38,7 +38,7 @@ public class ChatmanServer extends Chatman {
     public void start(){
 
         writer = new PrintWriter(new OutputStreamWriter(System.out), true);
-        gui.setLabelStatus(gui.l.getString("server_running"));
+        gui.setLabelStatus(Helper.getInstance().getStr("server_running"));
 
         th = new InputReaderTh();
         inputReaderThread = new Thread(th);
