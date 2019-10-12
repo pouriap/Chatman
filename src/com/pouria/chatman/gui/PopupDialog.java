@@ -38,8 +38,6 @@ import javax.swing.JOptionPane;
 public class PopupDialog extends JDialog{
 
 	private final int os;
-    private AudioInputStream audioStream;
-    private Clip clip;
 	
 	public PopupDialog(){
 		os = Helper.getInstance().getOS();
@@ -49,9 +47,13 @@ public class PopupDialog extends JDialog{
     public void playSound(){
 		
         try{ 
+			
+			AudioInputStream audioStream;
+			Clip clip;
+			
 			//linux sucks so...
 			if(os == Helper.getInstance().OS_WIN){
-				audioStream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("/resources/notification.wav"));
+				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification.wav"));
 				clip = AudioSystem.getClip();
 			}
 			else{
