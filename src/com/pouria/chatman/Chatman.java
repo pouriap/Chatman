@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Pouria Pirhadi
+ * Copyright (C) 2020 pouriap
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,93 +16,42 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.gui.Background;
-import com.pouria.chatman.gui.ChatFrame;
-import java.io.PrintWriter; 
+import com.pouria.chatman.classes.ChatmanClient;
+import com.pouria.chatman.classes.ChatmanServer;
+import com.pouria.chatman.classes.PeerNotFoundException;
+import com.pouria.chatman.connection.HttpClient;
+import com.pouria.chatman.connection.HttpServer;
 
 /**
  *
- * @author pouriap 
- * 
- * is responsible for sending data to streams
- * inputReaderTh is responsible for input streams
- * if ChatmanClient extends it, output stream(writer) is a socket
- * if ChatmanServer extends it, output stream(writer) is STDOUT
+ * @author pouriap
  */
-
-public abstract class Chatman {
-    protected final int mode;
-    protected final ChatFrame gui;
-    protected PrintWriter writer;
-    protected InputReaderTh th;
-    protected Thread inputReaderThread;
-    protected String userName, peerName;
-    public final static int MOD_SERVER = 1, MOD_CLIENT = 2;
-    public final static String SPECIAL_HIDDEN="hidhidhid", SPECIAL_VISIBLE="visvisvis", 
-			SPECIAL_FILE = "filefilefile", SPECIAL_ID = "ididid", SPECIAL_SHUTDOWN="sdsdsd", 
-			SPECIAL_ABORT_SHUTDOWN = "ababab";    
+public class Chatman {
 	
+	ChatmanServer server;
+	ChatmanClient client;
 	
-    public Chatman(int mode){
-        this.gui = ChatFrame.getInstance();
-        this.mode = mode;
-        updateUserName();
-    }
-    
-    public final void send(String s){
-		
-        if(writer == null){
-            throw new NullPointerException();
+	public Chatman(){
+		server = new HttpServer();
+		client = new HttpClient();
+	}
+	
+	public boolean send(ChatmanMessage message){
+		try{
+			client.send(message);
+			return true;
+		}catch(PeerNotFoundException e){
+			client.connect();
+			return false;
 		}
-		else{
-			writer.println(s);
-		}
-    }
-
-    public final void sendFile(String fileName, String fileContent){
-        send(SPECIAL_FILE);
-        send(fileName);
-        send(fileContent);
-    }
-	
-	public final void sendHidden(){
-		send(SPECIAL_HIDDEN);
 	}
 	
-	public final void sendVisible(){
-		send(SPECIAL_VISIBLE);
+	public ChatmanServer getServer(){
+		return server;
 	}
 	
-	public final void sendShutdown(){
-		send(SPECIAL_SHUTDOWN);
+	public ChatmanClient getClient(){
+		return client;
 	}
 	
-	public final void sendAbortShutdown(){
-		send(SPECIAL_ABORT_SHUTDOWN);
-	}
-    
-    public final int getMode(){
-        return this.mode;
-    }
-    
-    public final void setUserName(String name){
-        userName = name;
-    }
-    
-    public final String getUserName(){
-        return userName;
-    }
-    
-    //username is determined based on the file name of the current background
-    //i deliberately did this
-    public final void updateUserName(){
-        //background names are like batman_1.jpg or batman.png
-        String name = Background.getInstance().getCurrent().split("\\.")[0].split("_")[0];        
-        name = name.substring(0, 1).toUpperCase() + name.substring(1,name.length());
-        setUserName(name);
-    }
-
-    //abstract methods
-    public abstract void start();
-            
 }

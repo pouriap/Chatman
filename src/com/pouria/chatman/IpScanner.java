@@ -16,11 +16,12 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandClientStart;
+import com.pouria.chatman.classes.ChatmanClient;
+import com.pouria.chatman.classes.CommandClientConnect;
 import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandMessage;
-import com.pouria.chatman.classes.CommandSetLabelStatus;
+import com.pouria.chatman.classes.CommandMessageBox;
+import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.gui.ChatmanConfig;
 import com.pouria.chatman.gui.ChatFrame;
 import java.net.InetAddress;
@@ -41,15 +42,15 @@ import java.util.Enumeration;
 public class IpScanner implements Runnable {
 
     private final ChatFrame gui;
-    private final ChatmanClient client;
+	private final ChatmanClient client;
     private final String subnet;
     private final int port;
-    
-    IpScanner(String s, int p, ChatmanClient client){
+	   
+    public IpScanner(String subnet, int port){
         this.gui = ChatFrame.getInstance();
-        this.client = client;
-        this.port = p;
-        this.subnet = s;
+		this.client = gui.getChatmanInstance().getClient();
+        this.port = port;
+        this.subnet = subnet;
     }
 
     @Override
@@ -75,13 +76,13 @@ public class IpScanner implements Runnable {
                 }
             }
         }catch(SocketException e){
-            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("local_ip_fail")))).execute();
+            (new CommandInvokeLater(new CommandMessageBox(Helper.getInstance().getStr("local_ip_fail")))).execute();
             gui.exit();
         }
         if(localIp != null){
             //start scanning the network
             //we will spawn threads that each one will try to connect to an ip
-            //when a live server is detected we call ChatmanClient.setServerSocket() and break operation
+            //when a live server is detected we call ChatmanClient_old.setServerSocket() and break operation
             //when we are done it is decided what to do
             Thread[] scanners = new Thread[numHosts];
             for(int i=1, j=0;i<numHosts+1;i++,j++){
@@ -91,20 +92,19 @@ public class IpScanner implements Runnable {
                 if(addr.equals(localIp))
                     continue;
 
-                scanners[j] = new Thread(new IpConnector(addr, port, false, client));
+                scanners[j] = new Thread(new IpConnector(addr, port, false));
                 scanners[j].start();
             }
             
             //wait until the scanning is finished
             boolean c;
             do{
-				
                 c = false;
 				
                 try{
                     Thread.sleep(3000);
                 }catch(InterruptedException e){
-                    (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("thread_sleep_fail")))).execute();
+                    (new CommandInvokeLater(new CommandMessageBox(Helper.getInstance().getStr("thread_sleep_fail")))).execute();
                 }
 				
                 //keep sleeping if we have live threads
@@ -122,16 +122,10 @@ public class IpScanner implements Runnable {
             }while(c);  
             
             //now we have finished scanning the network for live servers
-			
-            //update status and connect to server
-            if(client.isServerFound()){
-				(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("servers_found")))).execute();
-                client.start();
-            }
-			//show error
-            else{
+			((HttpClient) client).setConnectInProgress(false);
+            if(!client.isServerFound()){
                 (new CommandInvokeLater(new CommandConfirmDialog(
-                        new CommandClientStart(),
+                        new CommandClientConnect(),
                         Helper.getInstance().getStr("server_retry_confirm"),
                         Helper.getInstance().getStr("server_not_found")
                 ))).execute();
@@ -139,7 +133,7 @@ public class IpScanner implements Runnable {
 
         }
         else{
-            (new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("local_ip_fail")))).execute();
+            (new CommandInvokeLater(new CommandMessageBox(Helper.getInstance().getStr("local_ip_fail")))).execute();
             gui.exit();
         }
     }

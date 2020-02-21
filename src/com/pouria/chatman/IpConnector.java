@@ -16,9 +16,12 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandClientStart;
+import com.pouria.chatman.classes.ChatmanClient;
+import com.pouria.chatman.classes.CommandClientConnect;
 import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CommandSetLabelStatus;
+import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -37,14 +40,14 @@ import java.net.Socket;
 public class IpConnector implements Runnable{
 
     private final ChatFrame gui;
-    private final ChatmanClient client;
+	private final ChatmanClient client;
     private final String ip;
     private final int port;
 	private final boolean askRetry;
     
-    IpConnector(String host, int port, boolean retry, ChatmanClient client){
+    public IpConnector(String host, int port, boolean retry){
         this.gui = ChatFrame.getInstance();
-        this.client = client;
+		this.client = gui.getChatmanInstance().getClient();
         this.port = port;
         this.ip = host;
 		this.askRetry = retry;
@@ -54,18 +57,19 @@ public class IpConnector implements Runnable{
     public void run() {
         //connect to a specific ip
         try{
-            Socket socket = new Socket();           
+			
+            Socket socket = new Socket();
             socket.connect(new InetSocketAddress(ip, port), 3000);
-            
-			client.setServerSocket(socket);
-			client.start();
-
-            
-        }catch(IOException ex){ 
+			socket.close();
+			client.setServer(ip);
+			((HttpClient) client).setConnectInProgress(false);
+	        (new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + ip + Helper.getInstance().getStr("stablished")))).execute();
+		 
+        }catch(IOException ex){
 			if(askRetry){
 				//we show a confirm dialog asking retry?
 				(new CommandInvokeLater(new CommandConfirmDialog(
-						new CommandClientStart(),
+						new CommandClientConnect(),
 						Helper.getInstance().getStr("server_retry_confirm"),
 						Helper.getInstance().getStr("server_not_found")
 				))).execute();

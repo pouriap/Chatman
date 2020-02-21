@@ -85,4 +85,8 @@ public class Helper {
 			return OS_LIN;
 		}
 	}
+	
+	public int getTime(){
+		return (int) (System.currentTimeMillis() / 1000L);
+	}
 }

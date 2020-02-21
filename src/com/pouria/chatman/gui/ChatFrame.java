@@ -9,8 +9,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;
 import com.pouria.chatman.Chatman;
-import com.pouria.chatman.ChatmanClient;
-import com.pouria.chatman.ChatmanServer;
+import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.HistoryTablePagination;
 import java.awt.Color;
@@ -64,9 +63,8 @@ public class ChatFrame extends javax.swing.JFrame {
     private HistoryTablePagination historyPagination;
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
+	private String username;
 	
-	private boolean peerWindowIsHidden = true;
-    
     
     private ChatFrame(){
         initComponents();
@@ -551,15 +549,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-
-		//if peer is also hidden then exit
-		if(peerWindowIsHidden){
-			exit();
-		}
-		//else just hide window
-		else{
-			hideWindow();
-		}
+		hideWindow();
     }//GEN-LAST:event_formWindowClosing
 
     private void menuFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileActionPerformed
@@ -710,7 +700,8 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("remote_shutdown_message"), Helper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            chatman.sendShutdown();
+            ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
+			chatman.send(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
 
@@ -761,7 +752,7 @@ public class ChatFrame extends javax.swing.JFrame {
         setBackground(Background.getInstance().getCurrentURL());
 
         if(chatman != null)
-            chatman.updateUserName();
+            updateUserName();
        
         //doClick() so user doesn't have to open menu over and over again for changing bg
         menuFile.doClick();
@@ -785,7 +776,8 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("abort_remote_shutdown_message"), Helper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            chatman.sendAbortShutdown();
+            ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_ABORT_SHUTDOWN, "", username);
+			chatman.send(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
@@ -816,26 +808,13 @@ public class ChatFrame extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        final int mode;
 
-        if(args.length == 1){
-            mode = Chatman.MOD_SERVER;
-        }
-        else if(args.length == 0){ 
-            mode = Chatman.MOD_CLIENT;
-        }
-        else{
-            System.out.println("invalid arguments");
-            System.exit(0);
-            mode = -1;
-        }
-        
-        /* Create and display the form */
+		/* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 ChatFrame frame = ChatFrame.getInstance();
                 frame.myInits();
-                frame.startChatman(mode);
+                frame.startChatman();
             }
         });
     }
@@ -884,7 +863,7 @@ public class ChatFrame extends javax.swing.JFrame {
                         name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
                         byte[] data = Files.toByteArray(file);
                         String base64data = BaseEncoding.base64().encode(data);
-                        chatman.sendFile(name, base64data);
+                        //chatman.sendFile(name, base64data);
 
                         //show file sent message and clear textAreaOutgoing
                         updateIncomingText(Helper.getInstance().getStr("file_sent") + file.getName());
@@ -1013,27 +992,14 @@ public class ChatFrame extends javax.swing.JFrame {
 			//font will revert to Tahoma
 		}
 		
-		       
+		updateUserName();
+ 
     } 
     
     //start Chatman as client/server
-    public void startChatman(int mode){
-        //server
-        if(mode == Chatman.MOD_SERVER){
-            chatman = new ChatmanServer();
-            chatman.start();
-        }
-        //client
-        else if(mode == Chatman.MOD_CLIENT){ 
-            chatman = new ChatmanClient();
-            chatman.start();
-            this.setVisible(true);
-        }
-        else{
-            message(Helper.getInstance().getStr("invalid_args"));
-            exit(true);
-        }
-        
+    public void startChatman(){
+		chatman = new Chatman();
+		chatman.getServer().start();
     }
     
 
@@ -1117,14 +1083,7 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //sends the content of textAreaOutgoing
     private void send(){
-		
-        //is run when Enter is pressed or Ersal is pressed
-        if(chatman.getMode() == Chatman.MOD_CLIENT)
-            if(!((ChatmanClient)chatman).isConnected()){
-                message(Helper.getInstance().getStr("not_connected"));
-                return;
-        }
-        
+		     
         String s = getOutgoingText();
         
         //return if textarea is empty
@@ -1134,10 +1093,15 @@ public class ChatFrame extends javax.swing.JFrame {
         //'\n' should only be at the end of the message because we use readline()
         s = s.replace("\n", "").trim();
         
-        updateIncomingText("<b>" + Helper.getInstance().getStr("you") + ": </b>" + s);
-        chatman.send("<b>" + chatman.getUserName() + ": </b>" + s);
-        
-        defaultOutgoingText();
+
+		
+		ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
+		boolean sent = chatman.send(message);
+
+		if(sent){
+			updateIncomingText("<b>" + Helper.getInstance().getStr("you") + ": </b>" + s);
+			defaultOutgoingText();
+		}
 		
     }
     
@@ -1274,12 +1238,27 @@ public class ChatFrame extends javax.swing.JFrame {
             message(Helper.getInstance().getStr("history_save_fail") + e.getMessage());
         }
     }
-    
+	
+    public void updateUserName(){
+        //background names are like batman_1.jpg or batman.png
+        String name = Background.getInstance().getCurrent().split("\\.")[0].split("_")[0];        
+        name = name.substring(0, 1).toUpperCase() + name.substring(1,name.length());
+		username = name;
+    }
+	
     //disable textAreaOutgoing and put a message in it
     public void endSession(String message){
         updateOutgoingText("<span style='font-size:20px;'>" + message + "</span>", false);
         textAreaOutgoing.setEnabled(false);
     }
+	
+	public void disableTextOutgoing(){
+		textAreaOutgoing.setEnabled(false);
+	}
+	
+	public void enableTextOutgoing(){
+		textAreaOutgoing.setEnabled(true);
+	}
     
     //gives us the hero that we don't deserve
     public Chatman getChatmanInstance(){
@@ -1302,40 +1281,17 @@ public class ChatFrame extends javax.swing.JFrame {
         return !this.isVisible() && !dialogPopup.isVisible();
     }
 	
-	public void setPeerWindowIsHidden(boolean b){
-		peerWindowIsHidden = b;
-	}
-	
 	//hides the chatman windows
 	public void hideWindow(){
-		
 		this.setVisible(false);
-		
-        //we need to check if we are connected when we're client but server is always connected
-        if(chatman.getMode() == Chatman.MOD_CLIENT){
-            if(((ChatmanClient)chatman).isConnected())
-                chatman.sendHidden();
-        }
-		else{
-            chatman.sendHidden();
-		}
-
 	}
 	
 	//shows the chatman window
 	public void showWindow(){
-		
 		this.setVisible(true);
-		
-        //we need to check if we are connected when we're client but server is always connected
-        if(chatman.getMode() == Chatman.MOD_CLIENT){
-            if(((ChatmanClient)chatman).isConnected())
-                chatman.sendVisible();
-        }
-		else{
-            chatman.sendVisible();
+		if(!chatman.getClient().isServerFound()){
+			chatman.getClient().connect();
 		}
-		
 	}
 	
     //the end of chatman. that's it. no auto pilot :(

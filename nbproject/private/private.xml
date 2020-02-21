@@ -3,16 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/ChatmanClient.java</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/resources/locale/locale_fa_IR.properties</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/Helper.java</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/resources/locale/locale_en_US.properties</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/gui/ChatFrame.java</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/Chatman.java</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/ChatmanServer.java</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/gui/PopupDialog.java</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/InputReaderTh.java</file>
-            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/_Projects/Java/NetBeans%20Projects/Chatman/src/com/pouria/chatman/classes/HistoryTablePagination.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/gui/PopupDialog.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/Chatman.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/ChatmanClient_old.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/IpScanner.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/gui/ChatFrame.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/connection/ChatmanServer.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/IpConnector.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/gui/ChatmanConfig.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/InputReaderTh.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/ChatmanServer_old.java</file>
         </group>
     </open-files>
 </project-private>
