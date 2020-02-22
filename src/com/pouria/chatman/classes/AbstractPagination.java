@@ -87,7 +87,8 @@ public abstract class AbstractPagination {
             stmt.close();
             c.close();
         }catch(ClassNotFoundException e){
-            //i know. i just don't care. (it's a reference from the batman movie)
+            String error = "History pagination fail: " + e.getMessage();
+			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
         }
 
     }

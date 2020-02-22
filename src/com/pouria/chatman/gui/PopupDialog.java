@@ -17,6 +17,8 @@
 package com.pouria.chatman.gui;
 
 import com.pouria.chatman.Helper;
+import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CommandShowMessage;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.BufferedInputStream;
@@ -26,7 +28,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -68,7 +69,8 @@ public class PopupDialog extends JDialog{
 			clip.start();
 
         }catch(Exception e){
-            JOptionPane.showMessageDialog(null, Helper.getInstance().getStr("audio_play_fail") + e.getMessage());
+			String error = Helper.getInstance().getStr("audio_play_fail") + e.getMessage();
+            (new CommandInvokeLater(new CommandShowMessage(error))).execute();
         }
     }
 
@@ -110,24 +112,6 @@ public class PopupDialog extends JDialog{
     public void hidePopup(){
         this.setVisible(false);
     }
-    
-    /*
-    //useless
-    public void closePopup(){
-        try{
-            if(this.audioStream != null)
-                this.audioStream.close();
-            if(this.clip != null)
-                this.clip.close();
-        }catch(Exception e){
-            ChatFrame.getInstance().message(Helper.getInstance().getStr("audio_close_fail") + e.getMessage());
-        }
-        finally{
-            this.dispose();
-        }
-        
-    }
-    */
     
 }
     

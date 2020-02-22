@@ -16,15 +16,19 @@
  */
 package com.pouria.chatman.connection;
 
-import com.github.kevinsawicki.HttpRequest;
+import com.github.kevinsawicki.http.HttpRequest;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
-import com.pouria.chatman.IpConnector;
-import com.pouria.chatman.IpScanner;
 import com.pouria.chatman.classes.ChatmanClient;
+import com.pouria.chatman.classes.CommandClientConnect;
+import com.pouria.chatman.classes.CommandConfirmDialog;
+import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CommandSetLabelStatus;
+import com.pouria.chatman.classes.IpScannerCallback;
 import com.pouria.chatman.classes.PeerNotFoundException;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.gui.ChatmanConfig;
+import java.util.ArrayList;
 
 /**
  *
@@ -38,7 +42,7 @@ public class HttpClient implements ChatmanClient{
 	@Override
 	public void send(String message) throws PeerNotFoundException{
 		
-		if(!isServerFound()){
+		if(serverIP == null){
 			throw new PeerNotFoundException("server not found");
 		}
 		
@@ -47,11 +51,9 @@ public class HttpClient implements ChatmanClient{
 			String serverPort = ChatmanConfig.getInstance().get("server-port");
 			String serverAddress = "http://" + serverIP + ":" + serverPort;
 			HttpRequest req = new HttpRequest(serverAddress, "GET");
-			req.getConnection().setConnectTimeout(300);
-			code = req.get(serverAddress, true, "message", message).code();
+			code = req.get(serverAddress, true, "message", message).connectTimeout(200).code();
 			
 		}catch(Exception e){
-			e.printStackTrace();
 			throw new PeerNotFoundException("request could not be sent: " + e.getMessage());
 		}
 		
@@ -67,7 +69,7 @@ public class HttpClient implements ChatmanClient{
 	}
 
 	@Override
-	public void connect() {
+	public void connect(){
 		
 		if(connectInProgress){
 			return;
@@ -75,22 +77,55 @@ public class HttpClient implements ChatmanClient{
 		
         ChatFrame.getInstance().setLabelStatus(Helper.getInstance().getStr("searching_network"));
 
-		setConnectInProgress(true);		
+		setConnectInProgress(true);
 		this.serverIP = null;
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
+		String[] ipsToScan = getIpsToScan();
 		Thread scanner;
-        
-        //if we have server's ip we don't scan the network
+		
+		IpScannerCallback callback = new IpScannerCallback() {
+			@Override
+			public void call(ArrayList<String> foundIps) {
+				//if server found
+				if(!foundIps.isEmpty()){
+					String ip = foundIps.get(0);
+					setServer(ip);
+					(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + ip + Helper.getInstance().getStr("stablished")))).execute();
+				}
+				else{
+					(new CommandInvokeLater(new CommandConfirmDialog(
+							new CommandClientConnect(),
+							Helper.getInstance().getStr("server_retry_confirm"),
+							Helper.getInstance().getStr("server_not_found")
+					))).execute();
+				}
+				//in either case
+				setConnectInProgress(false);
+			}
+		};
+		
+		scanner = new Thread(new IpScanner(ipsToScan, serverPort, callback));
+		scanner.start();
+	}
+	
+	private String[] getIpsToScan(){
+		String[] ipsToScan;
+		//if we have server's ip we don't scan the network
         if(ChatmanConfig.getInstance().isSet("server-ip")){
             String serverIp = ChatmanConfig.getInstance().get("server-ip");
-            scanner = new Thread(new IpConnector(serverIp, serverPort, true));
-            scanner.start();
+			ipsToScan = new String[]{serverIp};
         }
         else{
             String subnet = ChatmanConfig.getInstance().get("subnet-mask");
-            scanner = new Thread(new IpScanner(subnet, serverPort));
-            scanner.start();
-        }	
+			int numHostsToScan = Integer.valueOf(ChatmanConfig.getInstance().get("num-hosts-to-scan"));
+			ipsToScan = new String[numHostsToScan];
+			for(int i=0; i<numHostsToScan; i++){
+				String ip = subnet.replace("*", String.valueOf(i+1)); //i+1 because we don't want 192.168.1.0
+				ipsToScan[i] = ip;
+			}
+        }
+		
+		return ipsToScan;
 	}
 
 	@Override
@@ -98,11 +133,6 @@ public class HttpClient implements ChatmanClient{
 		this.serverIP = (String) server;
 	}
 
-	@Override
-	public boolean isServerFound() {
-		return (this.serverIP != null);
-	}
-	
 	public void setConnectInProgress(boolean b){
 		this.connectInProgress = b;
 		if(connectInProgress){
@@ -115,6 +145,10 @@ public class HttpClient implements ChatmanClient{
 	
 	public boolean isConnectInProgress(){
 		return this.connectInProgress;
+	}
+	
+	public boolean isServerFound(){
+		return (serverIP != null);
 	}
 
 }

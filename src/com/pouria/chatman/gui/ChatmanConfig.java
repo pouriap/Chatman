@@ -19,6 +19,8 @@ package com.pouria.chatman.gui;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.pouria.chatman.Helper;
+import com.pouria.chatman.classes.CommandFatalErrorExit;
+import com.pouria.chatman.classes.CommandInvokeLater;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,8 +85,8 @@ public class ChatmanConfig {
                         
         //we are doomed if we can't read configs
         }catch(Exception e){
-            gui.message(Helper.getInstance().getStr("config_read_fail") + e.getMessage());
-            gui.exit();
+            String error = Helper.getInstance().getStr("config_read_fail") + e.getMessage();
+            (new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
         }
         
     }
@@ -101,8 +103,8 @@ public class ChatmanConfig {
         }
         //no? then it's fatal
         else{
-            gui.message(Helper.getInstance().getStr("configuration") + confName + Helper.getInstance().getStr("is_not_in_config"));
-            gui.exit();
+            String error = Helper.getInstance().getStr("configuration") + confName + Helper.getInstance().getStr("is_not_in_config");
+            (new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
             return "";
         }
     }

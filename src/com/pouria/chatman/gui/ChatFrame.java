@@ -12,6 +12,7 @@ import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.HistoryTablePagination;
+import com.pouria.chatman.connection.HttpClient;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -274,7 +275,7 @@ public class ChatFrame extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle("Chatman - (This isn't a chat)");
+        setTitle("Chatman Rises");
         setFocusable(false);
         setMinimumSize(new java.awt.Dimension(500, 650));
         setResizable(false);
@@ -540,6 +541,9 @@ public class ChatFrame extends javax.swing.JFrame {
         jMenuBar1.add(menuFile);
 
         setJMenuBar(jMenuBar1);
+
+        getAccessibleContext().setAccessibleName("");
+        getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -819,21 +823,15 @@ public class ChatFrame extends javax.swing.JFrame {
         });
     }
      
-    
+    		//TODO: add fatal error to important exceptions
+
     public void myInits(){
         
         //Locale
-		try{
-			Helper.getInstance().setLocale(ChatmanConfig.getInstance().getLocale());
-		}catch(Exception e){
-			message(e.getMessage());
-            exit();
-		}
+		Helper.getInstance().setLocale(ChatmanConfig.getInstance().getLocale());
 
-        
         //setup GUI elements texts accordig to locale
         setupGUITexts();
-
 		
         //TextArea Dorp
         //We read the whole file as text and then base64_encode it which causes a LOT of memory
@@ -997,7 +995,7 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
     
     //start Chatman as client/server
-    public void startChatman(){
+    public void startChatman(){	
 		chatman = new Chatman();
 		chatman.getServer().start();
     }
@@ -1092,9 +1090,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
         //'\n' should only be at the end of the message because we use readline()
         s = s.replace("\n", "").trim();
-        
 
-		
 		ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
 		boolean sent = chatman.send(message);
 
@@ -1289,32 +1285,21 @@ public class ChatFrame extends javax.swing.JFrame {
 	//shows the chatman window
 	public void showWindow(){
 		this.setVisible(true);
-		if(!chatman.getClient().isServerFound()){
+		if(!((HttpClient)chatman.getClient()).isServerFound()){
 			chatman.getClient().connect();
 		}
 	}
 	
+	//TODO: calling exit after calling CommandInvokeLater() exits application immediately and that command is never invoked. so check all calls to exit and remove such cases
     //the end of chatman. that's it. no auto pilot :(
     public synchronized void exit(){
 		
         saveHistory();
                 
         ChatmanConfig.getInstance().save();
-		
-		hideWindow();
-        
+		      
         System.exit(0);
 		
-    }
-    
-    //reckless exit. used in tests
-    public void exit(boolean reckless){
-        if(reckless){
-            System.exit(0);
-        }
-        else{
-            exit();
-        }
     }
     
 

@@ -16,8 +16,14 @@
  */
 package com.pouria.chatman;
 
+import com.pouria.chatman.classes.CommandFatalErrorExit;
+import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.ResourceBundleWrapper;
+import com.pouria.chatman.gui.ChatmanConfig;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.Locale;
 
 /**
@@ -42,8 +48,13 @@ public class Helper {
 		private static final Helper INSTANCE = new Helper();
 	}
 	
-	public void setLocale(Locale locale) throws Exception{
-        l = new ResourceBundleWrapper("resources.locale.locale", locale);
+	public void setLocale(Locale locale){
+		try{
+			l = new ResourceBundleWrapper("resources.locale.locale", locale);
+		}catch(Exception e){
+			String error = "Could not get locale";
+			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+		}
     }
 	
 	public String getStr(String str){
@@ -89,4 +100,35 @@ public class Helper {
 	public int getTime(){
 		return (int) (System.currentTimeMillis() / 1000L);
 	}
+	
+	public String getLocalIp(){
+        //find local ip address
+		String subnet = ChatmanConfig.getInstance().get("subnet-mask");
+        String sub = subnet.replace(".*","");
+        String localIp = "";
+
+		try{
+			Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
+			while(n.hasMoreElements())
+			{
+				NetworkInterface e = n.nextElement();
+				Enumeration<InetAddress> a = e.getInetAddresses();
+				while(a.hasMoreElements())
+				{
+					InetAddress addr = a.nextElement();
+					if(addr.getHostAddress().contains(sub)){
+						localIp = addr.getHostAddress();
+						break;
+					}
+				}
+			}
+		}catch(Exception e){
+			String error = "Could not get local IP";
+			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+			throw new RuntimeException(e.getMessage());
+		}
+		
+		return localIp;
+	}
+	
 }

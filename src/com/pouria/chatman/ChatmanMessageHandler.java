@@ -19,6 +19,7 @@ package com.pouria.chatman;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CommandShowMessage;
 import com.pouria.chatman.classes.CommandUpdateIncomingText;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.IOException;
@@ -92,7 +93,7 @@ public class ChatmanMessageHandler {
 	
 	public void processTextMessage(){
 		String msgText = message.getContent();
-		msgText += "<b>" + message.getSender() + ":</b>";
+		msgText = "<b>" + message.getSender() + ":</b>" + msgText;
 		(new CommandInvokeLater(new CommandUpdateIncomingText(msgText))).execute();
 	}
 	
@@ -138,7 +139,7 @@ public class ChatmanMessageHandler {
 		try{
 			Helper.getInstance().abortLocalShutdown();
 		}catch(IOException e){
-			//meh
+			(new CommandInvokeLater(new CommandShowMessage("Abort Failed"))).execute();
 		}
 	}
 	

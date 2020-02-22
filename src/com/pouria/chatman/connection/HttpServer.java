@@ -18,6 +18,8 @@ package com.pouria.chatman.connection;
 
 import com.pouria.chatman.ChatmanMessageHandler;
 import com.pouria.chatman.classes.ChatmanServer;
+import com.pouria.chatman.classes.CommandFatalErrorExit;
+import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.gui.ChatmanConfig;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -34,7 +36,6 @@ public class HttpServer implements ChatmanServer{
 		
 		int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
 		
-		//TODO: bind exception
 		Undertow server = Undertow.builder()
 				.addHttpListener(serverPort, "0.0.0.0")
 				.setHandler(new HttpHandler() {
@@ -46,13 +47,14 @@ public class HttpServer implements ChatmanServer{
 					}
 				}).build();
 		
-		server.start();
 		
-		//run this if connections is lost
-//		(new CommandInvokeLater(new Command[]{
-//			new CommandSetLabelStatus(Helper.getInstance().getStr("connection_lost")), 
-//			new CommandEndSession(Helper.getInstance().getStr("connection_lost"))
-//		})).execute();
+		try{
+			server.start();
+			
+		}catch(Exception e){
+			String error = "Could not start server: " + e.getMessage();
+			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+		}
 		
 	}
 

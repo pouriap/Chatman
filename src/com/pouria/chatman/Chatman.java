@@ -42,6 +42,7 @@ public class Chatman {
 			return true;
 		}catch(PeerNotFoundException e){
 			client.connect();
+			//TODO: baraye special ha mesle shutdown yekari konim karbar befahme vaghti narafte
 			return false;
 		}
 	}

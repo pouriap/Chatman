@@ -16,22 +16,28 @@
  */
 package com.pouria.chatman.classes;
 
+import com.pouria.chatman.gui.ChatFrame;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * shows an error and exits
  * @author pouriap
  */
-public class CommandMessageBox implements Command{
+public class CommandFatalErrorExit implements Command{
     String message;
+	ChatFrame gui;
     
-    public CommandMessageBox(String message){
+    public CommandFatalErrorExit(String message){
         this.message = message;
+		this.gui = ChatFrame.getInstance();
     }
     
     @Override
     public void execute(){
-        JOptionPane.showMessageDialog(null, message);
+		message += "\nThis is a fatal error. Exitting application.";
+        JOptionPane.showMessageDialog(null, message, "Fatal Error!", JOptionPane.ERROR_MESSAGE);
+		gui.exit();
     }
+	
     
 }

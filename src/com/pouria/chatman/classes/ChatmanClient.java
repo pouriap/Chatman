@@ -54,11 +54,4 @@ public interface ChatmanClient {
 	 */
 	public void setServer(Object server);
 	
-	/**
-	 * when searching for servers in the network we use many threads<br>
-	 * we use this to check in that threads if server is found
-	 * @return 
-	 */
-	public boolean isServerFound();
-	
 }

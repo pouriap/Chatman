@@ -44,7 +44,6 @@ public class Background {
         
         try{
             bgsPath = new File(bgFolder);
-            
             //first add from background folder
             if(bgsPath.exists()){
                 _backgrounds = bgsPath.list(new imgFilenameFilter());
@@ -52,11 +51,9 @@ public class Background {
                     backgrounds.addAll(Arrays.asList(_backgrounds));
                 }
             }
-
             //then initialize current bg
             current = ChatmanConfig.getInstance().get("background-image");
 
-            
         }catch(Exception e){
             //i know. i just don't care
         }
