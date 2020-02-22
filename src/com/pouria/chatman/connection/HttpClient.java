@@ -120,7 +120,7 @@ public class HttpClient implements ChatmanClient{
 			int numHostsToScan = Integer.valueOf(ChatmanConfig.getInstance().get("num-hosts-to-scan"));
 			ipsToScan = new String[numHostsToScan];
 			for(int i=0; i<numHostsToScan; i++){
-				String ip = subnet.replace("*", String.valueOf(i+1)); //i+1 because we don't want 192.168.1.0
+				String ip = subnet.replace("*", String.valueOf(i));
 				ipsToScan[i] = ip;
 			}
         }

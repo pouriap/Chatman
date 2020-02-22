@@ -19,6 +19,7 @@ package com.pouria.chatman.gui;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowMessage;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.BufferedInputStream;
@@ -38,7 +39,11 @@ import javax.swing.JDialog;
  */
 public class PopupDialog extends JDialog{
 
+	public final static int MODE_NORMAL = 0;
+	public final static int MODE_BAT = 1;
+	
 	private final int os;
+	private int mode = MODE_NORMAL;
 	
 	public PopupDialog(){
 		os = Helper.getInstance().getOS();
@@ -54,11 +59,11 @@ public class PopupDialog extends JDialog{
 			
 			//linux sucks so...
 			if(os == Helper.getInstance().OS_WIN){
-				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification.wav"));
+				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification2.wav"));
 				clip = AudioSystem.getClip();
 			}
 			else{
-				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/notification.wav")); 
+				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/notification2.wav")); 
 				audioStream = AudioSystem.getAudioInputStream(srcStream);
 				AudioFormat format = audioStream.getFormat();
 				DataLine.Info info = new DataLine.Info(Clip.class, format);
@@ -82,15 +87,30 @@ public class PopupDialog extends JDialog{
 			return;
 		}
 		
+        this.setUndecorated(true);
+        this.setAlwaysOnTop(true);
+		
+		int widthOffset = 0;
+		int heightOffset = 0;
+		if(mode == MODE_NORMAL){
+			widthOffset = 20;
+			heightOffset = 100;
+		}
+		else if(mode == MODE_BAT){
+			widthOffset = -50;
+			heightOffset = 40;
+			this.getRootPane().setOpaque(false);
+			this.setBackground(new Color(0,0,0,0));
+		}
+
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = (int) screenSize.getWidth();
         int screenHeight = (int) screenSize.getHeight();
         this.setLocation(
-                (screenWidth - this.getWidth()) - 20, 
-                (screenHeight - this.getHeight()) - 100
+                (screenWidth - this.getWidth()) - widthOffset, 
+                (screenHeight - this.getHeight()) - heightOffset
         );
-        this.setUndecorated(true);
-        this.setAlwaysOnTop(true);
+
         this.setVisible(true);
     }
     
@@ -112,6 +132,10 @@ public class PopupDialog extends JDialog{
     public void hidePopup(){
         this.setVisible(false);
     }
+	
+	public void setMode(int mode){
+		this.mode = mode;
+	}
     
 }
     

@@ -65,6 +65,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
+	PopupDialog newMessagePopup;
 	
     
     private ChatFrame(){
@@ -89,8 +90,8 @@ public class ChatFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        dialogPopup = new com.pouria.chatman.gui.PopupDialog();
-        panelPopup = new javax.swing.JPanel();
+        dialogPopupNormal = new com.pouria.chatman.gui.PopupDialog();
+        panelPopupNormal = new javax.swing.JPanel();
         labelNewMessage = new javax.swing.JLabel();
         labelMessageIcon = new javax.swing.JLabel();
         menuRightClick = new javax.swing.JPopupMenu();
@@ -99,6 +100,8 @@ public class ChatFrame extends javax.swing.JFrame {
         tableHistory = new javax.swing.JTable();
         buttonNextHistoryPage = new javax.swing.JButton();
         buttonPrevHistoryPage = new javax.swing.JButton();
+        dialogPopupBat = new com.pouria.chatman.gui.PopupDialog();
+        labelBat = new javax.swing.JLabel();
         scrollPaneIncoming = new javax.swing.JScrollPane();
         textAreaIncoming = new javax.swing.JEditorPane();
         scrollPaneOutgoing = new javax.swing.JScrollPane();
@@ -127,17 +130,17 @@ public class ChatFrame extends javax.swing.JFrame {
         menuAbout = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
-        dialogPopup.setAlwaysOnTop(true);
-        dialogPopup.setMinimumSize(new java.awt.Dimension(180, 60));
-        dialogPopup.setResizable(false);
+        dialogPopupNormal.setAlwaysOnTop(true);
+        dialogPopupNormal.setMinimumSize(new java.awt.Dimension(180, 60));
+        dialogPopupNormal.setResizable(false);
 
-        panelPopup.setBackground(new java.awt.Color(102, 102, 102));
-        panelPopup.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        panelPopup.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        panelPopup.setName(""); // NOI18N
-        panelPopup.addMouseListener(new java.awt.event.MouseAdapter() {
+        panelPopupNormal.setBackground(new java.awt.Color(102, 102, 102));
+        panelPopupNormal.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        panelPopupNormal.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        panelPopupNormal.setName(""); // NOI18N
+        panelPopupNormal.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                panelPopupMouseReleased(evt);
+                panelPopupNormalMouseReleased(evt);
             }
         });
 
@@ -148,34 +151,34 @@ public class ChatFrame extends javax.swing.JFrame {
 
         labelMessageIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/new_message_50x50.png"))); // NOI18N
 
-        javax.swing.GroupLayout panelPopupLayout = new javax.swing.GroupLayout(panelPopup);
-        panelPopup.setLayout(panelPopupLayout);
-        panelPopupLayout.setHorizontalGroup(
-            panelPopupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPopupLayout.createSequentialGroup()
+        javax.swing.GroupLayout panelPopupNormalLayout = new javax.swing.GroupLayout(panelPopupNormal);
+        panelPopupNormal.setLayout(panelPopupNormalLayout);
+        panelPopupNormalLayout.setHorizontalGroup(
+            panelPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPopupNormalLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(labelMessageIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(labelNewMessage)
                 .addGap(16, 16, 16))
         );
-        panelPopupLayout.setVerticalGroup(
-            panelPopupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        panelPopupNormalLayout.setVerticalGroup(
+            panelPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(labelMessageIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(panelPopupLayout.createSequentialGroup()
+            .addGroup(panelPopupNormalLayout.createSequentialGroup()
                 .addComponent(labelNewMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout dialogPopupLayout = new javax.swing.GroupLayout(dialogPopup.getContentPane());
-        dialogPopup.getContentPane().setLayout(dialogPopupLayout);
-        dialogPopupLayout.setHorizontalGroup(
-            dialogPopupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPopup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        javax.swing.GroupLayout dialogPopupNormalLayout = new javax.swing.GroupLayout(dialogPopupNormal.getContentPane());
+        dialogPopupNormal.getContentPane().setLayout(dialogPopupNormalLayout);
+        dialogPopupNormalLayout.setHorizontalGroup(
+            dialogPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelPopupNormal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-        dialogPopupLayout.setVerticalGroup(
-            dialogPopupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPopup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        dialogPopupNormalLayout.setVerticalGroup(
+            dialogPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelPopupNormal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         menuRightClick.setBackground(new java.awt.Color(51, 51, 51));
@@ -272,6 +275,33 @@ public class ChatFrame extends javax.swing.JFrame {
                     .addComponent(buttonNextHistoryPage)
                     .addComponent(buttonPrevHistoryPage))
                 .addContainerGap())
+        );
+
+        dialogPopupBat.setAlwaysOnTop(true);
+        dialogPopupBat.setMinimumSize(new java.awt.Dimension(400, 300));
+        dialogPopupBat.setResizable(false);
+
+        labelBat.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bat.gif"))); // NOI18N
+        labelBat.setText("jLabel1");
+        labelBat.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        labelBat.setMaximumSize(new java.awt.Dimension(400, 300));
+        labelBat.setMinimumSize(new java.awt.Dimension(400, 300));
+        labelBat.setPreferredSize(new java.awt.Dimension(400, 300));
+        labelBat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                labelBatMouseReleased(evt);
+            }
+        });
+
+        javax.swing.GroupLayout dialogPopupBatLayout = new javax.swing.GroupLayout(dialogPopupBat.getContentPane());
+        dialogPopupBat.getContentPane().setLayout(dialogPopupBatLayout);
+        dialogPopupBatLayout.setHorizontalGroup(
+            dialogPopupBatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(labelBat, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+        );
+        dialogPopupBatLayout.setVerticalGroup(
+            dialogPopupBatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(labelBat, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -605,14 +635,9 @@ public class ChatFrame extends javax.swing.JFrame {
         exit();
     }//GEN-LAST:event_menuExitActionPerformed
 
-    private void panelPopupMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelPopupMouseReleased
-        //close the "New Message" popup and show the application window
-        dialogPopup.hidePopup();
-        //Show
-        showWindow();
-        //Focus
-        textAreaOutgoing.requestFocus();
-    }//GEN-LAST:event_panelPopupMouseReleased
+    private void panelPopupNormalMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelPopupNormalMouseReleased
+		showNewMessagePopup();
+    }//GEN-LAST:event_panelPopupNormalMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
 
@@ -785,6 +810,10 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
+    private void labelBatMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelBatMouseReleased
+        showNewMessagePopup();
+    }//GEN-LAST:event_labelBatMouseReleased
+
     /**
      * @param args the command line arguments
      */
@@ -823,7 +852,6 @@ public class ChatFrame extends javax.swing.JFrame {
         });
     }
      
-    		//TODO: add fatal error to important exceptions
 
     public void myInits(){
         
@@ -832,6 +860,10 @@ public class ChatFrame extends javax.swing.JFrame {
 
         //setup GUI elements texts accordig to locale
         setupGUITexts();
+		
+		//set popup type
+		newMessagePopup = dialogPopupBat;
+		newMessagePopup.setMode(PopupDialog.MODE_BAT);
 		
         //TextArea Dorp
         //We read the whole file as text and then base64_encode it which causes a LOT of memory
@@ -995,7 +1027,7 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
     
     //start Chatman as client/server
-    public void startChatman(){	
+    public void startChatman(){
 		chatman = new Chatman();
 		chatman.getServer().start();
     }
@@ -1108,12 +1140,12 @@ public class ChatFrame extends javax.swing.JFrame {
         
         //popup when first message received
         if(isHidden()){
-            dialogPopup.showPopup();
-            dialogPopup.playSound();
+            newMessagePopup.showPopup();
+            newMessagePopup.playSound();
         }
         //bleep if we received message and was not focused
         else if(!this.isActive() && bleep){
-            dialogPopup.playSound();
+            newMessagePopup.playSound();
         }
 
         if(t.isEmpty()){
@@ -1260,6 +1292,15 @@ public class ChatFrame extends javax.swing.JFrame {
     public Chatman getChatmanInstance(){
         return chatman;
     }
+	
+	public void showNewMessagePopup(){
+        //close the "New Message" popup and show the application window
+        newMessagePopup.hidePopup();
+        //Show
+        showWindow();
+        //Focus
+        textAreaOutgoing.requestFocus();
+	}
 
     //sets the status label at the bottom
     public void setLabelStatus(String s){
@@ -1274,7 +1315,7 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
-        return !this.isVisible() && !dialogPopup.isVisible();
+        return !this.isVisible() && !newMessagePopup.isVisible();
     }
 	
 	//hides the chatman windows
@@ -1309,9 +1350,11 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
     private javax.swing.JDialog dialogHistory;
-    private com.pouria.chatman.gui.PopupDialog dialogPopup;
+    private com.pouria.chatman.gui.PopupDialog dialogPopupBat;
+    private com.pouria.chatman.gui.PopupDialog dialogPopupNormal;
     private javax.swing.JLabel incomingBg;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JLabel labelBat;
     private javax.swing.JLabel labelClear;
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelMessageIcon;
@@ -1334,7 +1377,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuWakeOnLan;
     private javax.swing.JLabel outgoingBg;
-    private javax.swing.JPanel panelPopup;
+    private javax.swing.JPanel panelPopupNormal;
     private javax.swing.JScrollPane scrollPaneHistory;
     private javax.swing.JScrollPane scrollPaneIncoming;
     private javax.swing.JScrollPane scrollPaneOutgoing;
