@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman.classes;
 
+import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.gui.ChatFrame;
 
 /**
@@ -24,15 +25,15 @@ import com.pouria.chatman.gui.ChatFrame;
  */
 public class CommandUpdateIncomingText implements Command{
     ChatFrame gui;
-    String text;
+    ChatmanMessage message;
     
-    public CommandUpdateIncomingText(String text){
+    public CommandUpdateIncomingText(ChatmanMessage message){
         this.gui = ChatFrame.getInstance();
-        this.text = text;
+        this.message = message;
     }
     
     @Override
     public void execute(){
-        gui.updateIncomingText(text);
+        gui.updateIncomingText(message);
     }
 }

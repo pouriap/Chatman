@@ -92,9 +92,7 @@ public class ChatmanMessageHandler {
 	}
 	
 	public void processTextMessage(){
-		String msgText = message.getContent();
-		msgText = "<b>" + message.getSender() + ":</b>" + msgText;
-		(new CommandInvokeLater(new CommandUpdateIncomingText(msgText))).execute();
+		(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
 	}
 	
 	public void processFileMessage(){

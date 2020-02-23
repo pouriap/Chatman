@@ -21,6 +21,8 @@ import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.classes.PeerNotFoundException;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
+import com.pouria.chatman.gui.ChatFrame;
+import java.util.ArrayList;
 
 /**
  *
@@ -30,6 +32,9 @@ public class Chatman {
 	
 	ChatmanServer server;
 	ChatmanClient client;
+	
+	ArrayList<ChatmanMessage> unsavedMessages = new ArrayList<ChatmanMessage>();
+	ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
 	
 	public Chatman(){
 		server = new HttpServer();
@@ -54,5 +59,47 @@ public class Chatman {
 	public ChatmanClient getClient(){
 		return client;
 	}
+	
+	public void addToUnsavedMessages(ChatmanMessage message){
+		unsavedMessages.add(message);
+	}
+	
+	public void addToUnsentMessages(ChatmanMessage message){
+		unsentMessages.add(message);
+	}
+	
+	//not thread safe
+    public void saveHistory(){
+		
+		ChatFrame.getInstance().message("not supported");
+		
+		//we don't want to save empty stuff
+//        if(unsavedMessages.isEmpty())
+//            return;
+//        
+//        Connection c = null;
+//        PreparedStatement stmt = null;
+//        Date date = new Date();
+//
+//        try {
+//			
+//			Class.forName("org.sqlite.JDBC");
+//			
+//            c = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
+//            c.setAutoCommit(false);            
+//
+//            stmt = c.prepareStatement("INSERT INTO chat_sessions (date, text) Values(? , ?)");
+//            stmt.setString(1, String.valueOf(date.getTime()));
+//            stmt.setString(2, incomingTextAll);
+//            stmt.executeUpdate();
+//            c.commit();
+//            
+//            stmt.close();
+//            c.close();
+//					
+//        } catch ( Exception e ) {
+//            message(Helper.getInstance().getStr("history_save_fail") + e.getMessage());
+//        }
+    }
 	
 }

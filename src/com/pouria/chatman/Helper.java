@@ -44,7 +44,6 @@ public class Helper {
 	}
 	
 	private static class HelperHolder {
-
 		private static final Helper INSTANCE = new Helper();
 	}
 	

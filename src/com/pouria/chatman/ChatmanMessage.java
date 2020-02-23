@@ -63,8 +63,26 @@ public class ChatmanMessage {
 		return this.content;
 	}
 	
+	//formats content for being displayed in textAreaIncoming
+	public String getDisplayableContent(){
+		String t = content;
+		//parse web links 
+        t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
+        //parse emoticons
+        String url = getClass().getResource("/resources/emoticons_large/").toString();
+		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
+		//each message is a div
+		t = "<div><b>" + sender + "</b>: " + t + "</div>";
+			
+        return t;
+	}
+	
 	public String getSender(){
 		return this.sender;
+	}
+	
+	public void setSender(String sender){
+		this.sender = sender;
 	}
 	
 	public int getTime(){

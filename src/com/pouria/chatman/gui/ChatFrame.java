@@ -5,9 +5,6 @@
  */
 package com.pouria.chatman.gui;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
-import com.google.common.io.Files;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
@@ -19,8 +16,6 @@ import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
@@ -30,12 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
@@ -681,11 +671,13 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void tableHistoryMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableHistoryMouseReleased
         //put selected history item in textAreaIncoming
-        int row = tableHistory.getSelectedRow();
-        String text = tableHistory.getModel().getValueAt(row, 1).toString();
-        //if we do updateIncomingText(text) then text will be regexed again. But it is already parsed and saved.
-        incomingTextAll = text;
-        updateIncomingText("<br>", false);
+		//TODO: do
+		message("unsupported");
+//        int row = tableHistory.getSelectedRow();
+//        String text = tableHistory.getModel().getValueAt(row, 1).toString();
+//        //if we do updateIncomingText(text) then text will be regexed again. But it is already parsed and saved.
+//        incomingTextAll = text;
+//        updateIncomingText("<br>", false);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
@@ -694,8 +686,11 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
-        incomingTextAll = "";
-        updateIncomingText(textAreaIncomingContentBeforeHistory, false);
+		//TODO: do
+		message("unsupported");
+		
+//        incomingTextAll = "";
+//        updateIncomingText(textAreaIncomingContentBeforeHistory, false);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
@@ -870,39 +865,41 @@ public class ChatFrame extends javax.swing.JFrame {
         //to be consumed. But i'm lazy, so it's ok.
         textAreaOutgoing.setDropTarget(new DropTarget() {
             public synchronized void drop(DropTargetDropEvent evt) {
-                try {
-                    //clear any text
-                    defaultOutgoingText();
-                    
-                    evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    List<File> droppedFiles = (List<File>) evt
-                            .getTransferable().getTransferData(
-                                    DataFlavor.javaFileListFlavor);
-                    for (File file : droppedFiles) {
-                        textAreaOutgoing.setText(file.getAbsolutePath());
-                        
-                        //check file size
-                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
-                        if(file.length()> max*1000*1000){
-                            message(Helper.getInstance().getStr("max_file_size") + max + "MB");
-                            continue;
-                        }
-
-                        //send the file
-                        String name = file.getName();
-                        name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
-                        byte[] data = Files.toByteArray(file);
-                        String base64data = BaseEncoding.base64().encode(data);
-                        //chatman.sendFile(name, base64data);
-
-                        //show file sent message and clear textAreaOutgoing
-                        updateIncomingText(Helper.getInstance().getStr("file_sent") + file.getName());
-                        defaultOutgoingText();
-
-                    }
-                } catch (Exception ex) {
-                    message(Helper.getInstance().getStr("open_file_fail"));
-                }
+				//TODO: har jaii ke goftam "not supported" ro doros konam
+				message("not supported");
+//                try {
+//                    //clear any text
+//                    defaultOutgoingText();
+//                    
+//                    evt.acceptDrop(DnDConstants.ACTION_COPY);
+//                    List<File> droppedFiles = (List<File>) evt
+//                            .getTransferable().getTransferData(
+//                                    DataFlavor.javaFileListFlavor);
+//                    for (File file : droppedFiles) {
+//                        textAreaOutgoing.setText(file.getAbsolutePath());
+//                        
+//                        //check file size
+//                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
+//                        if(file.length()> max*1000*1000){
+//                            message(Helper.getInstance().getStr("max_file_size") + max + "MB");
+//                            continue;
+//                        }
+//
+//                        //send the file
+//                        String name = file.getName();
+//                        name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
+//                        byte[] data = Files.toByteArray(file);
+//                        String base64data = BaseEncoding.base64().encode(data);
+//                        //chatman.sendFile(name, base64data);
+//
+//                        //show file sent message and clear textAreaOutgoing
+//                        updateIncomingText(Helper.getInstance().getStr("file_sent") + file.getName());
+//                        defaultOutgoingText();
+//
+//                    }
+//                } catch (Exception ex) {
+//                    message(Helper.getInstance().getStr("open_file_fail"));
+//                }
             }
         });
         
@@ -1120,14 +1117,12 @@ public class ChatFrame extends javax.swing.JFrame {
         if(s.isEmpty())
             return;
 
-        //'\n' should only be at the end of the message because we use readline()
-        s = s.replace("\n", "").trim();
-
 		ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
 		boolean sent = chatman.send(message);
 
 		if(sent){
-			updateIncomingText("<b>" + Helper.getInstance().getStr("you") + ": </b>" + s);
+			message.setSender("You");
+			updateIncomingText(message);
 			defaultOutgoingText();
 		}
 		
@@ -1135,7 +1130,8 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //parses the string that is given to it and adds it to textAreaIncoming
     //it is called both when we send a message or receive a message
-    public void updateIncomingText(String t, boolean bleep){
+	//TODO: change the name of "IncomingText" to "AllMessages" or something
+    public void updateIncomingText(ChatmanMessage message, boolean bleep){
         //updates the textareaIncoming. Is run when we say something or the other guy says something
         
         //popup when first message received
@@ -1148,24 +1144,19 @@ public class ChatFrame extends javax.swing.JFrame {
             newMessagePopup.playSound();
         }
 
-        if(t.isEmpty()){
+        if(message.getContent().isEmpty()){
             defaultIncomingText();
             return;
         }
         
-        //parse web links 
-        t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
-        
+		//TODO: files
         //parse file links
-        t = t.replaceAll("(file:\\/\\/([^\\.]*\\..*))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
+        //t = t.replaceAll("(file:\\/\\/([^\\.]*\\..*))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
         
-        //parse emoticons
-        //(when we send emoticons, they actually get replaced by themselves, but it's ok)
-        String url = getClass().getResource("/resources/emoticons_large/").toString();
-		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
+		incomingTextAll += message.getDisplayableContent();
+		chatman.addToUnsavedMessages(message);
 		
-		incomingTextAll = incomingTextAll + "<div>" + t + "</div>";
-        textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
+		textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
 		
 		//wait 100ms in another thread and then scroll the incoming text all the way down
 		//because the fucking thing just doesn't work any other way
@@ -1191,8 +1182,8 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     //lazy version 
-    public void updateIncomingText(String t){
-        updateIncomingText(t, true);
+    public void updateIncomingText(ChatmanMessage message){
+        updateIncomingText(message, true);
     }
     
     //clears textAreaIncoming
@@ -1235,37 +1226,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
     }
     
-    public void saveHistory(){
-		
-        //we don't want to save empty stuff
-        if(incomingTextAll.isEmpty())
-            return;
-        
-        Connection c = null;
-        PreparedStatement stmt = null;
-        Date date = new Date();
 
-        
-        try {
-			
-			Class.forName("org.sqlite.JDBC");
-			
-            c = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
-            c.setAutoCommit(false);            
-
-            stmt = c.prepareStatement("INSERT INTO chat_sessions (date, text) Values(? , ?)");
-            stmt.setString(1, String.valueOf(date.getTime()));
-            stmt.setString(2, incomingTextAll);
-            stmt.executeUpdate();
-            c.commit();
-            
-            stmt.close();
-            c.close();
-					
-        } catch ( Exception e ) {
-            message(Helper.getInstance().getStr("history_save_fail") + e.getMessage());
-        }
-    }
 	
     public void updateUserName(){
         //background names are like batman_1.jpg or batman.png
@@ -1335,7 +1296,7 @@ public class ChatFrame extends javax.swing.JFrame {
     //the end of chatman. that's it. no auto pilot :(
     public synchronized void exit(){
 		
-        saveHistory();
+        chatman.saveHistory();
                 
         ChatmanConfig.getInstance().save();
 		      

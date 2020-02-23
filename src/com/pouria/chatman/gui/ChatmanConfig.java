@@ -48,19 +48,20 @@ public class ChatmanConfig {
     private boolean hasChanged = false;
     
     private ChatmanConfig(){
+		
         this.gui = ChatFrame.getInstance();
         
         //default configs for the occasion that a config was missing
         this.defaultConfigs = Arrays.asList(new String[]{
-            "background-image", "none",
+            "background-image", "batman_1.jpg",
             "server-port", "9988",
             "subnet-mask", "192.168.1.*",
-            "num-hosts-to-scan", "10",
+            "num-hosts-to-scan", "100",
             "max-file-size", "20",
-            "locale", "en_US",
-            //"user-id", "Chatman User"
+            "locale", "fa_IR"
         });
         
+		//TODO: create default config file if config file doesn't exist
         //read config file
         //configs are stored line by line. each config value must be the line after config name. otherwise we're screwed.
         try{
@@ -85,7 +86,8 @@ public class ChatmanConfig {
                         
         //we are doomed if we can't read configs
         }catch(Exception e){
-            String error = Helper.getInstance().getStr("config_read_fail") + e.getMessage();
+			//TODO: remove getStr from all fatal errors because it needs helper which itself needs config etc.
+            String error = "Failed to read config file. " + e.getMessage();
             (new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
         }
         
