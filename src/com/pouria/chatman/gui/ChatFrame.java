@@ -10,15 +10,19 @@ import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.HistoryTablePagination;
 import com.pouria.chatman.connection.HttpClient;
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.SystemTray;
 import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +32,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.SwingUtilities;
@@ -626,7 +631,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuExitActionPerformed
 
     private void panelPopupNormalMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelPopupNormalMouseReleased
-		showNewMessagePopup();
+		popopClicked();
     }//GEN-LAST:event_panelPopupNormalMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
@@ -806,7 +811,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
     private void labelBatMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelBatMouseReleased
-        showNewMessagePopup();
+        popopClicked();
     }//GEN-LAST:event_labelBatMouseReleased
 
     /**
@@ -849,6 +854,8 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void myInits(){
+		
+		createTrayIcon();
         
         //Locale
 		Helper.getInstance().setLocale(ChatmanConfig.getInstance().getLocale());
@@ -1032,6 +1039,29 @@ public class ChatFrame extends javax.swing.JFrame {
 
     
     //Called from myInits()
+	public void createTrayIcon(){
+        if (!SystemTray.isSupported()) {
+			//TODO: convert to log
+            message("System tray not supported");
+            return;
+        }
+		ImageIcon ticon = new ImageIcon(getClass().getResource("/resources/trayicon.png"));
+        final TrayIcon trayIcon = new TrayIcon(ticon.getImage());
+		trayIcon.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				popopClicked();
+			}
+		});
+        final SystemTray tray = SystemTray.getSystemTray();
+        try {
+            tray.add(trayIcon);
+        } catch (AWTException e) {
+			//TODO: convert to log
+            message("Tray icon could not be added");
+        }
+	}
+	
     public void setupGUITexts(){
         labelNewMessage.setText(Helper.getInstance().getStr("new_message"));
         dialogHistory.setTitle(Helper.getInstance().getStr("history"));
@@ -1254,7 +1284,7 @@ public class ChatFrame extends javax.swing.JFrame {
         return chatman;
     }
 	
-	public void showNewMessagePopup(){
+	public void popopClicked(){
         //close the "New Message" popup and show the application window
         newMessagePopup.hidePopup();
         //Show
