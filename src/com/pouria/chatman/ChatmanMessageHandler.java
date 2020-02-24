@@ -73,7 +73,7 @@ public class ChatmanMessageHandler {
 	}
 	
 	public void processBadMessage(){
-		System.out.println(message.getContent());
+		(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
 	}
 	
 	public void processTextMessage(){
@@ -94,10 +94,13 @@ public class ChatmanMessageHandler {
 				saveDir.mkdir();
 			}
 			Files.copy(srcFile, dstFile);
-			//TODO: show link to file in incoming text
-			//(new CommandInvokeLater(new CommandUpdateIncomingText(Helper.getInstance().getStr("file_recieved") + fileName + " - " + Helper.getInstance().getStr("saved_in") + "file://" + dlDirectory + fileName))).execute();
+			String content = "file://"+dstFile.getAbsolutePath();
+			String sender = Helper.getInstance().getStr("file_recieved");
+			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, content, sender, message.getTime());
+			(new CommandInvokeLater(new CommandUpdateIncomingText(displayedMessage))).execute();
 		}catch(IOException e){
-			//(new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("file_save_fail") + e.getMessage()))).execute();
+			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, "File receive failed", "ERROR: ", message.getTime());
+			(new CommandInvokeLater(new CommandUpdateIncomingText(displayedMessage))).execute();
 		}
 	}
 	

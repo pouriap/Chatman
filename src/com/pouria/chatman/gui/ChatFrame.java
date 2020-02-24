@@ -724,12 +724,11 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
-        // TODO add your handling code here:
         JOptionPane.showMessageDialog(null, Helper.getInstance().getStr("license"), Helper.getInstance().getStr("about"), JOptionPane.PLAIN_MESSAGE, null);
     }//GEN-LAST:event_menuAboutActionPerformed
 
     private void menuRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRemoteShutdownActionPerformed
-        // TODO add your handling code here:
+
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("remote_shutdown_message"), Helper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
             ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
@@ -738,7 +737,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
 
     private void menuWakeOnLanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuWakeOnLanActionPerformed
-        // TODO add your handling code here:
+        
 		throw new UnsupportedOperationException("not supported yet");
 		/*
 		try{
@@ -751,17 +750,17 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuWakeOnLanActionPerformed
 
     private void labelNextEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseReleased
-        // TODO add your handling code here:
+        
 		nextEmojiPage();
     }//GEN-LAST:event_labelNextEmojiPageMouseReleased
 
     private void labelPrevEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseReleased
-        // TODO add your handling code here:
+        
 		prevEmojiPage();
     }//GEN-LAST:event_labelPrevEmojiPageMouseReleased
 
     private void menuAbortLocalShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortLocalShutdownActionPerformed
-        // TODO add your handling code here:
+        
 		try{
 			Helper.getInstance().abortLocalShutdown();
 		}catch(IOException e){
@@ -770,7 +769,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuAbortLocalShutdownActionPerformed
 
     private void menuChangeBgMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuChangeBgMouseReleased
-        // TODO add your handling code here:
+        
 		
 		boolean isLeftClick = SwingUtilities.isLeftMouseButton(evt);
 		
@@ -792,12 +791,10 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuChangeBgMouseReleased
 
     private void labelSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMousePressed
-        // TODO add your handling code here:
 		send();
     }//GEN-LAST:event_labelSendMousePressed
 
     private void textAreaOutgoingKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyPressed
-        // TODO add your handling code here:
 		if (evt.getKeyChar() == '\n'){ 
 			evt.consume();
             send();
@@ -805,7 +802,6 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_textAreaOutgoingKeyPressed
 
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
-        // TODO add your handling code here:
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("abort_remote_shutdown_message"), Helper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
             ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_ABORT_SHUTDOWN, "", username);
@@ -876,8 +872,6 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaOutgoing.setDropTarget(new DropTarget() {
             public synchronized void drop(DropTargetDropEvent evt) {
 				//TODO: har jaii ke goftam "not supported" ro doros konam
-				message("not supported");
-					
                 try {
                     //clear any text
                     defaultOutgoingText();
@@ -887,24 +881,26 @@ public class ChatFrame extends javax.swing.JFrame {
 							evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
                         textAreaOutgoing.setText(file.getAbsolutePath());
-                        
                         //check file size
+						//TODO: promot instead of forbidding
                         int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
                         if(file.length()> max*1000*1000){
                             message(Helper.getInstance().getStr("max_file_size") + max + "MB");
                             continue;
                         }
-
                         //send the file
-                        String fileName = file.getName();
 						String filePath = file.getAbsolutePath();
-						ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, fileName);
-						chatman.send(fileMessage);
-
+						String fileName = file.getName();
+						ChatmanMessage fileMessageRemote = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, fileName);
+						boolean sent = chatman.send(fileMessageRemote);
                         //show file sent message and clear textAreaOutgoing
-                        updateIncomingText(fileMessage);
-                        defaultOutgoingText();
-
+						if(sent){
+							String content = fileName;
+							String sender = Helper.getInstance().getStr("file_sent");
+							ChatmanMessage fileMessageLocal = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, content, sender);
+							updateIncomingText(fileMessageLocal);
+						}
+						defaultOutgoingText();
                     }
                 } catch (Exception ex) {
                     message(Helper.getInstance().getStr("open_file_fail"));

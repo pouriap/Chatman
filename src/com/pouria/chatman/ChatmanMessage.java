@@ -104,9 +104,12 @@ public class ChatmanMessage {
 	}
 	
 	public String getAsJsonString(){
-		//Gson g = new Gson();
-		//return g.toJson(this);
-		return "";
+		JSONObject json = new JSONObject();
+		json.put("type", this.type);
+		json.put("content", this.content);
+		json.put("sender", this.sender);
+		json.put("time", this.time);
+		return json.toString();
 	}
 	
 	public int getType(){
@@ -125,6 +128,8 @@ public class ChatmanMessage {
         //parse emoticons
         String url = getClass().getResource("/resources/emoticons_large/").toString();
 		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
+        //parse file links
+        t = t.replaceAll("(file:\\/\\/([^\\.]*\\..*))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
 		//each message is a div
 		t = "<div><b>" + sender + "</b>: " + t + "</div>";
 			

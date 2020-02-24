@@ -46,6 +46,7 @@ public class Chatman {
 			client.send(message);
 			return true;
 		}catch(PeerNotFoundException e){
+			//TODO: tell user we are reconnecting (useful for file drop)
 			client.connect();
 			//TODO: baraye special ha mesle shutdown yekari konim karbar befahme vaghti narafte
 			return false;

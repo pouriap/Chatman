@@ -16,7 +16,6 @@
  */
 package com.pouria.chatman.connection;
 
-import com.github.kevinsawicki.http.HttpRequest;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.ChatmanClient;
@@ -30,6 +29,17 @@ import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.gui.ChatmanConfig;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 /**
  *
@@ -63,13 +73,22 @@ public class HttpClient implements ChatmanClient{
 	}
 	
 	private void sendTextMessage(String message) throws PeerNotFoundException{
-
 		int code = 0;
 		try{
 			String remotePort = ChatmanConfig.getInstance().get("server-port");
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
-			HttpRequest req = new HttpRequest(remoteAddress, "GET");
-			code = req.get(remoteAddress, true, "message", message).connectTimeout(200).code();
+			List<NameValuePair> urlParameters = new ArrayList<>();
+			urlParameters.add(new BasicNameValuePair("message", message));
+			
+			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+			UrlEncodedFormEntity data = new UrlEncodedFormEntity(urlParameters);
+			HttpPost post = new HttpPost(remoteAddress);
+			post.setEntity(data);
+			CloseableHttpResponse response = httpClient.execute(post);
+			code = response.getCode();
+			EntityUtils.consume(response.getEntity());
+			response.close();
+			httpClient.close();
 		}catch(Exception e){
 			throw new PeerNotFoundException("request could not be sent: " + e.getMessage());
 		}
@@ -85,13 +104,20 @@ public class HttpClient implements ChatmanClient{
 		int code = 0;
 		try{
 			String remotePort = ChatmanConfig.getInstance().get("server-port");
-			//String remoteAddress = "http://" + serverIP + ":" + remotePort;
-			String remoteAddress = "http://192.168.1.20:2222";
-			String fileName = message.getSender();
-			File file = new File(fileName);
-			HttpRequest req = HttpRequest.post(remoteAddress);
-			req.part("data", file);
-			code = req.code();
+			String remoteAddress = "http://" + serverIP + ":" + remotePort;
+			String filePath = message.getContent();
+			File file = new File(filePath);
+
+			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+			HttpEntity requestEntity = MultipartEntityBuilder.create().addBinaryBody("data", file).build();
+			HttpPost post = new HttpPost(remoteAddress);
+			post.setEntity(requestEntity);
+			CloseableHttpResponse response = httpClient.execute(post);
+			code = response.getCode();
+			EntityUtils.consume(response.getEntity());
+			response.close();
+			httpClient.close();
+
 		}catch(Exception e){
 			throw new PeerNotFoundException("file could not be sent: " + e.getMessage());
 		}
@@ -142,6 +168,7 @@ public class HttpClient implements ChatmanClient{
 	}
 	
 	private String[] getIpsToScan(){
+		
 		String[] ipsToScan;
 		//if we have server's ip we don't scan the network
         if(ChatmanConfig.getInstance().isSet("server-ip")){
