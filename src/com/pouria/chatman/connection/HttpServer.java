@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman.connection;
 
+import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.ChatmanMessageHandler;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
@@ -24,6 +25,10 @@ import com.pouria.chatman.gui.ChatmanConfig;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.form.FormData;
+import io.undertow.server.handlers.form.FormData.FormValue;
+import io.undertow.server.handlers.form.FormDataParser;
+import io.undertow.server.handlers.form.FormParserFactory;
 
 /**
  *
@@ -35,28 +40,61 @@ public class HttpServer implements ChatmanServer{
 	public void start(){
 		
 		int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
+		final ChatmanHandler handler = new ChatmanHandler();
 		
 		Undertow server = Undertow.builder()
-				.addHttpListener(serverPort, "0.0.0.0")
-				.setHandler(new HttpHandler() {
-					@Override
-					public void handleRequest(final HttpServerExchange exchange) throws Exception {
-						ChatmanMessageHandler MsgHandler = 
-								new ChatmanMessageHandler(exchange.getQueryParameters());
-						MsgHandler.handle();
-					}
-				}).build();
-		
+			.addHttpListener(serverPort, "0.0.0.0")
+			.setHandler(new HttpHandler() {
+				@Override
+				public void handleRequest(HttpServerExchange exchange) throws Exception {
+					//parses POST form data and passes it to a handler
+					FormDataParser parser = FormParserFactory.builder().build().createParser(exchange);
+					parser.parse(handler);
+				}
+			}).build();
 		
 		try{
 			server.start();
-			
+
 		}catch(Exception e){
 			String error = "Could not start server: " + e.getMessage();
 			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
 		}
-		
+
 	}
 
 
+	private class ChatmanHandler implements HttpHandler{
+		@Override
+		public void handleRequest(HttpServerExchange exchange) throws Exception {
+			
+			//for data is stored here
+			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
+			//if normal message
+			//TODO: refractor this and make ChatmanMessageHandler take only ChatmanMessage as argument
+			if(formData.contains("message")){
+				FormValue messageValue = formData.get("message").getFirst();
+				String message = messageValue.getValue();
+				ChatmanMessageHandler MsgHandler = new ChatmanMessageHandler(message);
+				MsgHandler.handle();
+			}
+			//if file upload
+			else if(formData.contains("data") && formData.contains("filename")){
+				FormValue formFile = formData.get("data").getFirst();
+				FormValue formFileName = formData.get("filename").getFirst();
+				if(formFile.isFileItem()){
+					String filePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
+					String fileName = formFileName.getValue();
+					//we send filename in 'sender' filed hehe
+					String message = (new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, fileName)).getAsJsonString();
+					ChatmanMessageHandler MsgHandler = new ChatmanMessageHandler(message);
+					MsgHandler.handle();
+				}
+			}
+			
+
+			
+		}
+	}
+	
 }

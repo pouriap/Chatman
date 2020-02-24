@@ -23,12 +23,6 @@ import com.pouria.chatman.ChatmanMessage;
  * @author pouriap
  */
 public interface ChatmanClient {
-	/**
-	 * sends a string to the other person we are talking to
-	 * @param message 
-	 * @throws com.pouria.chatman.classes.PeerNotFoundException 
-	 */
-	public void send(String message) throws PeerNotFoundException;
 
 	/**
 	 * sends a ChatmanMessage to the other person we are talking to

@@ -16,15 +16,16 @@
  */
 package com.pouria.chatman;
 
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowMessage;
 import com.pouria.chatman.classes.CommandUpdateIncomingText;
 import com.pouria.chatman.gui.ChatFrame;
+import java.io.File;
 import java.io.IOException;
-import java.util.Deque;
-import java.util.Map;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -35,12 +36,12 @@ public class ChatmanMessageHandler {
 	private String rawMessage = "";
 	private ChatmanMessage message;
 	
-	public ChatmanMessageHandler(Map<String,Deque<String>> httpQueryParameters){
+	public ChatmanMessageHandler(String rawMessage){
 		try{
 			//throws exception is "message" not present
-			rawMessage = httpQueryParameters.get("message").pop();
+			this.rawMessage = rawMessage;
 			Gson gson = new Gson();
-			message = gson.fromJson(rawMessage, ChatmanMessage.class);
+			this.message = gson.fromJson(rawMessage, ChatmanMessage.class);
 			
 		}catch(JsonSyntaxException e){
 			//create a 'bad message' json as our message because the original one is lost
@@ -96,24 +97,24 @@ public class ChatmanMessageHandler {
 	}
 	
 	public void processFileMessage(){
-//		//get file
-//		String f = reader.readLine();
-//		final String fileName = new String(BaseEncoding.base64().decode(f), Charsets.UTF_8);
-//		String fileData = reader.readLine();
-//		final String location = (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
-//
-//		//save file
-//		try{
-//			File saveDir = new File(location);
-//			if(!saveDir.isDirectory())
-//				saveDir.mkdir();
-//			Files.write(BaseEncoding.base64().decode(fileData), new File(location + fileName));
-//
-//			(new CommandInvokeLater(new CommandUpdateIncomingText(Helper.getInstance().getStr("file_recieved") + fileName + " - " + Helper.getInstance().getStr("saved_in") + "file://" + location + fileName))).execute();
-//
-//		}catch(IOException e){
-//			(new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("file_save_fail") + e.getMessage()))).execute();
-//		}
+		String tmpFilePath = message.getContent();
+		//filename is saved in 'sender' field hehe
+		String fileName = message.getSender();
+		String dlDirectory = (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
+		File srcFile = new File(tmpFilePath);
+		File dstFile = new File(dlDirectory+fileName);
+		//save file
+		try{
+			File saveDir = new File(dlDirectory);
+			if(!saveDir.isDirectory()){
+				saveDir.mkdir();
+			}
+			Files.copy(srcFile, dstFile);
+			//TODO: show link to file in incoming text
+			//(new CommandInvokeLater(new CommandUpdateIncomingText(Helper.getInstance().getStr("file_recieved") + fileName + " - " + Helper.getInstance().getStr("saved_in") + "file://" + dlDirectory + fileName))).execute();
+		}catch(IOException e){
+			//(new CommandInvokeLater(new CommandMessage(Helper.getInstance().getStr("file_save_fail") + e.getMessage()))).execute();
+		}
 	}
 	
 	public void processShutdown(){

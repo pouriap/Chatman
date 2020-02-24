@@ -19,6 +19,8 @@ import java.awt.Image;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
@@ -30,6 +32,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -874,39 +877,38 @@ public class ChatFrame extends javax.swing.JFrame {
             public synchronized void drop(DropTargetDropEvent evt) {
 				//TODO: har jaii ke goftam "not supported" ro doros konam
 				message("not supported");
-//                try {
-//                    //clear any text
-//                    defaultOutgoingText();
-//                    
-//                    evt.acceptDrop(DnDConstants.ACTION_COPY);
-//                    List<File> droppedFiles = (List<File>) evt
-//                            .getTransferable().getTransferData(
-//                                    DataFlavor.javaFileListFlavor);
-//                    for (File file : droppedFiles) {
-//                        textAreaOutgoing.setText(file.getAbsolutePath());
-//                        
-//                        //check file size
-//                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
-//                        if(file.length()> max*1000*1000){
-//                            message(Helper.getInstance().getStr("max_file_size") + max + "MB");
-//                            continue;
-//                        }
-//
-//                        //send the file
-//                        String name = file.getName();
-//                        name = BaseEncoding.base64().encode(name.getBytes(Charsets.UTF_8));
-//                        byte[] data = Files.toByteArray(file);
-//                        String base64data = BaseEncoding.base64().encode(data);
-//                        //chatman.sendFile(name, base64data);
-//
-//                        //show file sent message and clear textAreaOutgoing
-//                        updateIncomingText(Helper.getInstance().getStr("file_sent") + file.getName());
-//                        defaultOutgoingText();
-//
-//                    }
-//                } catch (Exception ex) {
-//                    message(Helper.getInstance().getStr("open_file_fail"));
-//                }
+					
+                try {
+                    //clear any text
+                    defaultOutgoingText();
+                    
+                    evt.acceptDrop(DnDConstants.ACTION_COPY);
+                    List<File> droppedFiles = (List<File>) 
+							evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    for (File file : droppedFiles) {
+                        textAreaOutgoing.setText(file.getAbsolutePath());
+                        
+                        //check file size
+                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
+                        if(file.length()> max*1000*1000){
+                            message(Helper.getInstance().getStr("max_file_size") + max + "MB");
+                            continue;
+                        }
+
+                        //send the file
+                        String fileName = file.getName();
+						String filePath = file.getAbsolutePath();
+						ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, fileName);
+						chatman.send(fileMessage);
+
+                        //show file sent message and clear textAreaOutgoing
+                        updateIncomingText(fileMessage);
+                        defaultOutgoingText();
+
+                    }
+                } catch (Exception ex) {
+                    message(Helper.getInstance().getStr("open_file_fail"));
+                }
             }
         });
         

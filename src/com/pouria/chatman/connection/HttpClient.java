@@ -28,6 +28,7 @@ import com.pouria.chatman.classes.IpScannerCallback;
 import com.pouria.chatman.classes.PeerNotFoundException;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.gui.ChatmanConfig;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -40,19 +41,35 @@ public class HttpClient implements ChatmanClient{
 	private boolean connectInProgress = false;
 
 	@Override
-	public void send(String message) throws PeerNotFoundException{
+	public void send(ChatmanMessage message) throws PeerNotFoundException{
 		
 		if(serverIP == null){
 			throw new PeerNotFoundException("server not found");
 		}
 		
+		int messageType = message.getType();
+		
+		switch(messageType){
+			case ChatmanMessage.TYPE_TEXT:
+				sendTextMessage(message.getAsJsonString());
+				break;
+			case ChatmanMessage.TYPE_FILE:
+				sendFileMessage(message);
+				break;
+			default:
+				break;
+		}
+		
+	}
+	
+	private void sendTextMessage(String message) throws PeerNotFoundException{
+
 		int code = 0;
 		try{
-			String serverPort = ChatmanConfig.getInstance().get("server-port");
-			String serverAddress = "http://" + serverIP + ":" + serverPort;
-			HttpRequest req = new HttpRequest(serverAddress, "GET");
-			code = req.get(serverAddress, true, "message", message).connectTimeout(200).code();
-			
+			String remotePort = ChatmanConfig.getInstance().get("server-port");
+			String remoteAddress = "http://" + serverIP + ":" + remotePort;
+			HttpRequest req = new HttpRequest(remoteAddress, "GET");
+			code = req.get(remoteAddress, true, "message", message).connectTimeout(200).code();
 		}catch(Exception e){
 			throw new PeerNotFoundException("request could not be sent: " + e.getMessage());
 		}
@@ -62,10 +79,26 @@ public class HttpClient implements ChatmanClient{
 		}
 		
 	}
-
-	@Override
-	public void send(ChatmanMessage message) throws PeerNotFoundException{
-		send(message.getAsJsonString());
+	
+	private void sendFileMessage(ChatmanMessage message) throws PeerNotFoundException{
+		//TODO: so much in common with above function
+		int code = 0;
+		try{
+			String remotePort = ChatmanConfig.getInstance().get("server-port");
+			String remoteAddress = "http://" + serverIP + ":" + remotePort;
+			String fileName = message.getSender();
+			File file = new File(message.getContent());
+			HttpRequest req = HttpRequest.post(remoteAddress);
+			req.part("filename", fileName);
+			req.part("data", file);
+			code = req.code();
+		}catch(Exception e){
+			throw new PeerNotFoundException("file could not be sent: " + e.getMessage());
+		}
+		
+		if(code != 200){
+			throw new PeerNotFoundException("http file upload returned code: " + code);
+		}
 	}
 
 	@Override
