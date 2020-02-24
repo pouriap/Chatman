@@ -85,11 +85,11 @@ public class HttpClient implements ChatmanClient{
 		int code = 0;
 		try{
 			String remotePort = ChatmanConfig.getInstance().get("server-port");
-			String remoteAddress = "http://" + serverIP + ":" + remotePort;
+			//String remoteAddress = "http://" + serverIP + ":" + remotePort;
+			String remoteAddress = "http://192.168.1.20:2222";
 			String fileName = message.getSender();
-			File file = new File(message.getContent());
+			File file = new File(fileName);
 			HttpRequest req = HttpRequest.post(remoteAddress);
-			req.part("filename", fileName);
 			req.part("data", file);
 			code = req.code();
 		}catch(Exception e){

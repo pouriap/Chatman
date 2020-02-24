@@ -26,7 +26,6 @@ import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
-import io.undertow.server.handlers.form.FormData.FormValue;
 import io.undertow.server.handlers.form.FormDataParser;
 import io.undertow.server.handlers.form.FormParserFactory;
 
@@ -67,33 +66,11 @@ public class HttpServer implements ChatmanServer{
 	private class ChatmanHandler implements HttpHandler{
 		@Override
 		public void handleRequest(HttpServerExchange exchange) throws Exception {
-			
-			//for data is stored here
+			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
-			//if normal message
-			//TODO: refractor this and make ChatmanMessageHandler take only ChatmanMessage as argument
-			if(formData.contains("message")){
-				FormValue messageValue = formData.get("message").getFirst();
-				String message = messageValue.getValue();
-				ChatmanMessageHandler MsgHandler = new ChatmanMessageHandler(message);
-				MsgHandler.handle();
-			}
-			//if file upload
-			else if(formData.contains("data") && formData.contains("filename")){
-				FormValue formFile = formData.get("data").getFirst();
-				FormValue formFileName = formData.get("filename").getFirst();
-				if(formFile.isFileItem()){
-					String filePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
-					String fileName = formFileName.getValue();
-					//we send filename in 'sender' filed hehe
-					String message = (new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, fileName)).getAsJsonString();
-					ChatmanMessageHandler MsgHandler = new ChatmanMessageHandler(message);
-					MsgHandler.handle();
-				}
-			}
-			
-
-			
+			ChatmanMessage message = new ChatmanMessage(formData);
+			ChatmanMessageHandler MsgHandler = new ChatmanMessageHandler(message);
+			MsgHandler.handle();
 		}
 	}
 	

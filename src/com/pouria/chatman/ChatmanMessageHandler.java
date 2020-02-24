@@ -17,8 +17,6 @@
 package com.pouria.chatman;
 
 import com.google.common.io.Files;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowMessage;
 import com.pouria.chatman.classes.CommandUpdateIncomingText;
@@ -33,24 +31,10 @@ import javax.swing.JFileChooser;
  */
 public class ChatmanMessageHandler {
 	
-	private String rawMessage = "";
-	private ChatmanMessage message;
+	private final ChatmanMessage message;
 	
-	public ChatmanMessageHandler(String rawMessage){
-		try{
-			//throws exception is "message" not present
-			this.rawMessage = rawMessage;
-			Gson gson = new Gson();
-			this.message = gson.fromJson(rawMessage, ChatmanMessage.class);
-			
-		}catch(JsonSyntaxException e){
-			//create a 'bad message' json as our message because the original one is lost
-			message = new ChatmanMessage(ChatmanMessage.TYPE_BADMESSAGE, "bad json syntax", "unknown", 0);
-			
-		}catch(Exception e){
-			//create a 'bad message' json as our message because the original one is lost
-			message = new ChatmanMessage(ChatmanMessage.TYPE_BADMESSAGE, "bad message", "unknown", 0);
-		}
+	public ChatmanMessageHandler(ChatmanMessage message){
+		this.message = message;
 	}
 	
 	public void handle(){

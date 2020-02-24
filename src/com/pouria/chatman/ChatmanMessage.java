@@ -16,7 +16,9 @@
  */
 package com.pouria.chatman;
 
-import com.google.gson.Gson;
+import io.undertow.server.handlers.form.FormData;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -50,9 +52,61 @@ public class ChatmanMessage {
 		this.time = Helper.getInstance().getTime();
 	}
 	
+	public ChatmanMessage(FormData postData){
+		
+		try{
+			//if normal message
+			if(postData.contains("message")){
+				FormData.FormValue messageValue = postData.get("message").getFirst();
+				String message = messageValue.getValue();
+				//throws exception if JSON is curropt
+				JSONObject json = new JSONObject(message);
+				this.type = json.getInt("type");
+				this.content = json.getString("content");
+				this.sender = json.getString("sender");
+				this.time = json.getInt("time");
+			}
+			//if file upload
+			else if(postData.contains("data")){
+				FormData.FormValue formFile = postData.get("data").getFirst();
+				if(formFile.isFileItem()){
+					String filePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
+					String fileName = formFile.getFileName();
+					//we store filename in 'sender' field hehe
+					this.type = TYPE_FILE;
+					this.content = filePath;
+					this.sender = fileName;
+					this.time = Helper.getInstance().getTime();
+				}
+				else{
+					throw new Exception("bad file message");
+				}
+			}
+			//if bad message
+			else{
+				throw new Exception();
+			}
+
+		}catch(JSONException e){
+			//create a 'bad message' instance as our message because the original one is lost
+			this.type = TYPE_BADMESSAGE;
+			this.content = "bad json syntax";
+			this.sender = "unknown";
+			this.time = 0;
+			
+		}catch(Exception e){
+			//create a 'bad message' instance as our message because the original one is lost
+			this.type = TYPE_BADMESSAGE;
+			this.content = "bad message";
+			this.sender = "unknown";
+			this.time = 0;			
+		}
+	}
+	
 	public String getAsJsonString(){
-		Gson g = new Gson();
-		return g.toJson(this);
+		//Gson g = new Gson();
+		//return g.toJson(this);
+		return "";
 	}
 	
 	public int getType(){
