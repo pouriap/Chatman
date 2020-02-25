@@ -24,7 +24,7 @@ import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandSetLabelStatus;
 import com.pouria.chatman.classes.IpScannerCallback;
-import com.pouria.chatman.classes.PeerNotFoundException;
+import com.pouria.chatman.classes.SendCallback;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.gui.ChatmanConfig;
 import java.io.File;
@@ -51,20 +51,22 @@ public class HttpClient implements ChatmanClient{
 	private boolean connectInProgress = false;
 
 	@Override
-	public void send(ChatmanMessage message) throws PeerNotFoundException{
+	public void send(ChatmanMessage message, SendCallback callback){
 		
 		if(serverIP == null){
-			throw new PeerNotFoundException("server not found");
+			connect();
+			callback.call(false, "server not set, reconnecting...");
+			return;
 		}
 		
 		int messageType = message.getType();
 		
 		switch(messageType){
 			case ChatmanMessage.TYPE_TEXT:
-				sendTextMessage(message);
+				sendTextMessage(message, callback);
 				break;
 			case ChatmanMessage.TYPE_FILE:
-				sendFileMessage(message);
+				sendFileMessage(message, callback);
 				break;
 			default:
 				break;
@@ -72,9 +74,12 @@ public class HttpClient implements ChatmanClient{
 		
 	}
 	
-	private void sendTextMessage(ChatmanMessage message) throws PeerNotFoundException{
-		int code = 0;
+	private void sendTextMessage(ChatmanMessage message, SendCallback callback){
+		
+		boolean success = false;
+		String reason = "";
 		String messageText = message.getAsJsonString();
+		
 		try{
 			String remotePort = ChatmanConfig.getInstance().get("server-port");
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
@@ -86,23 +91,34 @@ public class HttpClient implements ChatmanClient{
 			HttpPost post = new HttpPost(remoteAddress);
 			post.setEntity(data);
 			CloseableHttpResponse response = httpClient.execute(post);
-			code = response.getCode();
+			int code = response.getCode();
 			EntityUtils.consume(response.getEntity());
 			response.close();
 			httpClient.close();
+			
+			if(code == 200){
+				success = true;
+			}
+			else{
+				reason = "http request returned code: " + code;
+				success = false;
+			}
+			
 		}catch(Exception e){
-			throw new PeerNotFoundException("request could not be sent: " + e.getMessage());
+			reason = "request could not be sent: " + e.getMessage();
+			success = false;
 		}
 		
-		if(code != 200){
-			throw new PeerNotFoundException("http request returned code: " + code);
-		}
-		
+		callback.call(success, reason);
+
 	}
 	
-	private void sendFileMessage(ChatmanMessage message) throws PeerNotFoundException{
+	private void sendFileMessage(ChatmanMessage message, SendCallback callback){
 		//TODO: so much in common with above function
-		int code = 0;
+		//TODO: do it in thread
+		boolean success = false;
+		String reason = "";
+		
 		try{
 			String remotePort = ChatmanConfig.getInstance().get("server-port");
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
@@ -114,18 +130,26 @@ public class HttpClient implements ChatmanClient{
 			HttpPost post = new HttpPost(remoteAddress);
 			post.setEntity(requestEntity);
 			CloseableHttpResponse response = httpClient.execute(post);
-			code = response.getCode();
+			int code = response.getCode();
 			EntityUtils.consume(response.getEntity());
 			response.close();
 			httpClient.close();
+			
+			if(code == 200){
+				success = true;
+			}
+			else{
+				reason = "http request returned code: " + code;
+				success = false;
+			}
 
 		}catch(Exception e){
-			throw new PeerNotFoundException("file could not be sent: " + e.getMessage());
+			reason = "request could not be sent: " + e.getMessage();
+			success = false;
 		}
 		
-		if(code != 200){
-			throw new PeerNotFoundException("http file upload returned code: " + code);
-		}
+		callback.call(success, reason);
+
 	}
 
 	@Override

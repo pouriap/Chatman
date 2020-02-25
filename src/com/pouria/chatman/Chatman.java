@@ -18,7 +18,7 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.ChatmanServer;
-import com.pouria.chatman.classes.PeerNotFoundException;
+import com.pouria.chatman.classes.SendCallback;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
 import com.pouria.chatman.gui.ChatFrame;
@@ -41,16 +41,19 @@ public class Chatman {
 		client = new HttpClient();
 	}
 	
-	public boolean send(ChatmanMessage message){
-		try{
-			client.send(message);
-			return true;
-		}catch(PeerNotFoundException e){
-			//TODO: tell user we are reconnecting (useful for file drop)
-			client.connect();
-			//TODO: baraye special ha mesle shutdown yekari konim karbar befahme vaghti narafte
-			return false;
-		}
+	public void send(ChatmanMessage message, SendCallback callback){
+		//TODO: tell user we are reconnecting (useful for file drop)
+		//TODO: baraye special ha mesle shutdown yekari konim karbar befahme vaghti narafte
+		final ChatmanMessage _message = message;
+		final SendCallback _callback = callback;
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				client.send(_message, _callback);
+			}
+		};
+		Thread th = new Thread(r);
+		th.start();
 	}
 	
 	public ChatmanServer getServer(){

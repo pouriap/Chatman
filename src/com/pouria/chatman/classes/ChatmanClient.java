@@ -27,9 +27,9 @@ public interface ChatmanClient {
 	/**
 	 * sends a ChatmanMessage to the other person we are talking to
 	 * @param message 
-	 * @throws com.pouria.chatman.classes.PeerNotFoundException 
+	 * @param callback 
 	 */	
-	public void send(ChatmanMessage message) throws PeerNotFoundException;
+	public void send(ChatmanMessage message, SendCallback callback);
 	
 	/**
 	 * connects to the person we want to talk to if their IP is specified <br>

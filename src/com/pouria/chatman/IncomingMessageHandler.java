@@ -18,7 +18,7 @@ package com.pouria.chatman;
 
 import com.google.common.io.Files;
 import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandShowMessage;
+import com.pouria.chatman.classes.CommandShowError;
 import com.pouria.chatman.classes.CommandUpdateIncomingText;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.File;
@@ -125,7 +125,7 @@ public class IncomingMessageHandler {
 		try{
 			Helper.getInstance().abortLocalShutdown();
 		}catch(IOException e){
-			(new CommandInvokeLater(new CommandShowMessage("Abort Failed"))).execute();
+			(new CommandInvokeLater(new CommandShowError("Abort Failed"))).execute();
 		}
 	}
 	

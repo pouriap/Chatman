@@ -8,7 +8,12 @@ package com.pouria.chatman.gui;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
+import com.pouria.chatman.classes.CommandClearOutgoingText;
+import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CommandShowError;
+import com.pouria.chatman.classes.CommandUpdateIncomingText;
 import com.pouria.chatman.classes.HistoryTablePagination;
+import com.pouria.chatman.classes.SendCallback;
 import com.pouria.chatman.connection.HttpClient;
 import java.awt.AWTException;
 import java.awt.Color;
@@ -731,8 +736,18 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("remote_shutdown_message"), Helper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
-			chatman.send(message);
+            final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
+			chatman.send(message, new SendCallback() {
+				@Override
+				public void call(boolean success, String reason) {
+					if(success){
+						(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+					}
+					else{
+						(new CommandInvokeLater(new CommandShowError("Failed: "+reason))).execute();
+					}
+				}
+			});
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
 
@@ -804,8 +819,18 @@ public class ChatFrame extends javax.swing.JFrame {
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("abort_remote_shutdown_message"), Helper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_ABORT_SHUTDOWN, "", username);
-			chatman.send(message);
+            final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_ABORT_SHUTDOWN, "", username);
+			chatman.send(message, new SendCallback() {
+				@Override
+				public void call(boolean success, String reason) {
+					if(success){
+						(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+					}
+					else{
+						(new CommandInvokeLater(new CommandShowError("Failed: "+reason))).execute();
+					}
+				}
+			});
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
@@ -886,18 +911,29 @@ public class ChatFrame extends javax.swing.JFrame {
 						//TODO: promot instead of forbidding
                         int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
                         if(file.length()> max*1000*1000){
-                            message(Helper.getInstance().getStr("max_file_size") + max + "MB");
-                            continue;
+							//TODO: not i18n
+                            int choice = JOptionPane.showConfirmDialog(null, "File is big, this could take a while. Continue?", "Big file", JOptionPane.YES_NO_OPTION);
+							if(choice == JOptionPane.NO_OPTION){
+								//skip this file
+								continue;
+							}
                         }
                         //send the file
 						String filePath = file.getAbsolutePath();
 						String sender = Helper.getInstance().getStr("file_sent");
-						ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, sender);
-						boolean sent = chatman.send(fileMessage);
-                        //show file sent message and clear textAreaOutgoing
-						if(sent){
-							updateIncomingText(fileMessage);
-						}
+						final ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, sender);
+						chatman.send(fileMessage, new SendCallback() {
+							@Override
+							public void call(boolean success, String reason) {
+								if(success){
+									(new CommandInvokeLater(new CommandUpdateIncomingText(fileMessage))).execute();
+								}
+								else{
+									(new CommandInvokeLater(new CommandShowError("Send Failed: " + reason))).execute();
+								}
+							}
+						});
+
 						defaultOutgoingText();
                     }
                 } catch (Exception ex) {
@@ -1143,15 +1179,21 @@ public class ChatFrame extends javax.swing.JFrame {
         if(s.isEmpty())
             return;
 
-		ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
-		boolean sent = chatman.send(message);
+		final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
+		chatman.send(message, new SendCallback() {
+			@Override
+			public void call(boolean success, String reason) {
+				if(success){
+					message.setSender("You");
+					(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+					(new CommandInvokeLater(new CommandClearOutgoingText())).execute();
+				}
+				else{
+					(new CommandInvokeLater(new CommandShowError("Error: " + reason))).execute();
+				}
+			}
+		});
 
-		if(sent){
-			message.setSender("You");
-			updateIncomingText(message);
-			defaultOutgoingText();
-		}
-		
     }
     
     //parses the string that is given to it and adds it to textAreaIncoming

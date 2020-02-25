@@ -18,7 +18,7 @@ package com.pouria.chatman.gui;
 
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandShowMessage;
+import com.pouria.chatman.classes.CommandShowError;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -75,7 +75,7 @@ public class PopupDialog extends JDialog{
 
         }catch(Exception e){
 			String error = Helper.getInstance().getStr("audio_play_fail") + e.getMessage();
-            (new CommandInvokeLater(new CommandShowMessage(error))).execute();
+            (new CommandInvokeLater(new CommandShowError(error))).execute();
         }
     }
 

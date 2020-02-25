@@ -22,15 +22,15 @@ import javax.swing.JOptionPane;
  *
  * @author pouriap
  */
-public class CommandShowMessage implements Command{
+public class CommandShowError implements Command{
     String message;
     
-    public CommandShowMessage(String message){
+    public CommandShowError(String message){
         this.message = message;
     }
     
     @Override
     public void execute(){
-        JOptionPane.showMessageDialog(null, message, "Fatal Error!", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.ERROR_MESSAGE);
     }
 }

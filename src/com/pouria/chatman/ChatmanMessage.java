@@ -144,6 +144,7 @@ public class ChatmanMessage {
 			String name = file.getName();
 			t = "<a style='color:#dee3e9;font-weight:bold;' href='file://"+path+"'>"+name+"</a>";
 		}
+		//TODO: add for shutdown and other specials too
 		
 		//each message is a div
 		t = "<div><b>" + sender + "</b>: " + t + "</div>";
