@@ -8,10 +8,10 @@ package com.pouria.chatman.gui;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
-import com.pouria.chatman.classes.CommandClearOutgoingText;
+import com.pouria.chatman.classes.CommandClearInputText;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowError;
-import com.pouria.chatman.classes.CommandUpdateIncomingText;
+import com.pouria.chatman.classes.CommandUpdateChatHistory;
 import com.pouria.chatman.classes.HistoryTablePagination;
 import com.pouria.chatman.classes.SendCallback;
 import com.pouria.chatman.connection.HttpClient;
@@ -62,7 +62,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private static ChatFrame instance = null; 
     private Chatman chatman;
     private String[] defaultTextAreaHtml;
-    private String incomingTextAll = "";
+    private String chatHistoryTextAll = "";
     private String textAreaIncomingContentBeforeHistory = "";
     private HistoryTablePagination historyPagination;
 	private String[][][] emoticonsArray;
@@ -105,12 +105,12 @@ public class ChatFrame extends javax.swing.JFrame {
         buttonPrevHistoryPage = new javax.swing.JButton();
         dialogPopupBat = new com.pouria.chatman.gui.PopupDialog();
         labelBat = new javax.swing.JLabel();
-        scrollPaneIncoming = new javax.swing.JScrollPane();
-        textAreaIncoming = new javax.swing.JEditorPane();
-        scrollPaneOutgoing = new javax.swing.JScrollPane();
-        textAreaOutgoing = new javax.swing.JEditorPane();
-        incomingBg = new javax.swing.JLabel();
-        outgoingBg = new javax.swing.JLabel();
+        scrollPaneChatHistory = new javax.swing.JScrollPane();
+        textAreaChatHistory = new javax.swing.JEditorPane();
+        scrollPaneInput = new javax.swing.JScrollPane();
+        textAreaInput = new javax.swing.JEditorPane();
+        chatHistoryBg = new javax.swing.JLabel();
+        inputBg = new javax.swing.JLabel();
         tableEmojis = new javax.swing.JTable();
         labelNextEmojiPage = new javax.swing.JLabel();
         labelPrevEmojiPage = new javax.swing.JLabel();
@@ -322,52 +322,52 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         getContentPane().setLayout(null);
 
-        scrollPaneIncoming.setOpaque(false);
+        scrollPaneChatHistory.setOpaque(false);
 
-        textAreaIncoming.setEditable(false);
-        textAreaIncoming.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
-        textAreaIncoming.setContentType("text/html"); // NOI18N
-        textAreaIncoming.setAutoscrolls(false);
-        textAreaIncoming.setOpaque(false);
-        textAreaIncoming.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+        textAreaChatHistory.setEditable(false);
+        textAreaChatHistory.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        textAreaChatHistory.setContentType("text/html"); // NOI18N
+        textAreaChatHistory.setAutoscrolls(false);
+        textAreaChatHistory.setOpaque(false);
+        textAreaChatHistory.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
-                textAreaIncomingHyperlinkUpdate(evt);
+                textAreaChatHistoryHyperlinkUpdate(evt);
             }
         });
-        scrollPaneIncoming.setViewportView(textAreaIncoming);
+        scrollPaneChatHistory.setViewportView(textAreaChatHistory);
 
-        getContentPane().add(scrollPaneIncoming);
-        scrollPaneIncoming.setBounds(20, 20, 460, 210);
+        getContentPane().add(scrollPaneChatHistory);
+        scrollPaneChatHistory.setBounds(20, 20, 460, 210);
 
-        scrollPaneOutgoing.setBorder(null);
-        scrollPaneOutgoing.setOpaque(false);
+        scrollPaneInput.setBorder(null);
+        scrollPaneInput.setOpaque(false);
 
-        textAreaOutgoing.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
-        textAreaOutgoing.setContentType("text/html"); // NOI18N
-        textAreaOutgoing.setCaretColor(new java.awt.Color(255, 255, 255));
-        textAreaOutgoing.setOpaque(false);
-        textAreaOutgoing.addMouseListener(new java.awt.event.MouseAdapter() {
+        textAreaInput.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        textAreaInput.setContentType("text/html"); // NOI18N
+        textAreaInput.setCaretColor(new java.awt.Color(255, 255, 255));
+        textAreaInput.setOpaque(false);
+        textAreaInput.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                textAreaOutgoingMouseReleased(evt);
+                textAreaInputMouseReleased(evt);
             }
         });
-        textAreaOutgoing.addKeyListener(new java.awt.event.KeyAdapter() {
+        textAreaInput.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                textAreaOutgoingKeyPressed(evt);
+                textAreaInputKeyPressed(evt);
             }
         });
-        scrollPaneOutgoing.setViewportView(textAreaOutgoing);
+        scrollPaneInput.setViewportView(textAreaInput);
 
-        getContentPane().add(scrollPaneOutgoing);
-        scrollPaneOutgoing.setBounds(20, 330, 270, 150);
+        getContentPane().add(scrollPaneInput);
+        scrollPaneInput.setBounds(20, 330, 270, 150);
 
-        incomingBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
-        getContentPane().add(incomingBg);
-        incomingBg.setBounds(20, 20, 460, 210);
+        chatHistoryBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
+        getContentPane().add(chatHistoryBg);
+        chatHistoryBg.setBounds(20, 20, 460, 210);
 
-        outgoingBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
-        getContentPane().add(outgoingBg);
-        outgoingBg.setBounds(20, 330, 270, 150);
+        inputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
+        getContentPane().add(inputBg);
+        inputBg.setBounds(20, 330, 270, 150);
 
         tableEmojis.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
         tableEmojis.setForeground(new java.awt.Color(255, 255, 255));
@@ -604,12 +604,12 @@ public class ChatFrame extends javax.swing.JFrame {
         
         
         //true = append
-        updateOutgoingText(img, true);
-        textAreaOutgoing.requestFocus();
+        updateInputText(img, true);
+        textAreaInput.requestFocus();
     
     }//GEN-LAST:event_tableEmojisMouseReleased
 
-    private void textAreaIncomingHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_textAreaIncomingHyperlinkUpdate
+    private void textAreaChatHistoryHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_textAreaChatHistoryHyperlinkUpdate
         //triggered when we click on a link
         if(evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
             try{
@@ -631,11 +631,10 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         }
 		
-    }//GEN-LAST:event_textAreaIncomingHyperlinkUpdate
+    }//GEN-LAST:event_textAreaChatHistoryHyperlinkUpdate
 
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExitActionPerformed
-
-        exit();
+        exit(0);
     }//GEN-LAST:event_menuExitActionPerformed
 
     private void panelPopupNormalMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelPopupNormalMouseReleased
@@ -644,15 +643,15 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
 
-        defaultOutgoingText();
+        clearInputText();
     }//GEN-LAST:event_labelClearMouseReleased
 
-    private void textAreaOutgoingMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaOutgoingMouseReleased
+    private void textAreaInputMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaInputMouseReleased
         //show the right-click menu
         if(evt.getButton() == MouseEvent.BUTTON3){
-            menuRightClick.show(textAreaOutgoing, evt.getX(), evt.getY());
+            menuRightClick.show(textAreaInput, evt.getX(), evt.getY());
         } 
-    }//GEN-LAST:event_textAreaOutgoingMouseReleased
+    }//GEN-LAST:event_textAreaInputMouseReleased
 
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
         //is run everytime history dialog opens
@@ -680,10 +679,10 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuShowHistoryActionPerformed
 
     private void tableHistoryMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableHistoryMouseReleased
-        //put selected history item in textAreaIncoming
+        //put selected history item in textAreaChatHistory
         int row = tableHistory.getSelectedRow();
         String text = tableHistory.getModel().getValueAt(row, 1).toString();
-		textAreaIncoming.setText(defaultTextAreaHtml[0] + text + defaultTextAreaHtml[1]);
+		updateTextAreaChatHistory(text);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
@@ -692,7 +691,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
-		textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
+		updateTextAreaChatHistory(chatHistoryTextAll);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
@@ -730,7 +729,7 @@ public class ChatFrame extends javax.swing.JFrame {
 				@Override
 				public void call(boolean success, String reason) {
 					if(success){
-						(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+						(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 					}
 					else{
 						(new CommandInvokeLater(new CommandShowError("Failed: "+reason))).execute();
@@ -795,15 +794,15 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuChangeBgMouseReleased
 
     private void labelSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMousePressed
-		send();
+		sendInputText();
     }//GEN-LAST:event_labelSendMousePressed
 
-    private void textAreaOutgoingKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaOutgoingKeyPressed
+    private void textAreaInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaInputKeyPressed
 		if (evt.getKeyChar() == '\n'){ 
 			evt.consume();
-            send();
+            sendInputText();
         }
-    }//GEN-LAST:event_textAreaOutgoingKeyPressed
+    }//GEN-LAST:event_textAreaInputKeyPressed
 
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("abort_remote_shutdown_message"), Helper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
@@ -813,7 +812,7 @@ public class ChatFrame extends javax.swing.JFrame {
 				@Override
 				public void call(boolean success, String reason) {
 					if(success){
-						(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+						(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 					}
 					else{
 						(new CommandInvokeLater(new CommandShowError("Failed: "+reason))).execute();
@@ -883,20 +882,20 @@ public class ChatFrame extends javax.swing.JFrame {
         //TextArea Dorp
         //We read the whole file as text and then base64_encode it which causes a LOT of memory
         //to be consumed. But i'm lazy, so it's ok.
-        textAreaOutgoing.setDropTarget(new DropTarget() {
+        textAreaInput.setDropTarget(new DropTarget() {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
 				//TODO: har jaii ke goftam "not supported" ro doros konam
 				//TODO: fix link pasting and all that shit
                 try {
                     //clear any text
-                    defaultOutgoingText();
+                    clearInputText();
                     
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> droppedFiles = (List<File>) 
 							evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
-                        textAreaOutgoing.setText(file.getAbsolutePath());
+                        textAreaInput.setText(file.getAbsolutePath());
                         //check file size
                         int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
                         if(file.length()> max*1000*1000){
@@ -915,7 +914,7 @@ public class ChatFrame extends javax.swing.JFrame {
 							@Override
 							public void call(boolean success, String reason) {
 								if(success){
-									(new CommandInvokeLater(new CommandUpdateIncomingText(fileMessage))).execute();
+									(new CommandInvokeLater(new CommandUpdateChatHistory(fileMessage))).execute();
 								}
 								else{
 									(new CommandInvokeLater(new CommandShowError("Send Failed: " + reason))).execute();
@@ -923,7 +922,7 @@ public class ChatFrame extends javax.swing.JFrame {
 							}
 						});
 
-						defaultOutgoingText();
+						clearInputText();
                     }
                 } catch (Exception ex) {
                     message(Helper.getInstance().getStr("open_file_fail"));
@@ -938,18 +937,18 @@ public class ChatFrame extends javax.swing.JFrame {
         Action paste = new AbstractAction(Helper.getInstance().getStr("paste")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                textAreaOutgoing.paste();
-                String s = textAreaOutgoing.getText();
+                textAreaInput.paste();
+                String s = textAreaInput.getText();
                 //clear html tags and new lines
                 s = s.replaceAll("<[\\/\\w]*>", "").replace("\n", "").trim();
-                updateOutgoingText(s,true);
+                updateInputText(s,true);
             }
         }; 
         
         //setup copy and cut
-        Action copyAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.copyAction);
+        Action copyAction = textAreaInput.getActionMap().get(DefaultEditorKit.copyAction);
         copyAction.putValue("Name", Helper.getInstance().getStr("copy"));
-        Action cutAction = textAreaOutgoing.getActionMap().get(DefaultEditorKit.cutAction);
+        Action cutAction = textAreaInput.getActionMap().get(DefaultEditorKit.cutAction);
         cutAction.putValue("Name", Helper.getInstance().getStr("cut"));
         
         menuRightClick.add (paste); 
@@ -958,11 +957,11 @@ public class ChatFrame extends javax.swing.JFrame {
 
         
         //TextArea cursor
-        ((HTMLEditorKit)textAreaOutgoing.getEditorKit()).setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
+        ((HTMLEditorKit)textAreaInput.getEditorKit()).setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
         
         
         //TextArea focus
-        textAreaOutgoing.requestFocus();
+        textAreaInput.requestFocus();
         
         
         //Table BG
@@ -1006,15 +1005,15 @@ public class ChatFrame extends javax.swing.JFrame {
         defaultTextAreaHtml = new String[2];
         defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px; }</style></head><body><div id=\"text\">";
         defaultTextAreaHtml[1] = "</div></body></html>";
-        defaultOutgoingText();
-        defaultIncomingText();        
+        clearInputText();
+        clearTextAreaChatHistory();        
         
         
         //Make ScrollPanes invisible
-        scrollPaneOutgoing.setOpaque(false);
-        scrollPaneOutgoing.getViewport().setOpaque(false);
-        scrollPaneIncoming.setOpaque(false);
-        scrollPaneIncoming.getViewport().setOpaque(false);
+        scrollPaneInput.setOpaque(false);
+        scrollPaneInput.getViewport().setOpaque(false);
+        scrollPaneChatHistory.setOpaque(false);
+        scrollPaneChatHistory.getViewport().setOpaque(false);
 		
 		
         //Icons
@@ -1036,7 +1035,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		//Hide wake on lan menu
 		menuWakeOnLan.setVisible(false);
 		
-		//Iransans font for send and clear
+		//Iransans font for sendInputText and clear
 		try{
 			InputStream is = getClass().getResourceAsStream("/resources/iransans.ttf");
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
@@ -1159,12 +1158,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 	}
     
-    //sends the content of textAreaOutgoing
-    private void send(){
+    //sends the content of textAreaInput
+    private void sendInputText(){
 		     
-        String s = getOutgoingText();
+        String s = getInputText();
         
-        //return if textarea is empty
+        //return if input is empty
         if(s.isEmpty())
             return;
 
@@ -1174,8 +1173,8 @@ public class ChatFrame extends javax.swing.JFrame {
 			public void call(boolean success, String reason) {
 				if(success){
 					message.setSender("You");
-					(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
-					(new CommandInvokeLater(new CommandClearOutgoingText())).execute();
+					(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
+					(new CommandInvokeLater(new CommandClearInputText())).execute();
 				}
 				else{
 					(new CommandInvokeLater(new CommandShowError("Error: " + reason))).execute();
@@ -1185,12 +1184,9 @@ public class ChatFrame extends javax.swing.JFrame {
 
     }
     
-    //parses the string that is given to it and adds it to textAreaIncoming
-    //it is called both when we send a message or receive a message
-	//TODO: change the name of "IncomingText" to "AllMessages" or something
-	//TODO: actually i think this should accept a string
-    public void updateIncomingText(ChatmanMessage message, boolean bleep){
-        //updates the textareaIncoming. Is run when we say something or the other guy says something
+    //adds a message to messages history and shows it in chat panel
+    //it is called both when we sendInputText a message or receive a message
+    public void updateChatHistory(ChatmanMessage message){
         
         //popup when first message received
         if(isHidden()){
@@ -1198,19 +1194,24 @@ public class ChatFrame extends javax.swing.JFrame {
             newMessagePopup.playSound();
         }
         //bleep if we received message and was not focused
-        else if(!this.isActive() && bleep){
+        else if(!this.isActive()){
             newMessagePopup.playSound();
         }
 
         if(message.getContent().isEmpty()){
-            defaultIncomingText();
+            clearTextAreaChatHistory();
             return;
         }
         
-		incomingTextAll += message.getDisplayableContent();
+		chatHistoryTextAll += message.getDisplayableContent();
 		chatman.addToUnsavedMessages(message);
+		updateTextAreaChatHistory(chatHistoryTextAll);
+		        
+    }
+    
+	public void updateTextAreaChatHistory(String text){
 		
-		textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
+		textAreaChatHistory.setText(defaultTextAreaHtml[0] + text + defaultTextAreaHtml[1]);
 		
 		//wait 100ms in another thread and then scroll the incoming text all the way down
 		//because the fucking thing just doesn't work any other way
@@ -1222,7 +1223,7 @@ public class ChatFrame extends javax.swing.JFrame {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							scrollDownIncomingText();
+							scrollDownChatHistory();
 						}
 					});
 				}catch(Exception e){
@@ -1232,46 +1233,42 @@ public class ChatFrame extends javax.swing.JFrame {
 		};
 		Thread th = new Thread(r);
 		th.start();
-		        
-    }
-    
-    public void updateIncomingText(ChatmanMessage message){
-		updateIncomingText(message, true);
+		
 	}
     
-    //clears textAreaIncoming
-    public void defaultIncomingText(){
-        textAreaIncoming.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
+    //clears textAreaChatHistory
+    public void clearTextAreaChatHistory(){
+        updateTextAreaChatHistory("");
     }
 	
-	public void scrollDownIncomingText(){
-		JScrollBar vertical = scrollPaneIncoming.getVerticalScrollBar();
+	public void scrollDownChatHistory(){
+		JScrollBar vertical = scrollPaneChatHistory.getVerticalScrollBar();
 		vertical.setValue( vertical.getMaximum() );
 	}
     
     //is called when we want to add something to the outgoing text like emoticons, paste stuff, or disconnect message
-    public void updateOutgoingText(String t, boolean append){
+    public void updateInputText(String t, boolean append){
 
         if(append){
-            textAreaOutgoing.setText(defaultTextAreaHtml[0] + getOutgoingText() + t + defaultTextAreaHtml[1]);
+            textAreaInput.setText(defaultTextAreaHtml[0] + getInputText() + t + defaultTextAreaHtml[1]);
         }
         else{
-            textAreaOutgoing.setText(defaultTextAreaHtml[0] + t + defaultTextAreaHtml[1]);
+            textAreaInput.setText(defaultTextAreaHtml[0] + t + defaultTextAreaHtml[1]);
         }
     }
     
     //because i couldn't find a way to get the text in a clean manner, i am extracting stuff between <div></div> tags
     //which i have added for this porpuse to defaultTextAreaHtml
-    public String getOutgoingText(){
-        String s = textAreaOutgoing.getText();
+    public String getInputText(){
+        String s = textAreaInput.getText();
         if(!s.contains("<div id=\"text\">"))
             return "";
         return s.substring((s.indexOf("<div id=\"text\">"))+15, (s.indexOf("</div>"))-1).trim();
     }
     
-    //clears textAreaOutgoing
-    public void defaultOutgoingText(){
-        textAreaOutgoing.setText(defaultTextAreaHtml[0] + defaultTextAreaHtml[1]);
+    //clears textAreaInput
+    public void clearInputText(){
+        updateInputText("", false);
     }
     
     //well, sets the background
@@ -1286,12 +1283,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		username = name;
     }
 	
-	public void disableTextOutgoing(){
-		textAreaOutgoing.setEnabled(false);
+	public void disableInputTextArea(){
+		textAreaInput.setEnabled(false);
 	}
 	
-	public void enableTextOutgoing(){
-		textAreaOutgoing.setEnabled(true);
+	public void enableInputTextArea(){
+		textAreaInput.setEnabled(true);
 	}
     
     //gives us the hero that we don't deserve
@@ -1305,7 +1302,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //Show
         showWindow();
         //Focus
-        textAreaOutgoing.requestFocus();
+        textAreaInput.requestFocus();
 	}
 
     //sets the status label at the bottom
@@ -1337,16 +1334,11 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 	}
 	
-	//TODO: calling exit after calling CommandInvokeLater() exits application immediately and that command is never invoked. so check all calls to exit and remove such cases
     //the end of chatman. that's it. no auto pilot :(
-    public synchronized void exit(){
-		
+    public synchronized void exit(int exitCode){
         chatman.saveHistory();
-                
         ChatmanConfig.getInstance().save();
-		      
-        System.exit(0);
-		
+        System.exit(exitCode);
     }
     
 
@@ -1355,10 +1347,11 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel backgroundOfLabels;
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
+    private javax.swing.JLabel chatHistoryBg;
     private javax.swing.JDialog dialogHistory;
     private com.pouria.chatman.gui.PopupDialog dialogPopupBat;
     private com.pouria.chatman.gui.PopupDialog dialogPopupNormal;
-    private javax.swing.JLabel incomingBg;
+    private javax.swing.JLabel inputBg;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel labelBat;
     private javax.swing.JLabel labelClear;
@@ -1382,14 +1375,13 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator menuSeparator2;
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuWakeOnLan;
-    private javax.swing.JLabel outgoingBg;
     private javax.swing.JPanel panelPopupNormal;
+    private javax.swing.JScrollPane scrollPaneChatHistory;
     private javax.swing.JScrollPane scrollPaneHistory;
-    private javax.swing.JScrollPane scrollPaneIncoming;
-    private javax.swing.JScrollPane scrollPaneOutgoing;
+    private javax.swing.JScrollPane scrollPaneInput;
     private javax.swing.JTable tableEmojis;
     private javax.swing.JTable tableHistory;
-    private javax.swing.JEditorPane textAreaIncoming;
-    private javax.swing.JEditorPane textAreaOutgoing;
+    private javax.swing.JEditorPane textAreaChatHistory;
+    private javax.swing.JEditorPane textAreaInput;
     // End of variables declaration//GEN-END:variables
 }

@@ -222,10 +222,10 @@ public class HttpClient implements ChatmanClient{
 		//TODO: textarea becomes enables even after search didn't find a server
 		this.connectInProgress = b;
 		if(connectInProgress){
-			ChatFrame.getInstance().disableTextOutgoing();
+			ChatFrame.getInstance().disableInputTextArea();
 		}
 		else{
-			ChatFrame.getInstance().enableTextOutgoing();
+			ChatFrame.getInstance().enableInputTextArea();
 		}
 	}
 	

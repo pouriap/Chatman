@@ -19,7 +19,7 @@ package com.pouria.chatman;
 import com.google.common.io.Files;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowError;
-import com.pouria.chatman.classes.CommandUpdateIncomingText;
+import com.pouria.chatman.classes.CommandUpdateChatHistory;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.File;
 import java.io.IOException;
@@ -73,11 +73,11 @@ public class IncomingMessageHandler {
 	}
 	
 	public void processBadMessage(){
-		(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 	}
 	
 	public void processTextMessage(){
-		(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 	}
 	
 	public void processFileMessage(){
@@ -96,11 +96,11 @@ public class IncomingMessageHandler {
 			Files.copy(srcFile, dstFile);
 			//set file path (=content) to the one saved in Chatman Downloads
 			message.setContent(dstFile.getAbsolutePath());
-			(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+			(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 			
 		}catch(IOException e){
 			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, "File receive failed", "ERROR: ", message.getTime());
-			(new CommandInvokeLater(new CommandUpdateIncomingText(displayedMessage))).execute();
+			(new CommandInvokeLater(new CommandUpdateChatHistory(displayedMessage))).execute();
 		}
 	}
 	

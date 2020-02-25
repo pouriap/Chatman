@@ -22,11 +22,11 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CommandClearOutgoingText implements Command{
+public class CommandClearInputText implements Command{
 	
 	@Override
 	public void execute() {
-		ChatFrame.getInstance().defaultOutgoingText();
+		ChatFrame.getInstance().clearInputText();
 	}
 	
 }
