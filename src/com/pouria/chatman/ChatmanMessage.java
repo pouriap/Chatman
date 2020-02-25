@@ -18,6 +18,8 @@ package com.pouria.chatman;
 
 import io.undertow.server.handlers.form.FormData;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -132,7 +134,12 @@ public class ChatmanMessage {
 		//TODO: show time
 		
 		String t = content;
-		
+		Date d = new Date(time);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        String _time = dateFormat.format(d);
+				
+				
+				
 		if(this.type == TYPE_TEXT){
 			//parse web links 
 			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
@@ -157,8 +164,7 @@ public class ChatmanMessage {
 		}
 		
 		//each message is a div
-		t = "<div><b>" + sender + "</b>: " + t + "</div>";
-			
+		t = "<div><span class='time'>["+_time+"]  |  </span><b>" + sender + "</b>: " + t + "</div>";
         return t;
 	}
 	

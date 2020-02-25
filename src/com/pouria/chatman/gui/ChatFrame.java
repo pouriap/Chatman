@@ -49,6 +49,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 /**
  *
@@ -62,8 +63,10 @@ public class ChatFrame extends javax.swing.JFrame {
     private static ChatFrame instance = null; 
     private Chatman chatman;
     private String[] defaultTextAreaHtml;
+	private StyleSheet cssHideTime;
+	private StyleSheet cssShowTime;
+	private int chatHistoryCssToggle = 1;
     private String chatHistoryTextAll = "";
-    private String textAreaIncomingContentBeforeHistory = "";
     private HistoryTablePagination historyPagination;
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
@@ -332,6 +335,17 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaChatHistory.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
                 textAreaChatHistoryHyperlinkUpdate(evt);
+            }
+        });
+        textAreaChatHistory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                textAreaChatHistoryMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                textAreaChatHistoryMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                textAreaChatHistoryMouseExited(evt);
             }
         });
         scrollPaneChatHistory.setViewportView(textAreaChatHistory);
@@ -826,6 +840,33 @@ public class ChatFrame extends javax.swing.JFrame {
         popopClicked();
     }//GEN-LAST:event_labelBatMouseReleased
 
+    private void textAreaChatHistoryMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseEntered
+		//TODO: these break history showing
+
+
+    }//GEN-LAST:event_textAreaChatHistoryMouseEntered
+
+    private void textAreaChatHistoryMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseExited
+
+    }//GEN-LAST:event_textAreaChatHistoryMouseExited
+
+    private void textAreaChatHistoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseClicked
+        // TODO add your handling code here:
+		if(chatHistoryCssToggle == 1){
+			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
+			kit.setStyleSheet(cssShowTime);
+			textAreaChatHistory.setEditorKit(kit);
+			updateTextAreaChatHistory(chatHistoryTextAll);
+		}
+		else{
+			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
+			kit.setStyleSheet(cssHideTime);
+			textAreaChatHistory.setEditorKit(kit);
+			updateTextAreaChatHistory(chatHistoryTextAll);
+		}
+		chatHistoryCssToggle = 1 - chatHistoryCssToggle;
+    }//GEN-LAST:event_textAreaChatHistoryMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -866,7 +907,7 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void myInits(){
-		
+
 		createTrayIcon();
         
         //Locale
@@ -1000,12 +1041,22 @@ public class ChatFrame extends javax.swing.JFrame {
         //Frame BG
         setBackground(Background.getInstance().getCurrentURL());
        
+		//CSS for chat history 
+		cssHideTime = new StyleSheet();
+		cssShowTime = new StyleSheet();
+		cssHideTime.addRule(".time{font-size:0px}");
+		cssShowTime.addRule(".time{font-size:11px}");
+		
+		
         //Empty HTML Texts
         defaultTextAreaHtml = new String[2];
         defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px; }</style></head><body><div id=\"text\">";
         defaultTextAreaHtml[1] = "</div></body></html>";
+		HTMLEditorKit tkit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
+		tkit.setStyleSheet(cssHideTime);
+		textAreaChatHistory.setEditorKit(tkit);		
         clearInputText();
-        clearTextAreaChatHistory();        
+        clearTextAreaChatHistory();
         
         
         //Make ScrollPanes invisible
@@ -1046,7 +1097,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
 		updateUserName();
- 
+
     } 
     
     //start Chatman as client/server
