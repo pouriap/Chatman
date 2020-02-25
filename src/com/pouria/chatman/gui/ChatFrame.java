@@ -885,7 +885,6 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaInput.setDropTarget(new DropTarget() {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
-				//TODO: har jaii ke goftam "not supported" ro doros konam
 				//TODO: fix link pasting and all that shit
                 try {
                     //clear any text
@@ -1197,12 +1196,7 @@ public class ChatFrame extends javax.swing.JFrame {
         else if(!this.isActive()){
             newMessagePopup.playSound();
         }
-
-        if(message.getContent().isEmpty()){
-            clearTextAreaChatHistory();
-            return;
-        }
-        
+     
 		chatHistoryTextAll += message.getDisplayableContent();
 		chatman.addToUnsavedMessages(message);
 		updateTextAreaChatHistory(chatHistoryTextAll);
@@ -1282,6 +1276,10 @@ public class ChatFrame extends javax.swing.JFrame {
         name = name.substring(0, 1).toUpperCase() + name.substring(1,name.length());
 		username = name;
     }
+	
+	public String getUserName(){
+		return this.username;
+	}
 	
 	public void disableInputTextArea(){
 		textAreaInput.setEnabled(false);

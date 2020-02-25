@@ -21,6 +21,7 @@ import com.pouria.chatman.IncomingMessageHandler;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.gui.ChatmanConfig;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -70,6 +71,9 @@ public class HttpServer implements ChatmanServer{
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			ChatmanMessage message = new ChatmanMessage(formData);
 			IncomingMessageHandler MsgHandler = new IncomingMessageHandler(message);
+			//set server everytime we recieve a message to avoid unnecessary searches
+			String peerIP = exchange.getSourceAddress().getAddress().getHostAddress();
+			ChatFrame.getInstance().getChatmanInstance().getClient().setServer(peerIP);
 			MsgHandler.handle();
 		}
 	}

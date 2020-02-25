@@ -17,6 +17,8 @@
 package com.pouria.chatman;
 
 import com.google.common.io.Files;
+import com.pouria.chatman.classes.Command;
+import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowError;
 import com.pouria.chatman.classes.CommandUpdateChatHistory;
@@ -105,28 +107,58 @@ public class IncomingMessageHandler {
 	}
 	
 	public void processShutdown(){
-//		//show cancell dialog
-//		(new CommandInvokeLater(new CommandConfirmDialog(new Command() {
-//			@Override
-//			public void execute() {
-//				try{
-//					Helper.getInstance().abortLocalShutdown();
-//				}catch(IOException e){
-//					gui.message("couldn't stop the shutdown :(");
-//				}
-//			}
-//		}, Helper.getInstance().getStr("local_shutdown_message"), Helper.getInstance().getStr("local_shutdown_title")))).execute();
-//
-//		//start shutdown process
-//		Helper.getInstance().localShutdown();
+
+		//start shutdown process
+		try{
+			
+			Helper.getInstance().localShutdown();
+			
+			//show cancell dialog
+			(new CommandInvokeLater(new CommandConfirmDialog(new Command() {
+				@Override
+				public void execute() {
+					try{
+						//if user chooses cancel shutdown
+						Helper.getInstance().abortLocalShutdown();
+						//tell the other computer we have aborted
+						String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
+						String sender = ChatFrame.getInstance().getUserName();
+						ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, sender, 0);
+						ChatFrame.getInstance().getChatmanInstance().send(message, null);
+					}catch(IOException e){
+						// we don't need invokelater because we're already in invokelater
+						(new CommandShowError("could not abort shutdown")).execute();
+					}
+				}
+			}, Helper.getInstance().getStr("local_shutdown_message"), Helper.getInstance().getStr("local_shutdown_title")))).execute();
+
+		}catch(Exception e){
+			//tell the other computer our shutdown has failed
+			String error = "[ERROR: SHUTDOWN FAILED]";
+			String sender = ChatFrame.getInstance().getUserName();
+			//TODO: fix zero times
+			ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, error, sender, 0);
+			ChatFrame.getInstance().getChatmanInstance().send(msg, null);
+		}
+		
+		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
+
 	}
 	
 	public void processAbortShutdown(){
+		String msgText;
+		String sender = ChatFrame.getInstance().getUserName();
 		try{
 			Helper.getInstance().abortLocalShutdown();
+			msgText = "[SHUTDOWN ABORTED SUCCESSFULLY]";
 		}catch(IOException e){
-			(new CommandInvokeLater(new CommandShowError("Abort Failed"))).execute();
+			msgText = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
 		}
+		//tell the other computer what happened
+		ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, msgText, sender, 0);
+		ChatFrame.getInstance().getChatmanInstance().send(msg, null);
+		
+		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 	}
 	
 	public void processShowGUI(){

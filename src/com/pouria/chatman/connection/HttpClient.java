@@ -54,8 +54,8 @@ public class HttpClient implements ChatmanClient{
 	public void send(ChatmanMessage message, SendCallback callback){
 		
 		if(serverIP == null){
-			connect();
 			callback.call(false, "server not set, reconnecting...");
+			connect();
 			return;
 		}
 		
@@ -65,9 +65,16 @@ public class HttpClient implements ChatmanClient{
 			case ChatmanMessage.TYPE_TEXT:
 				sendTextMessage(message, callback);
 				break;
+			case ChatmanMessage.TYPE_SHUTDOWN:
+				sendTextMessage(message, callback);
+				break;
+			case ChatmanMessage.TYPE_ABORT_SHUTDOWN:
+				sendTextMessage(message, callback);
+				break;
 			case ChatmanMessage.TYPE_FILE:
 				sendFileMessage(message, callback);
 				break;
+
 			default:
 				break;
 		}
@@ -115,7 +122,6 @@ public class HttpClient implements ChatmanClient{
 	
 	private void sendFileMessage(ChatmanMessage message, SendCallback callback){
 		//TODO: so much in common with above function
-		//TODO: do it in thread
 		boolean success = false;
 		String reason = "";
 		

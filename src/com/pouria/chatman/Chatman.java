@@ -45,8 +45,20 @@ public class Chatman {
 	public void send(ChatmanMessage message, SendCallback callback){
 		//TODO: tell user we are reconnecting (useful for file drop)
 		//TODO: baraye special ha mesle shutdown yekari konim karbar befahme vaghti narafte
+		
+		if(callback == null){
+			callback = new SendCallback() {
+				@Override
+				public void call(boolean success, String reason) {
+					//nothing
+				}
+			};
+		}
+		
 		final ChatmanMessage _message = message;
 		final SendCallback _callback = callback;
+	
+		//perform send in a thread
 		Runnable r = new Runnable() {
 			@Override
 			public void run() {
@@ -55,6 +67,7 @@ public class Chatman {
 		};
 		Thread th = new Thread(r);
 		th.start();
+		
 	}
 	
 	public ChatmanServer getServer(){

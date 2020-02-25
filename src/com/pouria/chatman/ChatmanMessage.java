@@ -146,7 +146,15 @@ public class ChatmanMessage {
 			String name = file.getName();
 			t = "<a style='color:#dee3e9;font-weight:bold;' href='file://"+path+"'>"+name+"</a>";
 		}
-		//TODO: add for shutdown and other specials too
+		else if(this.type == TYPE_SHUTDOWN){
+			t = "[SHUTDOWN COMMAND]";
+		}
+		else if(this.type == TYPE_BADMESSAGE){
+			t = "BAD MESSAGE";
+		}
+		else if(this.type == TYPE_ABORT_SHUTDOWN){
+			t = "[ABORT SHUTDOWN COMMAND]";
+		}
 		
 		//each message is a div
 		t = "<div><b>" + sender + "</b>: " + t + "</div>";
