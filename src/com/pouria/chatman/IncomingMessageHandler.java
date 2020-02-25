@@ -29,11 +29,11 @@ import javax.swing.JFileChooser;
  *
  * @author pouriap
  */
-public class ChatmanMessageHandler {
+public class IncomingMessageHandler {
 	
 	private final ChatmanMessage message;
 	
-	public ChatmanMessageHandler(ChatmanMessage message){
+	public IncomingMessageHandler(ChatmanMessage message){
 		this.message = message;
 	}
 	
@@ -81,9 +81,9 @@ public class ChatmanMessageHandler {
 	}
 	
 	public void processFileMessage(){
-		String tmpFilePath = message.getContent();
+		String tmpFilePath = message.getContent().split("\\*\\*")[0];
+		String fileName = message.getContent().split("\\*\\*")[1];
 		//filename is saved in 'sender' field hehe
-		String fileName = message.getSender();
 		String dlDirectory = (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
 		File srcFile = new File(tmpFilePath);
 		File dstFile = new File(dlDirectory+fileName);
@@ -94,10 +94,10 @@ public class ChatmanMessageHandler {
 				saveDir.mkdir();
 			}
 			Files.copy(srcFile, dstFile);
-			String content = "file://"+dstFile.getAbsolutePath();
-			String sender = Helper.getInstance().getStr("file_recieved");
-			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, content, sender, message.getTime());
-			(new CommandInvokeLater(new CommandUpdateIncomingText(displayedMessage))).execute();
+			//set file path (=content) to the one saved in Chatman Downloads
+			message.setContent(dstFile.getAbsolutePath());
+			(new CommandInvokeLater(new CommandUpdateIncomingText(message))).execute();
+			
 		}catch(IOException e){
 			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, "File receive failed", "ERROR: ", message.getTime());
 			(new CommandInvokeLater(new CommandUpdateIncomingText(displayedMessage))).execute();

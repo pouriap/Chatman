@@ -17,6 +17,7 @@
 package com.pouria.chatman;
 
 import io.undertow.server.handlers.form.FormData;
+import java.io.File;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,8 +75,9 @@ public class ChatmanMessage {
 					String fileName = formFile.getFileName();
 					//we store filename in 'sender' field hehe
 					this.type = TYPE_FILE;
-					this.content = filePath;
-					this.sender = fileName;
+					//we have to store file name somewhere
+					this.content = filePath + "**" + fileName;
+					this.sender = Helper.getInstance().getStr("file_recieved");
 					this.time = Helper.getInstance().getTime();
 				}
 				else{
@@ -120,16 +122,29 @@ public class ChatmanMessage {
 		return this.content;
 	}
 	
+	public void setContent(String content){
+		this.content = content;
+	}
+	
 	//formats content for being displayed in textAreaIncoming
 	public String getDisplayableContent(){
+		
 		String t = content;
-		//parse web links 
-        t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
-        //parse emoticons
-        String url = getClass().getResource("/resources/emoticons_large/").toString();
-		t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
-        //parse file links
-        t = t.replaceAll("(file:\\/\\/([^\\.]*\\..*))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
+		
+		if(this.type == TYPE_TEXT){
+			//parse web links 
+			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
+			//parse emoticons
+			String url = getClass().getResource("/resources/emoticons_large/").toString();
+			t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
+		}
+		else if(this.type == TYPE_FILE){
+			File file = new File(t);
+			String path = file.getAbsolutePath();
+			String name = file.getName();
+			t = "<a style='color:#dee3e9;font-weight:bold;' href='file://"+path+"'>"+name+"</a>";
+		}
+		
 		//each message is a div
 		t = "<div><b>" + sender + "</b>: " + t + "</div>";
 			

@@ -61,7 +61,7 @@ public class HttpClient implements ChatmanClient{
 		
 		switch(messageType){
 			case ChatmanMessage.TYPE_TEXT:
-				sendTextMessage(message.getAsJsonString());
+				sendTextMessage(message);
 				break;
 			case ChatmanMessage.TYPE_FILE:
 				sendFileMessage(message);
@@ -72,13 +72,14 @@ public class HttpClient implements ChatmanClient{
 		
 	}
 	
-	private void sendTextMessage(String message) throws PeerNotFoundException{
+	private void sendTextMessage(ChatmanMessage message) throws PeerNotFoundException{
 		int code = 0;
+		String messageText = message.getAsJsonString();
 		try{
 			String remotePort = ChatmanConfig.getInstance().get("server-port");
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			List<NameValuePair> urlParameters = new ArrayList<>();
-			urlParameters.add(new BasicNameValuePair("message", message));
+			urlParameters.add(new BasicNameValuePair("message", messageText));
 			
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 			UrlEncodedFormEntity data = new UrlEncodedFormEntity(urlParameters);

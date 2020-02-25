@@ -870,6 +870,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //We read the whole file as text and then base64_encode it which causes a LOT of memory
         //to be consumed. But i'm lazy, so it's ok.
         textAreaOutgoing.setDropTarget(new DropTarget() {
+			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
 				//TODO: har jaii ke goftam "not supported" ro doros konam
                 try {
@@ -890,15 +891,12 @@ public class ChatFrame extends javax.swing.JFrame {
                         }
                         //send the file
 						String filePath = file.getAbsolutePath();
-						String fileName = file.getName();
-						ChatmanMessage fileMessageRemote = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, fileName);
-						boolean sent = chatman.send(fileMessageRemote);
+						String sender = Helper.getInstance().getStr("file_sent");
+						ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, sender);
+						boolean sent = chatman.send(fileMessage);
                         //show file sent message and clear textAreaOutgoing
 						if(sent){
-							String content = fileName;
-							String sender = Helper.getInstance().getStr("file_sent");
-							ChatmanMessage fileMessageLocal = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, content, sender);
-							updateIncomingText(fileMessageLocal);
+							updateIncomingText(fileMessage);
 						}
 						defaultOutgoingText();
                     }
@@ -1177,10 +1175,6 @@ public class ChatFrame extends javax.swing.JFrame {
             return;
         }
         
-		//TODO: files
-        //parse file links
-        //t = t.replaceAll("(file:\\/\\/([^\\.]*\\..*))", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$2</a> ");
-        
 		incomingTextAll += message.getDisplayableContent();
 		chatman.addToUnsavedMessages(message);
 		
@@ -1254,19 +1248,11 @@ public class ChatFrame extends javax.swing.JFrame {
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
     }
     
-
-	
     public void updateUserName(){
         //background names are like batman_1.jpg or batman.png
         String name = Background.getInstance().getCurrent().split("\\.")[0].split("_")[0];        
         name = name.substring(0, 1).toUpperCase() + name.substring(1,name.length());
 		username = name;
-    }
-	
-    //disable textAreaOutgoing and put a message in it
-    public void endSession(String message){
-        updateOutgoingText("<span style='font-size:20px;'>" + message + "</span>", false);
-        textAreaOutgoing.setEnabled(false);
     }
 	
 	public void disableTextOutgoing(){

@@ -17,7 +17,7 @@
 package com.pouria.chatman.connection;
 
 import com.pouria.chatman.ChatmanMessage;
-import com.pouria.chatman.ChatmanMessageHandler;
+import com.pouria.chatman.IncomingMessageHandler;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
@@ -69,7 +69,7 @@ public class HttpServer implements ChatmanServer{
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			ChatmanMessage message = new ChatmanMessage(formData);
-			ChatmanMessageHandler MsgHandler = new ChatmanMessageHandler(message);
+			IncomingMessageHandler MsgHandler = new IncomingMessageHandler(message);
 			MsgHandler.handle();
 		}
 	}
