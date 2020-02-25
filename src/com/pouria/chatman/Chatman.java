@@ -44,7 +44,6 @@ public class Chatman {
 	
 	public void send(ChatmanMessage message, SendCallback callback){
 		//TODO: tell user we are reconnecting (useful for file drop)
-		//TODO: baraye special ha mesle shutdown yekari konim karbar befahme vaghti narafte
 		
 		if(callback == null){
 			callback = new SendCallback() {

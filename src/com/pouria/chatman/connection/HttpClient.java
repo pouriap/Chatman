@@ -30,7 +30,9 @@ import com.pouria.chatman.gui.ChatmanConfig;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -49,6 +51,12 @@ public class HttpClient implements ChatmanClient{
 	
 	private String serverIP = null;
 	private boolean connectInProgress = false;
+	private final RequestConfig configTimeout;
+	private final int timeoutMillis = 300;
+	
+	public HttpClient(){
+		configTimeout = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS).build();
+	}
 
 	@Override
 	public void send(ChatmanMessage message, SendCallback callback){
@@ -96,6 +104,7 @@ public class HttpClient implements ChatmanClient{
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 			UrlEncodedFormEntity data = new UrlEncodedFormEntity(urlParameters);
 			HttpPost post = new HttpPost(remoteAddress);
+			post.setConfig(configTimeout);
 			post.setEntity(data);
 			CloseableHttpResponse response = httpClient.execute(post);
 			int code = response.getCode();
@@ -134,6 +143,7 @@ public class HttpClient implements ChatmanClient{
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 			HttpEntity requestEntity = MultipartEntityBuilder.create().addBinaryBody("data", file).build();
 			HttpPost post = new HttpPost(remoteAddress);
+			post.setConfig(configTimeout);
 			post.setEntity(requestEntity);
 			CloseableHttpResponse response = httpClient.execute(post);
 			int code = response.getCode();
