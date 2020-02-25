@@ -96,8 +96,8 @@ public class Helper {
 		}
 	}
 	
-	public int getTime(){
-		return (int) (System.currentTimeMillis() / 1000L);
+	public long getTime(){
+		return System.currentTimeMillis();
 	}
 	
 	public String getLocalIp(){

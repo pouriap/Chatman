@@ -30,7 +30,7 @@ public class ChatmanMessage {
 	private int type;
 	private String content;
 	private String sender;
-	private int time;
+	private long time;
 	
 	public static final int TYPE_BADMESSAGE = 0;
 	public static final int TYPE_TEXT = 1;
@@ -39,7 +39,7 @@ public class ChatmanMessage {
 	public static final int TYPE_FILE = 4;
 	public static final int TYPE_SHOWGUI = 5;
 	
-	public ChatmanMessage(int type, String content, String sender, int time){
+	public ChatmanMessage(int type, String content, String sender, long time){
 		this.type = type;
 		this.content = content;
 		this.sender = sender;
@@ -129,6 +129,8 @@ public class ChatmanMessage {
 	//formats content for being displayed in textAreaIncoming
 	public String getDisplayableContent(){
 		
+		//TODO: show time
+		
 		String t = content;
 		
 		if(this.type == TYPE_TEXT){
@@ -160,7 +162,7 @@ public class ChatmanMessage {
 		this.sender = sender;
 	}
 	
-	public int getTime(){
+	public long getTime(){
 		return this.time;
 	}
 	

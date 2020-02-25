@@ -63,7 +63,7 @@ public class HistoryTablePagination extends AbstractPagination{
                 String weekDay = dateFormat.format(d);
                 String[] weekdays = Helper.getInstance().getStr("week_days").split(",");
                 weekDay = weekdays[Integer.valueOf(weekDay) -1];
-                format = "'" + weekDay + "' HH:mm yyyy-MM-dd ";
+                format = "'" + weekDay + "' yyyy-MM-dd ";
                 
                 //D = day in year
                 dateFormat = new SimpleDateFormat("D");
@@ -77,19 +77,19 @@ public class HistoryTablePagination extends AbstractPagination{
                 if(distance < (7 * oneDay)){
                     switch(todayNumber - dayNumber){
                         case 0:
-                            format = "'" + Helper.getInstance().getStr("today") + "'   HH:mm ";
+                            format = "'" + Helper.getInstance().getStr("today") + " '";
                             break;
                         case 1:
-                            format = "'" + Helper.getInstance().getStr("yesterday") + "'   HH:mm ";
+                            format = "'" + Helper.getInstance().getStr("yesterday") + " '";
                             break;
                         case 2:
-                            format = "'" + Helper.getInstance().getStr("two_days_ago") + "'   HH:mm ";
+                            format = "'" + Helper.getInstance().getStr("two_days_ago") + " '";
                             break;
                         case 3:
-                            format = "'" + Helper.getInstance().getStr("three_days_ago") + "'   HH:mm ";
+                            format = "'" + Helper.getInstance().getStr("three_days_ago") + " '";
                             break;
                         case 4:
-                            format = "'" + Helper.getInstance().getStr("four_days_ago") + "'   HH:mm ";
+                            format = "'" + Helper.getInstance().getStr("four_days_ago") + " '";
                             break;
                         default:
                             break;

@@ -656,10 +656,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
         //is run everytime history dialog opens
-        
-        //store incoming text
-        textAreaIncomingContentBeforeHistory = incomingTextAll;
-        
+               
         historyPagination = new HistoryTablePagination(
                 tableHistory,
                 "history.sqlite",
@@ -684,13 +681,9 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void tableHistoryMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableHistoryMouseReleased
         //put selected history item in textAreaIncoming
-		//TODO: do
-		message("unsupported");
-//        int row = tableHistory.getSelectedRow();
-//        String text = tableHistory.getModel().getValueAt(row, 1).toString();
-//        //if we do updateIncomingText(text) then text will be regexed again. But it is already parsed and saved.
-//        incomingTextAll = text;
-//        updateIncomingText("<br>", false);
+        int row = tableHistory.getSelectedRow();
+        String text = tableHistory.getModel().getValueAt(row, 1).toString();
+		textAreaIncoming.setText(defaultTextAreaHtml[0] + text + defaultTextAreaHtml[1]);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
@@ -699,11 +692,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
-		//TODO: do
-		message("unsupported");
-		
-//        incomingTextAll = "";
-//        updateIncomingText(textAreaIncomingContentBeforeHistory, false);
+		textAreaIncoming.setText(defaultTextAreaHtml[0] + incomingTextAll + defaultTextAreaHtml[1]);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
@@ -898,6 +887,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
 				//TODO: har jaii ke goftam "not supported" ro doros konam
+				//TODO: fix link pasting and all that shit
                 try {
                     //clear any text
                     defaultOutgoingText();
@@ -908,7 +898,6 @@ public class ChatFrame extends javax.swing.JFrame {
                     for (File file : droppedFiles) {
                         textAreaOutgoing.setText(file.getAbsolutePath());
                         //check file size
-						//TODO: promot instead of forbidding
                         int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
                         if(file.length()> max*1000*1000){
 							//TODO: not i18n
@@ -1199,6 +1188,7 @@ public class ChatFrame extends javax.swing.JFrame {
     //parses the string that is given to it and adds it to textAreaIncoming
     //it is called both when we send a message or receive a message
 	//TODO: change the name of "IncomingText" to "AllMessages" or something
+	//TODO: actually i think this should accept a string
     public void updateIncomingText(ChatmanMessage message, boolean bleep){
         //updates the textareaIncoming. Is run when we say something or the other guy says something
         
@@ -1245,10 +1235,9 @@ public class ChatFrame extends javax.swing.JFrame {
 		        
     }
     
-    //lazy version 
     public void updateIncomingText(ChatmanMessage message){
-        updateIncomingText(message, true);
-    }
+		updateIncomingText(message, true);
+	}
     
     //clears textAreaIncoming
     public void defaultIncomingText(){
