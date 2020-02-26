@@ -26,7 +26,7 @@ import com.pouria.chatman.classes.CommandSetLabelStatus;
 import com.pouria.chatman.classes.IpScannerCallback;
 import com.pouria.chatman.classes.SendCallback;
 import com.pouria.chatman.gui.ChatFrame;
-import com.pouria.chatman.gui.ChatmanConfig;
+import com.pouria.chatman.ChatmanConfig;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +96,7 @@ public class HttpClient implements ChatmanClient{
 		String messageText = message.getAsJsonString();
 		
 		try{
-			String remotePort = ChatmanConfig.getInstance().get("server-port");
+			String remotePort = ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			List<NameValuePair> urlParameters = new ArrayList<>();
 			urlParameters.add(new BasicNameValuePair("message", messageText));
@@ -135,7 +135,7 @@ public class HttpClient implements ChatmanClient{
 		String reason = "";
 		
 		try{
-			String remotePort = ChatmanConfig.getInstance().get("server-port");
+			String remotePort = ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			String filePath = message.getContent();
 			File file = new File(filePath);
@@ -179,7 +179,7 @@ public class HttpClient implements ChatmanClient{
 
 		setConnectInProgress(true);
 		this.serverIP = null;
-        int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
+        int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
 		String[] ipsToScan = getIpsToScan();
 		Thread scanner;
 		
@@ -213,12 +213,12 @@ public class HttpClient implements ChatmanClient{
 		String[] ipsToScan;
 		//if we have server's ip we don't scan the network
         if(ChatmanConfig.getInstance().isSet("server-ip")){
-            String serverIp = ChatmanConfig.getInstance().get("server-ip");
+            String serverIp = ChatmanConfig.getInstance().get("server-ip", "");
 			ipsToScan = new String[]{serverIp};
         }
         else{
-            String subnet = ChatmanConfig.getInstance().get("subnet-mask");
-			int numHostsToScan = Integer.valueOf(ChatmanConfig.getInstance().get("num-hosts-to-scan"));
+            String subnet = ChatmanConfig.getInstance().get("subnet-mask", ChatmanConfig.DEFAULT_SUBNET);
+			int numHostsToScan = Integer.valueOf(ChatmanConfig.getInstance().get("num-hosts-to-scan", ChatmanConfig.DEFAULT_HOSTS_SCAN));
 			ipsToScan = new String[numHostsToScan];
 			for(int i=0; i<numHostsToScan; i++){
 				String ip = subnet.replace("*", String.valueOf(i));

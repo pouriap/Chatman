@@ -5,6 +5,7 @@
  */
 package com.pouria.chatman.gui;
 
+import com.pouria.chatman.ChatmanConfig;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
@@ -922,7 +923,7 @@ public class ChatFrame extends javax.swing.JFrame {
                     for (File file : droppedFiles) {
                         textAreaInput.setText(file.getAbsolutePath());
                         //check file size
-                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size"));
+                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size", ChatmanConfig.DEFAULT_FILEDROP_SIZEWARNING));
                         if(file.length()> max*1000*1000){
 							//TODO: not i18n
                             int choice = JOptionPane.showConfirmDialog(null, "File is big, this could take a while. Continue?", "Big file", JOptionPane.YES_NO_OPTION);

@@ -19,7 +19,6 @@ package com.pouria.chatman;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.ResourceBundleWrapper;
-import com.pouria.chatman.gui.ChatmanConfig;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -102,7 +101,7 @@ public class Helper {
 	
 	public String getLocalIp(){
         //find local ip address
-		String subnet = ChatmanConfig.getInstance().get("subnet-mask");
+		String subnet = ChatmanConfig.getInstance().get("subnet-mask", ChatmanConfig.DEFAULT_SUBNET);
         String sub = subnet.replace(".*","");
         String localIp = "";
 
@@ -128,6 +127,10 @@ public class Helper {
 		}
 		
 		return localIp;
+	}
+	
+	public void log(String t){
+		//TODO: do
 	}
 	
 }

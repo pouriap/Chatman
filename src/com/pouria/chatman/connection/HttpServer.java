@@ -22,7 +22,7 @@ import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.gui.ChatFrame;
-import com.pouria.chatman.gui.ChatmanConfig;
+import com.pouria.chatman.ChatmanConfig;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -39,7 +39,7 @@ public class HttpServer implements ChatmanServer{
 	@Override
 	public void start(){
 		
-		int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port"));
+		int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
 		final ChatmanHandler handler = new ChatmanHandler();
 		
 		Undertow server = Undertow.builder()

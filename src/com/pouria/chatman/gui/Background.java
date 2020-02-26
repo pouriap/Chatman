@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman.gui;
 
+import com.pouria.chatman.ChatmanConfig;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -52,7 +53,7 @@ public class Background {
                 }
             }
             //then initialize current bg
-            current = ChatmanConfig.getInstance().get("background-image");
+            current = ChatmanConfig.getInstance().get("background-image", ChatmanConfig.DEFAULT_BG);
 
         }catch(Exception e){
             //i know. i just don't care
