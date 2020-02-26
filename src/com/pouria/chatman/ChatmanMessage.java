@@ -96,14 +96,14 @@ public class ChatmanMessage {
 			this.type = TYPE_BADMESSAGE;
 			this.content = "bad json syntax";
 			this.sender = "unknown";
-			this.time = 0;
+			this.time = Helper.getInstance().getTime();
 			
 		}catch(Exception e){
 			//create a 'bad message' instance as our message because the original one is lost
 			this.type = TYPE_BADMESSAGE;
 			this.content = "bad message";
 			this.sender = "unknown";
-			this.time = 0;			
+			this.time = Helper.getInstance().getTime();	
 		}
 	}
 	
@@ -131,15 +131,11 @@ public class ChatmanMessage {
 	//formats content for being displayed in textAreaIncoming
 	public String getDisplayableContent(){
 		
-		//TODO: show time
-		
 		String t = content;
 		Date d = new Date(time);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         String _time = dateFormat.format(d);
-				
-				
-				
+	
 		if(this.type == TYPE_TEXT){
 			//parse web links 
 			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");

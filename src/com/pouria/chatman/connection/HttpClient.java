@@ -130,7 +130,7 @@ public class HttpClient implements ChatmanClient{
 	}
 	
 	private void sendFileMessage(ChatmanMessage message, SendCallback callback){
-		//TODO: so much in common with above function
+
 		boolean success = false;
 		String reason = "";
 		
@@ -235,7 +235,7 @@ public class HttpClient implements ChatmanClient{
 	}
 
 	public void setConnectInProgress(boolean b){
-		//TODO: textarea becomes enables even after search didn't find a server
+
 		this.connectInProgress = b;
 		if(connectInProgress){
 			ChatFrame.getInstance().disableInputTextArea();

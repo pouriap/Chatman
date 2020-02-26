@@ -55,7 +55,7 @@ public class HttpServer implements ChatmanServer{
 		
 		try{
 			server.start();
-
+		
 		}catch(Exception e){
 			String error = "Could not start server: " + e.getMessage();
 			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();

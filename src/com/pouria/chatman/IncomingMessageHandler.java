@@ -123,7 +123,7 @@ public class IncomingMessageHandler {
 						//tell the other computer we have aborted
 						String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
 						String sender = ChatFrame.getInstance().getUserName();
-						ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, sender, 0);
+						ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, sender);
 						ChatFrame.getInstance().getChatmanInstance().send(message, null);
 					}catch(IOException e){
 						// we don't need invokelater because we're already in invokelater
@@ -136,8 +136,7 @@ public class IncomingMessageHandler {
 			//tell the other computer our shutdown has failed
 			String error = "[ERROR: SHUTDOWN FAILED]";
 			String sender = ChatFrame.getInstance().getUserName();
-			//TODO: fix zero times
-			ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, error, sender, 0);
+			ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, error, sender);
 			ChatFrame.getInstance().getChatmanInstance().send(msg, null);
 		}
 		
@@ -155,7 +154,7 @@ public class IncomingMessageHandler {
 			msgText = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
 		}
 		//tell the other computer what happened
-		ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, msgText, sender, 0);
+		ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, msgText, sender);
 		ChatFrame.getInstance().getChatmanInstance().send(msg, null);
 		
 		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();

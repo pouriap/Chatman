@@ -43,7 +43,6 @@ public class Chatman {
 	}
 	
 	public void send(ChatmanMessage message, SendCallback callback){
-		//TODO: tell user we are reconnecting (useful for file drop)
 		
 		if(callback == null){
 			callback = new SendCallback() {

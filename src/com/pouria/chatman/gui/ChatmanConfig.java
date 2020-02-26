@@ -86,7 +86,6 @@ public class ChatmanConfig {
                         
         //we are doomed if we can't read configs
         }catch(Exception e){
-			//TODO: remove getStr from all fatal errors because it needs helper which itself needs config etc.
             String error = "Failed to read config file. " + e.getMessage();
             (new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
         }
@@ -105,7 +104,7 @@ public class ChatmanConfig {
         }
         //no? then it's fatal
         else{
-            String error = Helper.getInstance().getStr("configuration") + confName + Helper.getInstance().getStr("is_not_in_config");
+            String error = "Configuration " + confName + " not in config file";
             (new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
             return "";
         }

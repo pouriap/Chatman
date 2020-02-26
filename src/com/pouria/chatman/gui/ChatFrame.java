@@ -40,9 +40,11 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
@@ -340,12 +342,6 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaChatHistory.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 textAreaChatHistoryMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                textAreaChatHistoryMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                textAreaChatHistoryMouseExited(evt);
             }
         });
         scrollPaneChatHistory.setViewportView(textAreaChatHistory);
@@ -840,18 +836,8 @@ public class ChatFrame extends javax.swing.JFrame {
         popopClicked();
     }//GEN-LAST:event_labelBatMouseReleased
 
-    private void textAreaChatHistoryMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseEntered
-		//TODO: these break history showing
-
-
-    }//GEN-LAST:event_textAreaChatHistoryMouseEntered
-
-    private void textAreaChatHistoryMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseExited
-
-    }//GEN-LAST:event_textAreaChatHistoryMouseExited
-
     private void textAreaChatHistoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseClicked
-        // TODO add your handling code here:
+
 		if(chatHistoryCssToggle == 1){
 			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
 			kit.setStyleSheet(cssShowTime);
@@ -926,7 +912,6 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaInput.setDropTarget(new DropTarget() {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
-				//TODO: fix link pasting and all that shit
                 try {
                     //clear any text
                     clearInputText();
@@ -972,26 +957,31 @@ public class ChatFrame extends javax.swing.JFrame {
         
 
         //TextArea right click
-        
-        //create a paste action because the default is problematic
-        Action paste = new AbstractAction(Helper.getInstance().getStr("paste")) {
+		
+        //create a paste action to replace the default one because the default copoies styles/html too
+        Action pasteAction = new AbstractAction(Helper.getInstance().getStr("paste")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                textAreaInput.paste();
-                String s = textAreaInput.getText();
-                //clear html tags and new lines
-                s = s.replaceAll("<[\\/\\w]*>", "").replace("\n", "").trim();
-                updateInputText(s,true);
+				//only raw text is pasted in a textfield with no styles/html
+				JTextField tempField = new JTextField();
+				tempField.paste();
+				String pastedText = tempField.getText();
+                updateInputText(pastedText, true);
             }
-        }; 
-        
-        //setup copy and cut
+        };
+		
+		//replace default paste action with our own
+		ActionMap map = textAreaInput.getActionMap();
+		map.put(DefaultEditorKit.pasteAction, pasteAction);
+		       
+        //get default copy and cut actions
         Action copyAction = textAreaInput.getActionMap().get(DefaultEditorKit.copyAction);
         copyAction.putValue("Name", Helper.getInstance().getStr("copy"));
         Action cutAction = textAreaInput.getActionMap().get(DefaultEditorKit.cutAction);
         cutAction.putValue("Name", Helper.getInstance().getStr("cut"));
-        
-        menuRightClick.add (paste); 
+		
+		//add copy/cut/paste actions to our right click menu
+        menuRightClick.add (pasteAction); 
         menuRightClick.add (copyAction);
         menuRightClick.add (cutAction);
 
@@ -1105,8 +1095,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		chatman = new Chatman();
 		chatman.getServer().start();
     }
-    
-
     
     //Called from myInits()
 	public void createTrayIcon(){
