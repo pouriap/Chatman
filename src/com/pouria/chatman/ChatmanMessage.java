@@ -160,7 +160,7 @@ public class ChatmanMessage {
 		}
 		
 		//each message is a div
-		t = "<div><span class='time'>["+_time+"]  |  </span><b>" + sender + "</b>: " + t + "</div>";
+		t = "<div style='padding:5px'><span class='time'>["+_time+"]  |  </span><b style='font-size:14px'>" + sender + "</b>: " + t + "</div>";
         return t;
 	}
 	

@@ -29,6 +29,8 @@ import java.util.ArrayList;
  */
 public class Chatman {
 	
+	//TODO: send unsent messages
+	
 	ChatmanServer server;
 	ChatmanClient client;
 	ChatmanHistory history;

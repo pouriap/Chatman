@@ -55,7 +55,10 @@ public class HttpClient implements ChatmanClient{
 	private final int timeoutMillis = 300;
 	
 	public HttpClient(){
-		configTimeout = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS).build();
+		configTimeout = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.setResponseTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.setConnectionRequestTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.build();
 	}
 
 	@Override
@@ -121,6 +124,7 @@ public class HttpClient implements ChatmanClient{
 			}
 			
 		}catch(Exception e){
+			//TODO: vaghti avval server boode va connect shodim baad disconnect mishe hamash in erroro migirim mogheye send kardan
 			reason = "request could not be sent: " + e.getMessage();
 			success = false;
 		}
