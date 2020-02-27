@@ -57,7 +57,7 @@ public class Chatman {
 		
 		final ChatmanMessage _message = message;
 		final SendCallback _callback = callback;
-	
+		
 		//perform send in a thread
 		Runnable r = new Runnable() {
 			@Override

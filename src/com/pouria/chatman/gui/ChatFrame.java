@@ -74,6 +74,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
+	private boolean inputEnabled = true;
 	PopupDialog newMessagePopup;
 	
     
@@ -838,7 +839,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_labelBatMouseReleased
 
     private void textAreaChatHistoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseClicked
-
+		//TODO: breaks in history
 		if(chatHistoryCssToggle == 1){
 			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
 			kit.setStyleSheet(cssShowTime);
@@ -1092,6 +1093,7 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
     
     //start Chatman as client/server
+	//TODO: bring on chatman if an instance is already running
     public void startChatman(){
 		chatman = new Chatman();
 		chatman.getServer().start();
@@ -1202,11 +1204,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		     
         String s = getInputText();
         
-        //return if input is empty
-        if(s.isEmpty())
+        //return if input is empty or input is disabled
+        if(s.isEmpty() || !inputEnabled)
             return;
 
 		final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
+		setInputEnabled(false);
 		chatman.send(message, new SendCallback() {
 			@Override
 			public void call(boolean success, String reason) {
@@ -1218,6 +1221,7 @@ public class ChatFrame extends javax.swing.JFrame {
 				else{
 					(new CommandInvokeLater(new CommandShowError("Error: " + reason))).execute();
 				}
+				setInputEnabled(true);
 			}
 		});
 
@@ -1353,6 +1357,12 @@ public class ChatFrame extends javax.swing.JFrame {
         m = "<html><span style='font-size:14px;'>" + m + "</span></html>";
         JOptionPane.showMessageDialog(null, m);
     } 
+	
+	public void setInputEnabled(boolean enabled){
+		textAreaInput.setEnabled(enabled);
+		labelSend.setEnabled(enabled);
+		this.inputEnabled = enabled;
+	}
     
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){

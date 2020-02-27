@@ -56,7 +56,7 @@ public class HttpClient implements ChatmanClient{
 	
 	public HttpClient(){
 		configTimeout = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
-			.setResponseTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.setResponseTimeout(timeoutMillis, TimeUnit.MILLISECONDS) //TODO: file gives error because response takes long
 			.setConnectionRequestTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
 			.build();
 	}
