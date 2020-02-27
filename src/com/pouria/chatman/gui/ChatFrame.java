@@ -7,6 +7,7 @@ package com.pouria.chatman.gui;
 
 import com.pouria.chatman.ChatmanConfig;
 import com.pouria.chatman.Chatman;
+import com.pouria.chatman.ChatmanHistory;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.CommandClearInputText;
@@ -200,9 +201,6 @@ public class ChatFrame extends javax.swing.JFrame {
         dialogHistory.setIconImage(null);
         dialogHistory.setMinimumSize(new java.awt.Dimension(400, 300));
         dialogHistory.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosed(java.awt.event.WindowEvent evt) {
-                dialogHistoryWindowClosed(evt);
-            }
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 dialogHistoryWindowClosing(evt);
             }
@@ -657,7 +655,6 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_panelPopupNormalMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
-
         clearInputText();
     }//GEN-LAST:event_labelClearMouseReleased
 
@@ -669,8 +666,10 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_textAreaInputMouseReleased
 
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
-        //is run everytime history dialog opens
-               
+        
+		//is run everytime history dialog opens 
+		ChatmanHistory.storeCurrentHistory(chatHistoryTextAll);
+		
         historyPagination = new HistoryTablePagination(
                 tableHistory,
                 "history.sqlite",
@@ -697,16 +696,15 @@ public class ChatFrame extends javax.swing.JFrame {
     private void tableHistoryMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableHistoryMouseReleased
         //put selected history item in textAreaChatHistory
         int row = tableHistory.getSelectedRow();
-        String text = tableHistory.getModel().getValueAt(row, 1).toString();
-		updateTextAreaChatHistory(text);
+        String savedHistory = tableHistory.getModel().getValueAt(row, 1).toString();
+		chatHistoryTextAll = savedHistory;
+		updateTextAreaChatHistory(chatHistoryTextAll);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
-    private void dialogHistoryWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosed
-    }//GEN-LAST:event_dialogHistoryWindowClosed
-
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
+		chatHistoryTextAll = ChatmanHistory.getStoredHistory();
 		updateTextAreaChatHistory(chatHistoryTextAll);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
@@ -846,7 +844,6 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_labelBatMouseReleased
 
     private void textAreaChatHistoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseClicked
-		//TODO: breaks in history
 		if(chatHistoryCssToggle == 1){
 			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
 			kit.setStyleSheet(cssShowTime);
@@ -902,7 +899,7 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void initGUI(){
-
+		
 		createTrayIcon();
         
         //Locale
@@ -1043,7 +1040,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		//CSS for chat history 
 		cssHideTime = new StyleSheet();
 		cssShowTime = new StyleSheet();
-		cssHideTime.addRule(".time{font-size:0px}");
+		cssHideTime.addRule(".time{font-size:0px;color:#3a3a3a}");
 		cssShowTime.addRule(".time{font-size:11px}");
 		
 		
@@ -1420,6 +1417,7 @@ public class ChatFrame extends javax.swing.JFrame {
         ChatmanConfig.getInstance().save();
         System.exit(exitCode);
     }
+
     
 
 

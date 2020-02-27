@@ -30,6 +30,8 @@ import java.util.Calendar;
  */
 public class ChatmanHistory {
 	
+	private static String previousChatHistory = "";
+	
 	public void save(ArrayList<ChatmanMessage> unsavedMessages){
 		
 		//we don't want to save empty stuff
@@ -92,5 +94,13 @@ public class ChatmanHistory {
 	
 	public String load(int day){
 		return "";
+	}
+	
+	public static void storeCurrentHistory(String history){
+		previousChatHistory = history;
+	}
+	
+	public static String getStoredHistory(){
+		return previousChatHistory;
 	}
 }
