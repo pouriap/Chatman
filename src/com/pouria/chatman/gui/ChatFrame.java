@@ -10,6 +10,7 @@ import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.CommandClearInputText;
+import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowError;
 import com.pouria.chatman.classes.CommandUpdateChatHistory;
@@ -893,14 +894,14 @@ public class ChatFrame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 ChatFrame frame = ChatFrame.getInstance();
-                frame.myInits();
                 frame.startChatman();
+                frame.initGUI();
             }
         });
     }
      
 
-    public void myInits(){
+    public void initGUI(){
 
 		createTrayIcon();
         
@@ -1099,10 +1100,36 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
     
     //start Chatman as client/server
-	//TODO: bring on chatman if an instance is already running
     public void startChatman(){
+		
 		chatman = new Chatman();
-		chatman.getServer().start();
+		
+		try{
+			
+			chatman.getServer().start();
+			
+		//if we get a bind exception it means either there's a problem or chatman is already running
+		}catch(Exception e){
+			final String msg = e.getMessage();
+			//send a showgui message to localhost (showgui messages always go to localhost)
+			ChatmanMessage showGuiMessage = new ChatmanMessage(ChatmanMessage.TYPE_SHOWGUI, "", "");
+			chatman.getClient().setServer("127.0.0.1");
+			chatman.send(showGuiMessage, new SendCallback() {
+				@Override
+				public void call(boolean success, String reason) {
+					//if localhost responds we exit
+					if(success){
+						System.exit(0);
+					}
+					//if localhost doesn't repond it means there's a problem
+					else{
+						String error = "Could not start server: " + msg;
+						(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+					}
+				}
+			});
+		}
+		
     }
     
     //Called from myInits()

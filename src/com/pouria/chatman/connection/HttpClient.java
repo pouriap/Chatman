@@ -72,34 +72,45 @@ public class HttpClient implements ChatmanClient{
 	public void send(ChatmanMessage message, SendCallback callback){
 		
 		if(serverIP == null){
-			callback.call(false, "server not set, reconnecting...");
+			callback.call(false, "server not found, reconnecting...");
 			connect();
 			return;
 		}
 		
 		int messageType = message.getType();
+		boolean success = false;
 		
 		switch(messageType){
 			case ChatmanMessage.TYPE_TEXT:
-				sendTextMessage(message, callback);
+				success = sendTextMessage(message, callback);
 				break;
 			case ChatmanMessage.TYPE_SHUTDOWN:
-				sendTextMessage(message, callback);
+				success = sendTextMessage(message, callback);
 				break;
 			case ChatmanMessage.TYPE_ABORT_SHUTDOWN:
+				success = sendTextMessage(message, callback);
+				break;
+			case ChatmanMessage.TYPE_SHOWGUI:
 				sendTextMessage(message, callback);
 				break;
 			case ChatmanMessage.TYPE_FILE:
-				sendFileMessage(message, callback);
+				success = sendFileMessage(message, callback);
 				break;
 
 			default:
 				break;
 		}
 		
+		//if send fails we reset the server IP so that the client will try to find out if 
+		//server is online and if not show the user apporpriate "server not found" error 
+		//instead of "not sent" message
+		if(!success){
+			this.serverIP = null;
+		}
+		
 	}
 	
-	private void sendTextMessage(ChatmanMessage message, SendCallback callback){
+	private boolean sendTextMessage(ChatmanMessage message, SendCallback callback){
 		
 		boolean success = false;
 		String reason = "";
@@ -132,17 +143,17 @@ public class HttpClient implements ChatmanClient{
 			}
 			
 		}catch(Exception e){
-			//TODO: vaghti avval server boode va connect shodim baad disconnect mishe hamash in erroro migirim mogheye send kardan
 			reason = "http request could not be sent: " + e.getMessage();
 			success = false;
 			Helper.getInstance().log("sending text message failed. reason: " + reason);
 		}
 		
 		callback.call(success, reason);
+		return success;
 
 	}
 	
-	private void sendFileMessage(ChatmanMessage message, SendCallback callback){
+	private boolean sendFileMessage(ChatmanMessage message, SendCallback callback){
 
 		boolean success = false;
 		String reason = "";
@@ -180,7 +191,7 @@ public class HttpClient implements ChatmanClient{
 		}
 		
 		callback.call(success, reason);
-
+		return success;
 	}
 
 	@Override

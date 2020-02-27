@@ -19,8 +19,6 @@ package com.pouria.chatman.connection;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.IncomingMessageHandler;
 import com.pouria.chatman.classes.ChatmanServer;
-import com.pouria.chatman.classes.CommandFatalErrorExit;
-import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.ChatmanConfig;
 import io.undertow.Undertow;
@@ -29,6 +27,7 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormDataParser;
 import io.undertow.server.handlers.form.FormParserFactory;
+import java.io.IOException;
 
 /**
  *
@@ -37,7 +36,7 @@ import io.undertow.server.handlers.form.FormParserFactory;
 public class HttpServer implements ChatmanServer{
 	
 	@Override
-	public void start(){
+	public void start() throws IOException{
 		
 		int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
 		final ChatmanHandler handler = new ChatmanHandler();
@@ -53,13 +52,7 @@ public class HttpServer implements ChatmanServer{
 				}
 			}).build();
 		
-		try{
-			server.start();
-		
-		}catch(Exception e){
-			String error = "Could not start server: " + e.getMessage();
-			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
-		}
+		server.start();
 
 	}
 
@@ -72,8 +65,12 @@ public class HttpServer implements ChatmanServer{
 			ChatmanMessage message = new ChatmanMessage(formData);
 			IncomingMessageHandler MsgHandler = new IncomingMessageHandler(message);
 			//set server everytime we recieve a message to avoid unnecessary searches
+			String ourIP = exchange.getDestinationAddress().getAddress().getHostAddress();
 			String peerIP = exchange.getSourceAddress().getAddress().getHostAddress();
-			ChatFrame.getInstance().getChatmanInstance().getClient().setServer(peerIP);
+			//to avoid setting server as our own IP when we send showGUI messages from our own PC
+			if(!peerIP.equals(ourIP) && !peerIP.equals("127.0.0.1")){
+				ChatFrame.getInstance().getChatmanInstance().getClient().setServer(peerIP);
+			}
 			MsgHandler.handle();
 		}
 	}

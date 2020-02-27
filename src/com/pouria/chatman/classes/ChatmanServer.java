@@ -16,6 +16,8 @@
  */
 package com.pouria.chatman.classes;
 
+import java.io.IOException;
+
 /**
  *
  * @author pouriap
@@ -25,5 +27,5 @@ public interface ChatmanServer {
 	 * should start the server and listen for all incoming messages
 	 * incoming messages should be sent to a ChatmanMessageHandler for processing
 	 */
-	public void start();
+	public void start() throws IOException;
 }
