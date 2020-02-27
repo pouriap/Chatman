@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.JFileChooser;
 
+
 /**
  *
  * @author pouriap
@@ -75,6 +76,7 @@ public class IncomingMessageHandler {
 	}
 	
 	public void processBadMessage(){
+		Helper.getInstance().log("bad message received");
 		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 	}
 	
@@ -83,6 +85,7 @@ public class IncomingMessageHandler {
 	}
 	
 	public void processFileMessage(){
+		Helper.getInstance().log("file message received");
 		String tmpFilePath = message.getContent().split("\\*\\*")[0];
 		String fileName = message.getContent().split("\\*\\*")[1];
 		//filename is saved in 'sender' field hehe
@@ -93,14 +96,19 @@ public class IncomingMessageHandler {
 		try{
 			File saveDir = new File(dlDirectory);
 			if(!saveDir.isDirectory()){
+				Helper.getInstance().log("download dir doesn't exist. creating download dir");
 				saveDir.mkdir();
+				Helper.getInstance().log("download dir created successfully");
 			}
+			Helper.getInstance().log("copying received file from " + srcFile.getAbsolutePath() + " to " + dstFile.getAbsolutePath());
 			Files.copy(srcFile, dstFile);
+			Helper.getInstance().log("file copied");
 			//set file path (=content) to the one saved in Chatman Downloads
 			message.setContent(dstFile.getAbsolutePath());
 			(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 			
 		}catch(IOException e){
+			Helper.getInstance().log("copying file from tmp folder to download direcoty failed");
 			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, "File receive failed", "ERROR: ", message.getTime());
 			(new CommandInvokeLater(new CommandUpdateChatHistory(displayedMessage))).execute();
 		}
@@ -111,6 +119,7 @@ public class IncomingMessageHandler {
 		//start shutdown process
 		try{
 			
+			Helper.getInstance().log("remote shutdown message received");
 			Helper.getInstance().localShutdown();
 			
 			//show cancell dialog
@@ -119,20 +128,28 @@ public class IncomingMessageHandler {
 				public void execute() {
 					try{
 						//if user chooses cancel shutdown
+						Helper.getInstance().log("abort shutdown requested by user");
 						Helper.getInstance().abortLocalShutdown();
+						//tell the user abort was successfull
+						Helper.getInstance().log("shutdown aborted successfully");
+						ChatFrame.getInstance().message("Successfully aborted the shutdown");	// we don't need invokelater because we're already in invokelater
 						//tell the other computer we have aborted
 						String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
 						String sender = ChatFrame.getInstance().getUserName();
 						ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, sender);
 						ChatFrame.getInstance().getChatmanInstance().send(message, null);
 					}catch(IOException e){
-						// we don't need invokelater because we're already in invokelater
-						(new CommandShowError("could not abort shutdown")).execute();
+						Helper.getInstance().log("abort failed");
+						//tell the user abort failed. we don't tell the other computer because it's not necessary
+						(new CommandShowError("could not abort shutdown")).execute();  // we don't need invokelater because we're already in invokelater
 					}
 				}
 			}, Helper.getInstance().getStr("local_shutdown_message"), Helper.getInstance().getStr("local_shutdown_title")))).execute();
 
 		}catch(Exception e){
+			Helper.getInstance().log("shutdown failed");
+			//tell the user shutdown has failed
+			(new CommandInvokeLater(new CommandShowError("failed to shut down the computer"))).execute();
 			//tell the other computer our shutdown has failed
 			String error = "[ERROR: SHUTDOWN FAILED]";
 			String sender = ChatFrame.getInstance().getUserName();
@@ -140,6 +157,7 @@ public class IncomingMessageHandler {
 			ChatFrame.getInstance().getChatmanInstance().send(msg, null);
 		}
 		
+		//show recieved remote-shutdown message to the user
 		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
 
 	}
@@ -147,17 +165,24 @@ public class IncomingMessageHandler {
 	public void processAbortShutdown(){
 		String msgText;
 		String sender = ChatFrame.getInstance().getUserName();
+		Helper.getInstance().log("remote-abort-shutdown received");
 		try{
 			Helper.getInstance().abortLocalShutdown();
+			Helper.getInstance().log("shutdown aborted successfully");
 			msgText = "[SHUTDOWN ABORTED SUCCESSFULLY]";
 		}catch(IOException e){
+			Helper.getInstance().log("abort failed");
 			msgText = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
 		}
-		//tell the other computer what happened
+		//tell the other computer if abort was successfull
 		ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, msgText, sender);
 		ChatFrame.getInstance().getChatmanInstance().send(msg, null);
 		
+		//show received abort-remote-shutdown message to the user
 		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
+		//tell our user if abort was successfull
+		(new CommandInvokeLater(new CommandUpdateChatHistory(msg))).execute();
+		
 	}
 	
 	public void processShowGUI(){

@@ -1102,8 +1102,7 @@ public class ChatFrame extends javax.swing.JFrame {
     //Called from myInits()
 	public void createTrayIcon(){
         if (!SystemTray.isSupported()) {
-			//TODO: convert to log
-            message("System tray not supported");
+			Helper.getInstance().log("System tray not supported");
             return;
         }
 		ImageIcon ticon = new ImageIcon(getClass().getResource("/resources/trayicon.png"));
@@ -1118,8 +1117,7 @@ public class ChatFrame extends javax.swing.JFrame {
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
-			//TODO: convert to log
-            message("Tray icon could not be added");
+			Helper.getInstance().log("Tray icon could not be added");
         }
 	}
 	

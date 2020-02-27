@@ -121,12 +121,14 @@ public class HttpClient implements ChatmanClient{
 			else{
 				reason = "http request returned code: " + code;
 				success = false;
+				Helper.getInstance().log("sending text message failed. reason: " + reason);
 			}
 			
 		}catch(Exception e){
 			//TODO: vaghti avval server boode va connect shodim baad disconnect mishe hamash in erroro migirim mogheye send kardan
-			reason = "request could not be sent: " + e.getMessage();
+			reason = "http request could not be sent: " + e.getMessage();
 			success = false;
+			Helper.getInstance().log("sending text message failed. reason: " + reason);
 		}
 		
 		callback.call(success, reason);
@@ -161,11 +163,13 @@ public class HttpClient implements ChatmanClient{
 			else{
 				reason = "http request returned code: " + code;
 				success = false;
+				Helper.getInstance().log("sending file message failed. reason: " + reason);
 			}
 
 		}catch(Exception e){
 			reason = "request could not be sent: " + e.getMessage();
 			success = false;
+			Helper.getInstance().log("sending file message failed. reason: " + reason);
 		}
 		
 		callback.call(success, reason);

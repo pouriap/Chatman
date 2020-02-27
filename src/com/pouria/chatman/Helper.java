@@ -24,6 +24,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -32,6 +35,7 @@ import java.util.Locale;
 public class Helper {
 	
 	private ResourceBundleWrapper l;
+	private Logger logger;
 	
 	public final int OS_WIN = 0, OS_LIN = 1;
 	
@@ -129,8 +133,24 @@ public class Helper {
 		return localIp;
 	}
 	
-	public void log(String t){
-		//TODO: do
+	public synchronized void log(String msg){
+
+		if(logger == null){
+			logger = Logger.getLogger("ChatmanLog");
+			FileHandler fh;
+			try {
+				int logSizeLimit = 1000 * 1000 * 1;	//1MB
+				fh = new FileHandler("log.txt", logSizeLimit, 2, true);
+				logger.addHandler(fh);
+				SimpleFormatter formatter = new SimpleFormatter();
+				fh.setFormatter(formatter);
+			}catch(Exception e){
+				//if logger doesn't work then fuck it
+				e.printStackTrace();
+			}
+		}
+		
+		logger.info(msg);
 	}
 	
 }
