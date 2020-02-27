@@ -348,7 +348,7 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneChatHistory.setViewportView(textAreaChatHistory);
 
         getContentPane().add(scrollPaneChatHistory);
-        scrollPaneChatHistory.setBounds(20, 20, 460, 210);
+        scrollPaneChatHistory.setBounds(20, 20, 455, 210);
 
         scrollPaneInput.setBorder(null);
         scrollPaneInput.setOpaque(false);
@@ -374,13 +374,13 @@ public class ChatFrame extends javax.swing.JFrame {
 
         chatHistoryBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
         getContentPane().add(chatHistoryBg);
-        chatHistoryBg.setBounds(20, 20, 460, 210);
+        chatHistoryBg.setBounds(20, 20, 455, 210);
 
         inputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
         getContentPane().add(inputBg);
         inputBg.setBounds(20, 330, 270, 150);
 
-        tableEmojis.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        tableEmojis.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 153, 153), 1, true));
         tableEmojis.setForeground(new java.awt.Color(255, 255, 255));
         tableEmojis.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -399,15 +399,13 @@ public class ChatFrame extends javax.swing.JFrame {
         tableEmojis.setRowHeight(30);
         tableEmojis.setRowSelectionAllowed(false);
         tableEmojis.setSelectionBackground(new java.awt.Color(255, 255, 255));
-        tableEmojis.setShowHorizontalLines(false);
-        tableEmojis.setShowVerticalLines(false);
         tableEmojis.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 tableEmojisMouseReleased(evt);
             }
         });
         getContentPane().add(tableEmojis);
-        tableEmojis.setBounds(300, 330, 170, 150);
+        tableEmojis.setBounds(300, 330, 175, 150);
 
         labelNextEmojiPage.setBackground(new java.awt.Color(51, 51, 51));
         labelNextEmojiPage.setFont(new java.awt.Font("Sylfaen", 1, 14)); // NOI18N
@@ -477,22 +475,29 @@ public class ChatFrame extends javax.swing.JFrame {
         labelStatusLabl.setForeground(new java.awt.Color(255, 255, 255));
         labelStatusLabl.setText("Status:");
         getContentPane().add(labelStatusLabl);
-        labelStatusLabl.setBounds(20, 560, 150, 40);
+        labelStatusLabl.setBounds(20, 560, 150, 30);
 
         labelStatus.setForeground(new java.awt.Color(255, 255, 255));
         labelStatus.setText("Offline");
         getContentPane().add(labelStatus);
-        labelStatus.setBounds(170, 560, 300, 40);
+        labelStatus.setBounds(170, 560, 300, 30);
 
         backgroundOfLabels.setBackground(new java.awt.Color(51, 51, 51));
+        backgroundOfLabels.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        backgroundOfLabels.setAlignmentY(0.0F);
+        backgroundOfLabels.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.darkGray));
         backgroundOfLabels.setOpaque(true);
         getContentPane().add(backgroundOfLabels);
-        backgroundOfLabels.setBounds(0, 560, 500, 40);
+        backgroundOfLabels.setBounds(-5, 560, 500, 40);
 
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
-        labelFrameBg.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        labelFrameBg.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        labelFrameBg.setIconTextGap(0);
+        labelFrameBg.setMaximumSize(new java.awt.Dimension(500, 600));
+        labelFrameBg.setMinimumSize(new java.awt.Dimension(500, 600));
+        labelFrameBg.setPreferredSize(new java.awt.Dimension(500, 600));
         getContentPane().add(labelFrameBg);
-        labelFrameBg.setBounds(0, 0, 500, 600);
+        labelFrameBg.setBounds(0, 0, 494, 600);
 
         menuFile.setText("گزینه ها");
         menuFile.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -898,7 +903,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }
      
 
-    public void initGUI(){
+    public void initGUI(){	//TODO:fix status message sometimes is wrong
 		
 		createTrayIcon();
         
