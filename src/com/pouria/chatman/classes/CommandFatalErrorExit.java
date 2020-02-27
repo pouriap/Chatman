@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman.classes;
 
+import com.pouria.chatman.Helper;
 import com.pouria.chatman.gui.ChatFrame;
 import javax.swing.JOptionPane;
 
@@ -34,6 +35,7 @@ public class CommandFatalErrorExit implements Command{
     
     @Override
     public void execute(){
+		Helper.getInstance().log("Fatal Error: " + message); 
 		message += "\nThis is a fatal error. Exitting application.";
         JOptionPane.showMessageDialog(null, message, "Fatal Error!", JOptionPane.ERROR_MESSAGE);
 		gui.exit(1);

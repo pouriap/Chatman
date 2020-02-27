@@ -76,7 +76,6 @@ public class IpScanner implements Runnable {
                 try{
                     Thread.sleep(100);
                 }catch(InterruptedException e){
-					Helper.getInstance().log("thread sleep failed");
 					String error = Helper.getInstance().getStr("thread_sleep_fail");
                     (new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
                 }

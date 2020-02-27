@@ -127,7 +127,6 @@ public class Helper {
 		}catch(Exception e){
 			String error = "Could not get local IP";
 			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
-			throw new RuntimeException(e.getMessage());
 		}
 		
 		return localIp;

@@ -74,6 +74,7 @@ public class PopupDialog extends JDialog{
 			clip.start();
 
         }catch(Exception e){
+			Helper.getInstance().log("playing notification sound failed: " + e.getMessage());
 			String error = Helper.getInstance().getStr("audio_play_fail") + e.getMessage();
             (new CommandInvokeLater(new CommandShowError(error))).execute();
         }

@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman.classes;
 
+import com.pouria.chatman.Helper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -53,6 +54,7 @@ public class ResourceBundleWrapper {
             props.load(r);
 
         }catch(Exception e){
+			Helper.getInstance().log("Failed to load locale file: " + "/locale_" + locale.toString() + ".properties");
             props = null; 
         }
         

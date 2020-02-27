@@ -638,8 +638,10 @@ public class ChatFrame extends javax.swing.JFrame {
                 
             }catch(IOException e){
                 message(Helper.getInstance().getStr("url_open_fail") + e.getMessage());
+				Helper.getInstance().log("failed to open url: " + e.getMessage());
             }catch(URISyntaxException e){
                 message(Helper.getInstance().getStr("bad_url") + e.getMessage());
+				Helper.getInstance().log("failed to open url: " + e.getMessage());
             }
         }
 		
@@ -679,6 +681,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             
         }catch(SQLException e){
+			Helper.getInstance().log("failed to show history window: " + e.getMessage());
             message(Helper.getInstance().getStr("history_fail") + e.getMessage());
         }
 
@@ -713,6 +716,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
+			Helper.getInstance().log("history next page failed: " + e.getMessage());
             message(Helper.getInstance().getStr("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
@@ -724,6 +728,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
+			Helper.getInstance().log("history prev page failed: " + e.getMessage());
             message(Helper.getInstance().getStr("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
@@ -779,6 +784,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		try{
 			Helper.getInstance().abortLocalShutdown();
 		}catch(IOException e){
+			Helper.getInstance().log("failed to abort local shutdown (from menu)");
 			message("couldn't stop the shutdown :(");
 		}
     }//GEN-LAST:event_menuAbortLocalShutdownActionPerformed
@@ -1251,6 +1257,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//wait 100ms in another thread and then scroll the incoming text all the way down
 		//because the fucking thing just doesn't work any other way
+		//TODO: try and fix this shit
 		Runnable r = new Runnable() {
 			@Override
 			public void run() {
