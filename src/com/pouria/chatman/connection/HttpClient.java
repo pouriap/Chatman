@@ -68,11 +68,14 @@ public class HttpClient implements ChatmanClient{
 			.build();
 	}
 
+	//todo: vaghti connect nistim va 'send' ro mizanim behemoon mige dar hale
+	//connect shodan va connect ham mishe amm baadesh kari nemikone
+	//felan ino ignore mikonam chon kheili kam ettefagh miofte
 	@Override
 	public void send(ChatmanMessage message, SendCallback callback){
 		
 		if(serverIP == null){
-			callback.call(false, "server not found, reconnecting...");
+			callback.call(false, "Server not found, reconnecting...");
 			connect();
 			return;
 		}
@@ -111,7 +114,7 @@ public class HttpClient implements ChatmanClient{
 	}
 	
 	private boolean sendTextMessage(ChatmanMessage message, SendCallback callback){
-		
+
 		boolean success = false;
 		String reason = "";
 		String messageText = message.getAsJsonString();
@@ -216,7 +219,6 @@ public class HttpClient implements ChatmanClient{
 				if(!foundIps.isEmpty()){
 					String ip = foundIps.get(0);
 					setServer(ip);
-					(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + ip + Helper.getInstance().getStr("stablished")))).execute();
 				}
 				else{
 					(new CommandInvokeLater(new CommandConfirmDialog(
@@ -258,6 +260,7 @@ public class HttpClient implements ChatmanClient{
 	@Override
 	public synchronized void setServer(Object server) {
 		this.serverIP = (String) server;
+		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + this.serverIP + Helper.getInstance().getStr("stablished")))).execute();
 	}
 
 	public void setConnectInProgress(boolean b){

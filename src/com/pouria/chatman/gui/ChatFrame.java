@@ -24,6 +24,8 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -903,7 +905,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }
      
 
-    public void initGUI(){	//TODO:fix status message sometimes is wrong
+    public void initGUI(){
 		
 		createTrayIcon();
         
@@ -1136,19 +1138,43 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //Called from myInits()
 	public void createTrayIcon(){
+		
         if (!SystemTray.isSupported()) {
 			Helper.getInstance().log("System tray not supported");
             return;
         }
+		
 		ImageIcon ticon = new ImageIcon(getClass().getResource("/resources/trayicon.png"));
         final TrayIcon trayIcon = new TrayIcon(ticon.getImage());
-		trayIcon.addActionListener(new ActionListener() {
+		final SystemTray tray = SystemTray.getSystemTray();
+		final PopupMenu popup = new PopupMenu();
+		
+        // create a right-click menu 
+        MenuItem openItem = new MenuItem("Open");
+        MenuItem exitItem = new MenuItem("Exit");
+        popup.add(openItem);
+        popup.add(exitItem);
+        trayIcon.setPopupMenu(popup);
+		
+		//create actions
+		ActionListener actionOpen = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				popopClicked();
 			}
-		});
-        final SystemTray tray = SystemTray.getSystemTray();
+		};
+		ActionListener actionExit = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exit(0);
+			}
+		};
+		
+		//add actions to items and double-click
+		trayIcon.addActionListener(actionOpen);
+		openItem.addActionListener(actionOpen);
+		exitItem.addActionListener(actionExit);
+		
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
