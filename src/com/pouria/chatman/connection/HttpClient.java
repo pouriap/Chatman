@@ -51,12 +51,19 @@ public class HttpClient implements ChatmanClient{
 	
 	private String serverIP = null;
 	private boolean connectInProgress = false;
-	private final RequestConfig configTimeout;
-	private final int timeoutMillis = 300;
+	private final RequestConfig configTimeoutText;
+	private final RequestConfig configTimeoutFile;
+	private final int timeoutMillis = 300;	//millis
+	private final int timeoutMillisFile = 5;	//mins
 	
 	public HttpClient(){
-		configTimeout = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
-			.setResponseTimeout(timeoutMillis, TimeUnit.MILLISECONDS) //TODO: file gives error because response takes long
+		configTimeoutText = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.setResponseTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.setConnectionRequestTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.build();
+		//file sending takes much longer so maximum is 5 minutes
+		configTimeoutFile = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.setResponseTimeout(timeoutMillisFile, TimeUnit.MINUTES)
 			.setConnectionRequestTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
 			.build();
 	}
@@ -107,7 +114,7 @@ public class HttpClient implements ChatmanClient{
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 			UrlEncodedFormEntity data = new UrlEncodedFormEntity(urlParameters);
 			HttpPost post = new HttpPost(remoteAddress);
-			post.setConfig(configTimeout);
+			post.setConfig(configTimeoutText);
 			post.setEntity(data);
 			CloseableHttpResponse response = httpClient.execute(post);
 			int code = response.getCode();
@@ -149,7 +156,7 @@ public class HttpClient implements ChatmanClient{
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 			HttpEntity requestEntity = MultipartEntityBuilder.create().addBinaryBody("data", file).build();
 			HttpPost post = new HttpPost(remoteAddress);
-			post.setConfig(configTimeout);
+			post.setConfig(configTimeoutFile);
 			post.setEntity(requestEntity);
 			CloseableHttpResponse response = httpClient.execute(post);
 			int code = response.getCode();

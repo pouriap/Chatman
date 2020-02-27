@@ -139,7 +139,7 @@ public class Helper {
 			FileHandler fh;
 			try {
 				int logSizeLimit = 1000 * 1000 * 1;	//1MB
-				fh = new FileHandler("log.txt", logSizeLimit, 2, true);
+				fh = new FileHandler("log_%g.txt", logSizeLimit, 2, true);
 				logger.addHandler(fh);
 				SimpleFormatter formatter = new SimpleFormatter();
 				fh.setFormatter(formatter);
