@@ -73,8 +73,9 @@ public class IpScanner {
                 try{
                     Thread.sleep(100);
                 }catch(InterruptedException e){
+					final Exception ex = e;
 					String error = Helper.getInstance().getStr("thread_sleep_fail");
-                    (new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+                    (new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
                 }
 				
                 //break if all threads are finished

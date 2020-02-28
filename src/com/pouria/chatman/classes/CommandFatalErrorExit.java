@@ -18,6 +18,8 @@ package com.pouria.chatman.classes;
 
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.gui.ChatFrame;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javax.swing.JOptionPane;
 
 /**
@@ -27,16 +29,26 @@ import javax.swing.JOptionPane;
 public class CommandFatalErrorExit implements Command{
     String message;
 	ChatFrame gui;
+	Exception exception;
     
-    public CommandFatalErrorExit(String message){
+    public CommandFatalErrorExit(String message, Exception exception){
         this.message = message;
+		this.exception = exception;
 		this.gui = ChatFrame.getInstance();
     }
     
     @Override
     public void execute(){
-		Helper.getInstance().log("Fatal Error: " + message); 
-		message += "\nThis is a fatal error. Exitting application.";
+		
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		exception.printStackTrace(pw);
+		String stackTrace = sw.toString();
+		
+		Helper.getInstance().log("Fatal Error: " + message + "\nStack Trace:\n" + stackTrace); 
+		
+		message += "\nThis is a fatal error, exitting application.";
+		message += "\nSee the logs for more info.";
         JOptionPane.showMessageDialog(null, message, "Fatal Error!", JOptionPane.ERROR_MESSAGE);
 		gui.exit(1);
     }

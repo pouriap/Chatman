@@ -50,20 +50,26 @@ public class Chatman {
 		//constantly try to sendMessage unsent messages
 		Runnable r = new Runnable() {
 			@Override
+			//TODO: vaghti remote pc ye chizi mifreste bayad sendUnsentMessages ejra beshe
 			public void run() {
+				
 				while(true){
 					try{
-						Thread.sleep(1000*30);
+						//TODO: recieved time is dead wrong
+						System.out.println("sending unsent messages from thread");
+						if(!client.isServerConnected()){
+							client.connect();
+						}
+						sendUnsentMessages();
+						Thread.sleep(1000*100);
+						
 					}catch(Exception e){
-						String error = "unsent messages thread cannot sleep" + e.getMessage();
-						(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+						final Exception ex = e;
+						String error = "unsent messages thread cannot sleep: " + e.getMessage();
+						(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
 					}
-					System.out.println("sending unsent messages from thread");
-					if(!client.isServerConnected()){
-						client.connect();
-					}
-					sendUnsentMessages();
 				}
+				
 			}
 		};
 		Thread th = new Thread(r);

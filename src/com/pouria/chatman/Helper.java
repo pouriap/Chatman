@@ -54,8 +54,9 @@ public class Helper {
 		try{
 			l = new ResourceBundleWrapper("resources.locale.locale", locale);
 		}catch(Exception e){
+			final Exception ex = e;
 			String error = "Could not get locale";
-			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+			(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
 		}
     }
 	
@@ -125,8 +126,9 @@ public class Helper {
 				}
 			}
 		}catch(Exception e){
+			final Exception ex = e;
 			String error = "Could not get local IP";
-			(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
+			(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
 		}
 		
 		return localIp;

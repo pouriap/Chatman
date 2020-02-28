@@ -143,7 +143,6 @@ public class ChatmanMessage {
 			//parse web links 
 			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'><u>$1</u></a> ");
 			//parse emoticons
-			//todo: change emoticon text to something like :laugh:
 			String url = getClass().getResource("/resources/emoticons_large/").toString();
 			t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
 		}
@@ -163,7 +162,7 @@ public class ChatmanMessage {
 		else if(this.type == TYPE_ABORT_SHUTDOWN){
 			t = "[ABORT SHUTDOWN COMMAND]";
 		}
-		String senderColor = (isSent)? "white" : "red";	
+		String senderColor = (!isSent && isOurMessage)? "red" : "white";
 		String senderName = (isOurMessage)? "You" : sender;
 		
 		//each message is a div

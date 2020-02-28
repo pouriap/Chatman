@@ -21,7 +21,6 @@ import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandSetLabelStatus;
-import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.ChatmanConfig;
 import java.io.File;
 import java.util.ArrayList;
@@ -183,7 +182,7 @@ public class HttpClient implements ChatmanClient{
 		connectInProgress = true;
 		removeServer();
 
-        ChatFrame.getInstance().setLabelStatus(Helper.getInstance().getStr("searching_network"));		
+		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("searching_network")))).execute();
 		
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
 		String[] ipsToScan = getIpsToScan();
@@ -191,6 +190,7 @@ public class HttpClient implements ChatmanClient{
 		IpScanner scanner = new IpScanner(ipsToScan, serverPort);
 		ArrayList<String> foundIps = scanner.scan();
 		boolean success = !foundIps.isEmpty();
+		
 		if(success){
 			String ip = foundIps.get(0);
 			setServer(ip);

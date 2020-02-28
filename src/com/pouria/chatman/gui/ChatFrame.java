@@ -872,14 +872,15 @@ public class ChatFrame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 ChatFrame frame = ChatFrame.getInstance();
-                frame.startChatman();
-                frame.initGUI();
+				//in tartib bayad bashe hatman
+                frame.initialize();
+				frame.startChatman();
             }
         });
     }
      
 
-    public void initGUI(){
+    public void initialize(){
 		
 		createTrayIcon();
         
@@ -1072,7 +1073,6 @@ public class ChatFrame extends javax.swing.JFrame {
     public void startChatman(){
 		
 		chatman = new Chatman();
-		chatman.startUnsentWatcher();
 		
 		try{
 			
@@ -1092,11 +1092,14 @@ public class ChatFrame extends javax.swing.JFrame {
 			}
 			//if localhost doesn't repond it means there's a problem
 			else{
+				final Exception ex = e;
 				String error = "Could not start server: " + msg;
-				(new CommandFatalErrorExit(error)).execute();
+				(new CommandFatalErrorExit(error, ex)).execute();
 			}
 
 		}
+		
+		chatman.startUnsentWatcher();
 		
     }
     
@@ -1221,7 +1224,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		tableEmojis.setModel(model);
 		
 	}
-    				//TODO: labelstatus is a mess
 
     //sends the content of textAreaInput
     private void sendInputText(){
