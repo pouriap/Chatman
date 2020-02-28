@@ -786,7 +786,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			Helper.getInstance().abortLocalShutdown();
 		}catch(IOException e){
 			Helper.getInstance().log("failed to abort local shutdown (from menu)");
-			message("couldn't stop the shutdown :(");
+			message(Helper.getInstance().getStr("shutdown-abort-fail"));
 		}
     }//GEN-LAST:event_menuAbortLocalShutdownActionPerformed
 
@@ -930,8 +930,7 @@ public class ChatFrame extends javax.swing.JFrame {
                         //check file size
                         int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size", ChatmanConfig.DEFAULT_FILEDROP_SIZEWARNING));
                         if(file.length()> max*1000*1000){
-							//TODO: not i18n
-                            int choice = JOptionPane.showConfirmDialog(null, "File is big, this could take a while. Continue?", "Big file", JOptionPane.YES_NO_OPTION);
+                            int choice = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("file_big_warning"), Helper.getInstance().getStr("file_big_title"), JOptionPane.YES_NO_OPTION);
 							if(choice == JOptionPane.NO_OPTION){
 								//skip this file
 								continue;
@@ -1409,7 +1408,10 @@ public class ChatFrame extends javax.swing.JFrame {
         System.exit(exitCode);
     }
 
-    
+	//TODO: add some visual effects like hover and shit
+    //TODO: check history sent/unsent color
+	//TODO: check history scroll behavior
+	//TODO: save history/config
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

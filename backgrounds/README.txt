@@ -5,4 +5,4 @@ Background name should be like this => name_number.jpg :
 	'name' will be assigned as your username 
 	'number' is not used but has to be in the file name
 	
-examples: batman_1.jpg, christopher_2.png
+examples: khar_1.jpg, khar_2.jpg

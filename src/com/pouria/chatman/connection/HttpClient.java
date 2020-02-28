@@ -237,7 +237,7 @@ public class HttpClient implements ChatmanClient{
 	
 	private synchronized void removeServer(){
 		this.serverIP = null;
-		(new CommandInvokeLater(new CommandSetLabelStatus("server not found"))).execute();
+		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("server_not_found")))).execute();
 	}
 
 	@Override

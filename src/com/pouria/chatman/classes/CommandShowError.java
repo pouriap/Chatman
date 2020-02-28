@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman.classes;
 
+import com.pouria.chatman.Helper;
 import javax.swing.JOptionPane;
 
 /**
@@ -31,6 +32,6 @@ public class CommandShowError implements Command{
     
     @Override
     public void execute(){
-        JOptionPane.showMessageDialog(null, message, "Error!", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, message, Helper.getInstance().getStr("error"), JOptionPane.ERROR_MESSAGE);
     }
 }

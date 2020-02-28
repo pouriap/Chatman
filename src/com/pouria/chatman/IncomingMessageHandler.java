@@ -108,7 +108,9 @@ public class IncomingMessageHandler {
 			
 		}catch(IOException e){
 			Helper.getInstance().log("copying file from tmp folder to download direcoty failed");
-			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, "File receive failed", "ERROR: ", message.getTime());
+			String content = Helper.getInstance().getStr("file-receive-failed");
+			String sender = Helper.getInstance().getStr("error");
+			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, content, sender, message.getTime());
 			(new CommandInvokeLater(new CommandUpdateChatHistory(displayedMessage))).execute();
 		}
 	}
@@ -131,7 +133,7 @@ public class IncomingMessageHandler {
 						Helper.getInstance().abortLocalShutdown();
 						//tell the user abort was successfull
 						Helper.getInstance().log("shutdown aborted successfully");
-						ChatFrame.getInstance().message("Successfully aborted the shutdown");	// we don't need invokelater because we're already in invokelater
+						ChatFrame.getInstance().message(Helper.getInstance().getStr("shutdown-abort-success"));	// we don't need invokelater because we're already in invokelater
 						//tell the other computer we have aborted
 						String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
 						String sender = ChatFrame.getInstance().getUserName();
@@ -140,7 +142,7 @@ public class IncomingMessageHandler {
 					}catch(IOException e){
 						Helper.getInstance().log("abort failed");
 						//tell the user abort failed. we don't tell the other computer because it's not necessary
-						(new CommandShowError("could not abort shutdown")).execute();  // we don't need invokelater because we're already in invokelater
+						(new CommandShowError(Helper.getInstance().getStr("shutdown-abort-fail"))).execute();  // we don't need invokelater because we're already in invokelater
 					}
 				}
 			}, Helper.getInstance().getStr("local_shutdown_message"), Helper.getInstance().getStr("local_shutdown_title")))).execute();
@@ -148,7 +150,7 @@ public class IncomingMessageHandler {
 		}catch(Exception e){
 			Helper.getInstance().log("shutdown failed");
 			//tell the user shutdown has failed
-			(new CommandInvokeLater(new CommandShowError("failed to shut down the computer"))).execute();
+			(new CommandInvokeLater(new CommandShowError(Helper.getInstance().getStr("shutdown-fail")))).execute();
 			//tell the other computer our shutdown has failed
 			String error = "[ERROR: SHUTDOWN FAILED]";
 			String sender = ChatFrame.getInstance().getUserName();
