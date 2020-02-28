@@ -54,7 +54,7 @@ public class Chatman {
 				
 				while(true){
 					try{
-						//TODO: recieved time is dead wrong
+						
 						if(!client.isServerSet()){
 							client.connect();
 						}

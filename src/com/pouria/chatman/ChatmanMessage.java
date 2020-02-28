@@ -70,7 +70,7 @@ public class ChatmanMessage {
 				this.type = json.getInt("type");
 				this.content = json.getString("content");
 				this.sender = json.getString("sender");
-				this.time = json.getInt("time");
+				this.time = json.getLong("time");
 			}
 			//if file upload
 			else if(postData.contains("data")){

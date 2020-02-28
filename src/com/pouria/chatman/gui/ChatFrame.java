@@ -29,6 +29,8 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +44,6 @@ import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
@@ -73,9 +74,11 @@ public class ChatFrame extends javax.swing.JFrame {
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
 	private boolean inputEnabled = true;
+	private AdjustmentListener scrollListenerAlwaysDown;
 	PopupDialog newMessagePopup;
 	
-    
+
+	
     private ChatFrame(){
         initComponents();
     }
@@ -325,6 +328,11 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().setLayout(null);
 
         scrollPaneConversation.setOpaque(false);
+        scrollPaneConversation.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                scrollPaneConversationMouseEntered(evt);
+            }
+        });
 
         textAreaConversation.setEditable(false);
         textAreaConversation.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -339,6 +347,9 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaConversation.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 textAreaConversationMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                textAreaConversationMouseEntered(evt);
             }
         });
         scrollPaneConversation.setViewportView(textAreaConversation);
@@ -840,6 +851,14 @@ public class ChatFrame extends javax.swing.JFrame {
 		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
     }//GEN-LAST:event_textAreaConversationMouseClicked
 
+    private void textAreaConversationMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseEntered
+		scrollPaneConversation.getVerticalScrollBar().removeAdjustmentListener(scrollListenerAlwaysDown);
+    }//GEN-LAST:event_textAreaConversationMouseEntered
+
+    private void scrollPaneConversationMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_scrollPaneConversationMouseEntered
+        scrollPaneConversation.getVerticalScrollBar().removeAdjustmentListener(scrollListenerAlwaysDown);
+    }//GEN-LAST:event_scrollPaneConversationMouseEntered
+
     /**
      * @param args the command line arguments
      */
@@ -905,8 +924,7 @@ public class ChatFrame extends javax.swing.JFrame {
                     clearInputText();
                     
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    List<File> droppedFiles = (List<File>) 
-							evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    List<File> droppedFiles = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
                         textAreaInput.setText(file.getAbsolutePath());
                         //check file size
@@ -1033,6 +1051,14 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneInput.getViewport().setOpaque(false);
         scrollPaneConversation.setOpaque(false);
         scrollPaneConversation.getViewport().setOpaque(false);
+		
+		
+		//Fix the scroll
+		scrollListenerAlwaysDown = new AdjustmentListener() {  
+			public void adjustmentValueChanged(AdjustmentEvent e) {  
+				e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
+			}
+		};	
 		
 		
         //Icons
@@ -1227,6 +1253,12 @@ public class ChatFrame extends javax.swing.JFrame {
 
     //sends the content of textAreaInput
     private void sendInputText(){
+
+		//fix for scroll
+		int listenersCount = scrollPaneConversation.getVerticalScrollBar().getAdjustmentListeners().length;
+		if(listenersCount == 0){
+			scrollPaneConversation.getVerticalScrollBar().addAdjustmentListener(scrollListenerAlwaysDown);
+		}
 		     
         String s = getInputText();
         
@@ -1268,42 +1300,13 @@ public class ChatFrame extends javax.swing.JFrame {
 	}
     
 	public void updateTextAreaConversation(String text){
-		
 		textAreaConversation.setText(defaultTextAreaHtml[0] + text + defaultTextAreaHtml[1]);
-		
-		//wait 100ms in another thread and then scroll the incoming text all the way down
-		//because the fucking thing just doesn't work any other way
-		//TODO: try and fix this shit
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-				try{
-					Thread.sleep(100);
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							scrollDownConversation();
-						}
-					});
-				}catch(Exception e){
-					
-				}
-			}
-		};
-		Thread th = new Thread(r);
-		th.start();
-		
 	}
     
     public void clearTextAreaConversation(){
         updateTextAreaConversation("");
     }
-	
-	public void scrollDownConversation(){
-		JScrollBar vertical = scrollPaneConversation.getVerticalScrollBar();
-		vertical.setValue( vertical.getMaximum() );
-	}
-    
+	  
     //is called when we want to add something to the outgoing text like emoticons, paste stuff, or disconnect message
     public void updateInputText(String t, boolean append){
 

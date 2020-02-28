@@ -93,7 +93,7 @@ public class HttpClient implements ChatmanClient{
 		boolean success = false;
 		String reason = "";
 		String messageText = message.getAsJsonString();
-		
+				
 		try{
 			String remotePort = ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;

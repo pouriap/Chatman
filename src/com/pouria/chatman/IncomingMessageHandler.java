@@ -43,7 +43,6 @@ public class IncomingMessageHandler {
 	public void handle(){
 		
 		int messageType = message.getType();
-		
 		switch(messageType){
 			
 			case ChatmanMessage.TYPE_BADMESSAGE:
