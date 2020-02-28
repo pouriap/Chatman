@@ -178,7 +178,6 @@ public class HttpClient implements ChatmanClient{
 			return false;
 		}
 		
-		System.out.println("connecting...");
 		connectInProgress = true;
 		removeServer();
 
@@ -194,11 +193,9 @@ public class HttpClient implements ChatmanClient{
 		if(success){
 			String ip = foundIps.get(0);
 			setServer(ip);
-			System.out.println("connection successful");
 		}
 		else{
 			removeServer();
-			System.out.println("connection failed");
 		}
 		
 		connectInProgress = false;
@@ -244,15 +241,15 @@ public class HttpClient implements ChatmanClient{
 	}
 
 	@Override
-	public boolean isServerConnected(){
+	public boolean isServerSet(){
 		
 		if(this.serverIP == null){
 			return false;
-		}
+		}return true;
 		
-		ChatmanMessage pingMessage = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
-		boolean success = send(pingMessage);
-		return success;
+		//ChatmanMessage pingMessage = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
+		//boolean success = send(pingMessage);
+		//return success;
 	}
 	
 }

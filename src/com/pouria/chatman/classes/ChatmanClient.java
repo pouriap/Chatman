@@ -57,6 +57,6 @@ public interface ChatmanClient {
 	 * this function must be blocking!
 	 * @return 
 	 */
-	public boolean isServerConnected();
+	public boolean isServerSet();
 	
 }

@@ -50,14 +50,12 @@ public class Chatman {
 		//constantly try to sendMessage unsent messages
 		Runnable r = new Runnable() {
 			@Override
-			//TODO: vaghti remote pc ye chizi mifreste bayad sendUnsentMessages ejra beshe
 			public void run() {
 				
 				while(true){
 					try{
 						//TODO: recieved time is dead wrong
-						System.out.println("sending unsent messages from thread");
-						if(!client.isServerConnected()){
+						if(!client.isServerSet()){
 							client.connect();
 						}
 						sendUnsentMessages();
@@ -83,23 +81,21 @@ public class Chatman {
 		Runnable r = new Runnable() {
 			@Override
 			public void run() {
-				//this is a guard to preserve order
-				if(client.isServerConnected()){
-					//if we are sending a message and there are unsent messages sendMessage them first to preserve order
-					//fek nemikonam hich vagh ettefagh biofte, jahatte etminane
+				//this is a guard to preserve order, don't mess with it unless you know what you're doing
+				if(client.isServerSet()){
+					//if we are sending a message and there are unsent messages send them first to preserve order
 					if(!unsentMessages.isEmpty()){
 						sendUnsentMessages();
 					}
-					//server connect has vali momkene dagighan dar hami lahze dis shode bashe pas check mikonim hatman rafte bashe
+					//server set hast vali momkene disconnect shode bashe pas check mikonim hatman rafte bashe
 					boolean success = client.send(m);
 					if(!success){
 						addToUnsentMessages(m);
 					}
 					(new CommandInvokeLater(new CommandUpdateChatHistory(m))).execute();
 				}
-				//if server is not connected
+				//if server is not set
 				else{
-					//agar vasl nistim bezar too unsent
 					addToUnsentMessages(m);
 					(new CommandInvokeLater(new CommandUpdateChatHistory(m))).execute();
 					//agar dar hale vasl shodan nistim vasl sho
@@ -141,16 +137,10 @@ public class Chatman {
 	}
 	
 	public synchronized void sendUnsentMessages(){
-		System.out.println("sending from thread: " + Thread.currentThread().getName());
-		//age az avval server nadashte bashim momkene vasate 'for' server vasl beshe
-		//va message ha bedoone tartib beran
-		if(!client.isServerConnected() || unsentMessages.isEmpty()){
-			return;
-		}
 		
 		ChatmanMessage unsents[] = new ChatmanMessage[unsentMessages.size()];
 		unsentMessages.toArray(unsents);
-		for(int i=0; i<unsents.length; i++){
+		for(int i=0; i<unsents.length && client.isServerSet(); i++){
 			ChatmanMessage unsentMessage = unsents[i];
 			boolean success = client.send(unsentMessage);
 			if(success){

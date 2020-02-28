@@ -67,11 +67,24 @@ public class HttpServer implements ChatmanServer{
 			//set server everytime we recieve a message to avoid unnecessary searches
 			String ourIP = exchange.getDestinationAddress().getAddress().getHostAddress();
 			String peerIP = exchange.getSourceAddress().getAddress().getHostAddress();
+			MsgHandler.handle();
 			//to avoid setting server as our own IP when we sendMessage showGUI messages from our own PC
 			if(!peerIP.equals(ourIP) && !peerIP.equals("127.0.0.1")){
-				ChatFrame.getInstance().getChatmanInstance().getClient().setServer(peerIP);
+				notifyServerIsUp(peerIP);
 			}
-			MsgHandler.handle();
+		}
+		//we do this in a thread because if we block request takes too long and times out
+		private void notifyServerIsUp(String serverIP){
+			final String ip = serverIP;
+			Runnable r = new Runnable() {
+				@Override
+				public void run() {
+					ChatFrame.getInstance().getChatmanInstance().getClient().setServer(ip);
+					ChatFrame.getInstance().getChatmanInstance().sendUnsentMessages();
+				}
+			};
+			Thread th = new Thread(r);
+			th.start();
 		}
 	}
 	
