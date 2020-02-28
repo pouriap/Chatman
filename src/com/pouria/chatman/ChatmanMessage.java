@@ -162,7 +162,7 @@ public class ChatmanMessage {
 		else if(this.type == TYPE_ABORT_SHUTDOWN){
 			t = "[ABORT SHUTDOWN COMMAND]";
 		}
-		
+		//TODO: underline file/url links
 		String senderColor = (isSent)? "white" : "red";	
 		String senderName = (isOurMessage)? "You" : sender;
 		

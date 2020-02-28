@@ -23,6 +23,7 @@ import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandUpdateChatHistory;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
+import com.pouria.chatman.gui.ChatFrame;
 import java.util.ArrayList;
 
 /**
@@ -37,6 +38,7 @@ public class Chatman {
 	
 	ArrayList<ChatmanMessage> unsavedMessages = new ArrayList<ChatmanMessage>();
 	ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
+	ArrayList<ChatmanMessage> allConversationMessages = new ArrayList<ChatmanMessage>();
 	
 	public Chatman(){
 		server = new HttpServer();
@@ -133,11 +135,6 @@ public class Chatman {
 		this.unsentMessages.add(message);
 	}
 	
-	private synchronized void removeFromUnsentMessages(ChatmanMessage message){
-		System.out.println("removing from unsent messages: " + message.getContent());
-		this.unsentMessages.remove(message);
-	}
-	
 	public synchronized void sendUnsentMessages(){
 		System.out.println("sending from thread: " + Thread.currentThread().getName());
 		//age az avval server nadashte bashim momkene vasate 'for' server vasl beshe
@@ -152,9 +149,22 @@ public class Chatman {
 			ChatmanMessage unsentMessage = unsents[i];
 			boolean success = client.send(unsentMessage);
 			if(success){
-				removeFromUnsentMessages(unsentMessage);
+				this.unsentMessages.remove(unsentMessage);
+				//remove the unsent one and add the sent one to the end
+				this.allConversationMessages.remove(unsentMessage);
+				this.allConversationMessages.add(unsentMessage);
 			}
 		}
+		
+		String conversationTextAll = "";
+		for(ChatmanMessage message: allConversationMessages){
+			conversationTextAll += message.getDisplayableContent();
+		}
+		ChatFrame.getInstance().updateConversationTextAll(conversationTextAll);
+	}
+	
+	public void addToAllMessages(ChatmanMessage message){
+		allConversationMessages.add(message);
 	}
 	
 }

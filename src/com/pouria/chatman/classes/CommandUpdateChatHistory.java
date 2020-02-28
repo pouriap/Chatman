@@ -34,6 +34,6 @@ public class CommandUpdateChatHistory implements Command{
     
     @Override
     public void execute(){
-        gui.updateChatHistory(message);
+        gui.addToConversation(message);
     }
 }

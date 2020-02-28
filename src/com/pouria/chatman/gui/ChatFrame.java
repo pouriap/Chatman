@@ -67,7 +67,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private StyleSheet cssHideTime;
 	private StyleSheet cssShowTime;
 	private int chatHistoryCssToggle = 1;
-    private String chatHistoryTextAll = "";
+    private String conversationTextAll = "";
     private HistoryTablePagination historyPagination;
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
@@ -669,7 +669,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
         
 		//is run everytime history dialog opens 
-		ChatmanHistory.storeCurrentHistory(chatHistoryTextAll);
+		ChatmanHistory.storeCurrentHistory(conversationTextAll);
 		
         historyPagination = new HistoryTablePagination(
                 tableHistory,
@@ -698,15 +698,15 @@ public class ChatFrame extends javax.swing.JFrame {
         //put selected history item in textAreaChatHistory
         int row = tableHistory.getSelectedRow();
         String savedHistory = tableHistory.getModel().getValueAt(row, 1).toString();
-		chatHistoryTextAll = savedHistory;
-		updateTextAreaChatHistory(chatHistoryTextAll);
+		conversationTextAll = savedHistory;
+		updateTextAreaChatHistory(conversationTextAll);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
-		chatHistoryTextAll = ChatmanHistory.getStoredHistory();
-		updateTextAreaChatHistory(chatHistoryTextAll);
+		conversationTextAll = ChatmanHistory.getStoredHistory();
+		updateTextAreaChatHistory(conversationTextAll);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
@@ -829,13 +829,13 @@ public class ChatFrame extends javax.swing.JFrame {
 			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
 			kit.setStyleSheet(cssShowTime);
 			textAreaChatHistory.setEditorKit(kit);
-			updateTextAreaChatHistory(chatHistoryTextAll);
+			updateTextAreaChatHistory(conversationTextAll);
 		}
 		else{
 			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
 			kit.setStyleSheet(cssHideTime);
 			textAreaChatHistory.setEditorKit(kit);
-			updateTextAreaChatHistory(chatHistoryTextAll);
+			updateTextAreaChatHistory(conversationTextAll);
 		}
 		chatHistoryCssToggle = 1 - chatHistoryCssToggle;
     }//GEN-LAST:event_textAreaChatHistoryMouseClicked
@@ -1240,7 +1240,7 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //adds a message to messages history and shows it in chat panel
     //it is called both when we sendInputText a message or receive a message
-    public void updateChatHistory(ChatmanMessage message){
+    public void addToConversation(ChatmanMessage message){
         
         //popup when first message received
         if(isHidden()){
@@ -1252,11 +1252,17 @@ public class ChatFrame extends javax.swing.JFrame {
             newMessagePopup.playSound();
         }
      
-		chatHistoryTextAll += message.getDisplayableContent();
+		conversationTextAll += message.getDisplayableContent();
+		chatman.addToAllMessages(message);
 		chatman.addToUnsavedMessages(message);
-		updateTextAreaChatHistory(chatHistoryTextAll);
+		updateTextAreaChatHistory(conversationTextAll);
 		        
     }
+	
+	public void updateConversationTextAll(String text){
+		conversationTextAll = text;
+		updateTextAreaChatHistory(text);
+	}
     
 	public void updateTextAreaChatHistory(String text){
 		
