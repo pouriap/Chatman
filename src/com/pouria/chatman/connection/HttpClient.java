@@ -243,8 +243,6 @@ public class HttpClient implements ChatmanClient{
 		(new CommandInvokeLater(new CommandSetLabelStatus("server not found"))).execute();
 	}
 
-	//TODO: change unnecessary public functions to private
-	
 	@Override
 	public boolean isServerConnected(){
 		

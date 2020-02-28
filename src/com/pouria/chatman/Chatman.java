@@ -74,7 +74,6 @@ public class Chatman {
 		
 		final ChatmanMessage m = message;
 		
-		//TODO: change 'chathistory' to 'conversationpane'
 		Runnable r = new Runnable() {
 			@Override
 			public void run() {
@@ -139,7 +138,7 @@ public class Chatman {
 		System.out.println("sending from thread: " + Thread.currentThread().getName());
 		//age az avval server nadashte bashim momkene vasate 'for' server vasl beshe
 		//va message ha bedoone tartib beran
-		if(!client.isServerConnected()){
+		if(!client.isServerConnected() || unsentMessages.isEmpty()){
 			return;
 		}
 		

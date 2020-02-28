@@ -66,7 +66,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private String[] defaultTextAreaHtml;
 	private StyleSheet cssHideTime;
 	private StyleSheet cssShowTime;
-	private int chatHistoryCssToggle = 1;
+	private int conversationPaneCssToggle = 1;
     private String conversationTextAll = "";
     private HistoryTablePagination historyPagination;
 	private String[][][] emoticonsArray;
@@ -110,12 +110,12 @@ public class ChatFrame extends javax.swing.JFrame {
         buttonPrevHistoryPage = new javax.swing.JButton();
         dialogPopupBat = new com.pouria.chatman.gui.PopupDialog();
         labelBat = new javax.swing.JLabel();
-        scrollPaneChatHistory = new javax.swing.JScrollPane();
-        textAreaChatHistory = new javax.swing.JEditorPane();
+        scrollPaneConversation = new javax.swing.JScrollPane();
+        textAreaConversation = new javax.swing.JEditorPane();
         scrollPaneInput = new javax.swing.JScrollPane();
         textAreaInput = new javax.swing.JEditorPane();
-        chatHistoryBg = new javax.swing.JLabel();
-        inputBg = new javax.swing.JLabel();
+        labelConvoBg = new javax.swing.JLabel();
+        labelInputBg = new javax.swing.JLabel();
         tableEmojis = new javax.swing.JTable();
         labelNextEmojiPage = new javax.swing.JLabel();
         labelPrevEmojiPage = new javax.swing.JLabel();
@@ -123,7 +123,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelClear = new javax.swing.JLabel();
         labelStatusLabl = new javax.swing.JLabel();
         labelStatus = new javax.swing.JLabel();
-        backgroundOfLabels = new javax.swing.JLabel();
+        labelStatusBackground = new javax.swing.JLabel();
         labelFrameBg = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
@@ -324,27 +324,27 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         getContentPane().setLayout(null);
 
-        scrollPaneChatHistory.setOpaque(false);
+        scrollPaneConversation.setOpaque(false);
 
-        textAreaChatHistory.setEditable(false);
-        textAreaChatHistory.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
-        textAreaChatHistory.setContentType("text/html"); // NOI18N
-        textAreaChatHistory.setAutoscrolls(false);
-        textAreaChatHistory.setOpaque(false);
-        textAreaChatHistory.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+        textAreaConversation.setEditable(false);
+        textAreaConversation.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        textAreaConversation.setContentType("text/html"); // NOI18N
+        textAreaConversation.setAutoscrolls(false);
+        textAreaConversation.setOpaque(false);
+        textAreaConversation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
-                textAreaChatHistoryHyperlinkUpdate(evt);
+                textAreaConversationHyperlinkUpdate(evt);
             }
         });
-        textAreaChatHistory.addMouseListener(new java.awt.event.MouseAdapter() {
+        textAreaConversation.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                textAreaChatHistoryMouseClicked(evt);
+                textAreaConversationMouseClicked(evt);
             }
         });
-        scrollPaneChatHistory.setViewportView(textAreaChatHistory);
+        scrollPaneConversation.setViewportView(textAreaConversation);
 
-        getContentPane().add(scrollPaneChatHistory);
-        scrollPaneChatHistory.setBounds(20, 20, 455, 210);
+        getContentPane().add(scrollPaneConversation);
+        scrollPaneConversation.setBounds(20, 20, 455, 210);
 
         scrollPaneInput.setBorder(null);
         scrollPaneInput.setOpaque(false);
@@ -368,13 +368,13 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(scrollPaneInput);
         scrollPaneInput.setBounds(20, 330, 270, 150);
 
-        chatHistoryBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
-        getContentPane().add(chatHistoryBg);
-        chatHistoryBg.setBounds(20, 20, 455, 210);
+        labelConvoBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
+        getContentPane().add(labelConvoBg);
+        labelConvoBg.setBounds(20, 20, 455, 210);
 
-        inputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
-        getContentPane().add(inputBg);
-        inputBg.setBounds(20, 330, 270, 150);
+        labelInputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
+        getContentPane().add(labelInputBg);
+        labelInputBg.setBounds(20, 330, 270, 150);
 
         tableEmojis.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 153, 153), 1, true));
         tableEmojis.setForeground(new java.awt.Color(255, 255, 255));
@@ -478,13 +478,13 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelStatus);
         labelStatus.setBounds(170, 560, 300, 30);
 
-        backgroundOfLabels.setBackground(new java.awt.Color(51, 51, 51));
-        backgroundOfLabels.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        backgroundOfLabels.setAlignmentY(0.0F);
-        backgroundOfLabels.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.darkGray));
-        backgroundOfLabels.setOpaque(true);
-        getContentPane().add(backgroundOfLabels);
-        backgroundOfLabels.setBounds(-5, 560, 500, 40);
+        labelStatusBackground.setBackground(new java.awt.Color(51, 51, 51));
+        labelStatusBackground.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelStatusBackground.setAlignmentY(0.0F);
+        labelStatusBackground.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.darkGray));
+        labelStatusBackground.setOpaque(true);
+        getContentPane().add(labelStatusBackground);
+        labelStatusBackground.setBounds(-5, 560, 500, 40);
 
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
         labelFrameBg.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -621,7 +621,7 @@ public class ChatFrame extends javax.swing.JFrame {
     
     }//GEN-LAST:event_tableEmojisMouseReleased
 
-    private void textAreaChatHistoryHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_textAreaChatHistoryHyperlinkUpdate
+    private void textAreaConversationHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_textAreaConversationHyperlinkUpdate
         //triggered when we click on a link
         if(evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
             try{
@@ -645,7 +645,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         }
 		
-    }//GEN-LAST:event_textAreaChatHistoryHyperlinkUpdate
+    }//GEN-LAST:event_textAreaConversationHyperlinkUpdate
 
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExitActionPerformed
         exit(0);
@@ -699,14 +699,14 @@ public class ChatFrame extends javax.swing.JFrame {
         int row = tableHistory.getSelectedRow();
         String savedHistory = tableHistory.getModel().getValueAt(row, 1).toString();
 		conversationTextAll = savedHistory;
-		updateTextAreaChatHistory(conversationTextAll);
+		updateTextAreaConversation(conversationTextAll);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
 		conversationTextAll = ChatmanHistory.getStoredHistory();
-		updateTextAreaChatHistory(conversationTextAll);
+		updateTextAreaConversation(conversationTextAll);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
@@ -824,21 +824,21 @@ public class ChatFrame extends javax.swing.JFrame {
         popopClicked();
     }//GEN-LAST:event_labelBatMouseReleased
 
-    private void textAreaChatHistoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaChatHistoryMouseClicked
-		if(chatHistoryCssToggle == 1){
-			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
+    private void textAreaConversationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseClicked
+		if(conversationPaneCssToggle == 1){
+			HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 			kit.setStyleSheet(cssShowTime);
-			textAreaChatHistory.setEditorKit(kit);
-			updateTextAreaChatHistory(conversationTextAll);
+			textAreaConversation.setEditorKit(kit);
+			updateTextAreaConversation(conversationTextAll);
 		}
 		else{
-			HTMLEditorKit kit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
+			HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 			kit.setStyleSheet(cssHideTime);
-			textAreaChatHistory.setEditorKit(kit);
-			updateTextAreaChatHistory(conversationTextAll);
+			textAreaConversation.setEditorKit(kit);
+			updateTextAreaConversation(conversationTextAll);
 		}
-		chatHistoryCssToggle = 1 - chatHistoryCssToggle;
-    }//GEN-LAST:event_textAreaChatHistoryMouseClicked
+		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
+    }//GEN-LAST:event_textAreaConversationMouseClicked
 
     /**
      * @param args the command line arguments
@@ -922,8 +922,9 @@ public class ChatFrame extends javax.swing.JFrame {
 						String filePath = file.getAbsolutePath();
 						String sender = Helper.getInstance().getStr("file_sent");
 						final ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, sender);
+						//avoid getting a notification sound when dragging the file because window gets out of focus
+						ChatFrame.getInstance().toFront();
 						chatman.sendMessage(fileMessage);
-
 						clearInputText();
                     }
                 } catch (Exception ex) {
@@ -1008,7 +1009,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //Frame BG
         setBackground(Background.getInstance().getCurrentURL());
        
-		//CSS for chat history 
+		//CSS for conversation pane 
 		cssHideTime = new StyleSheet();
 		cssShowTime = new StyleSheet();
 		cssHideTime.addRule(".time{font-size:0px;color:#3a3a3a}");
@@ -1019,18 +1020,18 @@ public class ChatFrame extends javax.swing.JFrame {
         defaultTextAreaHtml = new String[2];
         defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px; }</style></head><body><div id=\"text\">";
         defaultTextAreaHtml[1] = "</div></body></html>";
-		HTMLEditorKit tkit = (HTMLEditorKit)textAreaChatHistory.getEditorKit();
+		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
-		textAreaChatHistory.setEditorKit(tkit);		
+		textAreaConversation.setEditorKit(tkit);		
         clearInputText();
-        clearTextAreaChatHistory();
+        clearTextAreaConversation();
         
         
         //Make ScrollPanes invisible
         scrollPaneInput.setOpaque(false);
         scrollPaneInput.getViewport().setOpaque(false);
-        scrollPaneChatHistory.setOpaque(false);
-        scrollPaneChatHistory.getViewport().setOpaque(false);
+        scrollPaneConversation.setOpaque(false);
+        scrollPaneConversation.getViewport().setOpaque(false);
 		
 		
         //Icons
@@ -1238,7 +1239,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     }
     
-    //adds a message to messages history and shows it in chat panel
+    //adds a message to messages history and shows it in conversation panel
     //it is called both when we sendInputText a message or receive a message
     public void addToConversation(ChatmanMessage message){
         
@@ -1255,18 +1256,18 @@ public class ChatFrame extends javax.swing.JFrame {
 		conversationTextAll += message.getDisplayableContent();
 		chatman.addToAllMessages(message);
 		chatman.addToUnsavedMessages(message);
-		updateTextAreaChatHistory(conversationTextAll);
+		updateTextAreaConversation(conversationTextAll);
 		        
     }
 	
 	public void updateConversationTextAll(String text){
 		conversationTextAll = text;
-		updateTextAreaChatHistory(text);
+		updateTextAreaConversation(text);
 	}
     
-	public void updateTextAreaChatHistory(String text){
+	public void updateTextAreaConversation(String text){
 		
-		textAreaChatHistory.setText(defaultTextAreaHtml[0] + text + defaultTextAreaHtml[1]);
+		textAreaConversation.setText(defaultTextAreaHtml[0] + text + defaultTextAreaHtml[1]);
 		
 		//wait 100ms in another thread and then scroll the incoming text all the way down
 		//because the fucking thing just doesn't work any other way
@@ -1279,7 +1280,7 @@ public class ChatFrame extends javax.swing.JFrame {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							scrollDownChatHistory();
+							scrollDownConversation();
 						}
 					});
 				}catch(Exception e){
@@ -1292,13 +1293,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 	}
     
-    //clears textAreaChatHistory
-    public void clearTextAreaChatHistory(){
-        updateTextAreaChatHistory("");
+    public void clearTextAreaConversation(){
+        updateTextAreaConversation("");
     }
 	
-	public void scrollDownChatHistory(){
-		JScrollBar vertical = scrollPaneChatHistory.getVerticalScrollBar();
+	public void scrollDownConversation(){
+		JScrollBar vertical = scrollPaneConversation.getVerticalScrollBar();
 		vertical.setValue( vertical.getMaximum() );
 	}
     
@@ -1408,24 +1408,24 @@ public class ChatFrame extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel backgroundOfLabels;
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
-    private javax.swing.JLabel chatHistoryBg;
     private javax.swing.JDialog dialogHistory;
     private com.pouria.chatman.gui.PopupDialog dialogPopupBat;
     private com.pouria.chatman.gui.PopupDialog dialogPopupNormal;
-    private javax.swing.JLabel inputBg;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel labelBat;
     private javax.swing.JLabel labelClear;
+    private javax.swing.JLabel labelConvoBg;
     private javax.swing.JLabel labelFrameBg;
+    private javax.swing.JLabel labelInputBg;
     private javax.swing.JLabel labelMessageIcon;
     private javax.swing.JLabel labelNewMessage;
     private javax.swing.JLabel labelNextEmojiPage;
     private javax.swing.JLabel labelPrevEmojiPage;
     private javax.swing.JLabel labelSend;
     private javax.swing.JLabel labelStatus;
+    private javax.swing.JLabel labelStatusBackground;
     private javax.swing.JLabel labelStatusLabl;
     private javax.swing.JMenuItem menuAbortLocalShutdown;
     private javax.swing.JMenuItem menuAbortRemoteShutdown;
@@ -1440,12 +1440,12 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuWakeOnLan;
     private javax.swing.JPanel panelPopupNormal;
-    private javax.swing.JScrollPane scrollPaneChatHistory;
+    private javax.swing.JScrollPane scrollPaneConversation;
     private javax.swing.JScrollPane scrollPaneHistory;
     private javax.swing.JScrollPane scrollPaneInput;
     private javax.swing.JTable tableEmojis;
     private javax.swing.JTable tableHistory;
-    private javax.swing.JEditorPane textAreaChatHistory;
+    private javax.swing.JEditorPane textAreaConversation;
     private javax.swing.JEditorPane textAreaInput;
     // End of variables declaration//GEN-END:variables
 }

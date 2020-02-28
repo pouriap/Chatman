@@ -141,7 +141,7 @@ public class ChatmanMessage {
 	
 		if(this.type == TYPE_TEXT){
 			//parse web links 
-			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
+			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'><u>$1</u></a> ");
 			//parse emoticons
 			//todo: change emoticon text to something like :laugh:
 			String url = getClass().getResource("/resources/emoticons_large/").toString();
@@ -151,7 +151,8 @@ public class ChatmanMessage {
 			File file = new File(t);
 			String path = file.getAbsolutePath();
 			String name = file.getName();
-			t = "<a style='color:#dee3e9;font-weight:bold;' href='file://"+path+"'>"+name+"</a>";
+			//parse file linke
+			t = "<a style='color:#dee3e9;font-weight:bold;' href='file://"+path+"'><u>"+name+"</u></a>";
 		}
 		else if(this.type == TYPE_SHUTDOWN){
 			t = "[SHUTDOWN COMMAND]";
@@ -162,7 +163,6 @@ public class ChatmanMessage {
 		else if(this.type == TYPE_ABORT_SHUTDOWN){
 			t = "[ABORT SHUTDOWN COMMAND]";
 		}
-		//TODO: underline file/url links
 		String senderColor = (isSent)? "white" : "red";	
 		String senderName = (isOurMessage)? "You" : sender;
 		
