@@ -137,7 +137,7 @@ public class IncomingMessageHandler {
 						String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
 						String sender = ChatFrame.getInstance().getUserName();
 						ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, sender);
-						ChatFrame.getInstance().getChatmanInstance().send(message, null);
+						ChatFrame.getInstance().getChatmanInstance().sendMessage(message);
 					}catch(IOException e){
 						Helper.getInstance().log("abort failed");
 						//tell the user abort failed. we don't tell the other computer because it's not necessary
@@ -154,7 +154,7 @@ public class IncomingMessageHandler {
 			String error = "[ERROR: SHUTDOWN FAILED]";
 			String sender = ChatFrame.getInstance().getUserName();
 			ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, error, sender);
-			ChatFrame.getInstance().getChatmanInstance().send(msg, null);
+			ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		}
 		
 		//show recieved remote-shutdown message to the user
@@ -176,7 +176,7 @@ public class IncomingMessageHandler {
 		}
 		//tell the other computer if abort was successfull
 		ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, msgText, sender);
-		ChatFrame.getInstance().getChatmanInstance().send(msg, null);
+		ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		
 		//show received abort-remote-shutdown message to the user
 		(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import com.pouria.chatman.classes.IpScannerCallback;
 
 /**
  *
@@ -35,25 +34,23 @@ import com.pouria.chatman.classes.IpScannerCallback;
  * when scanning is finished we decide what to do based on number of servers found
  */
 
-public class IpScanner implements Runnable {
+public class IpScanner {
 
     private final String[] ipsToScan;
     private final int port;
-	private final IpScannerCallback callback;
 	private final ArrayList<String> foundIps;
 	   
-    public IpScanner(String[] ipsToScan, int port, IpScannerCallback callback){
+    public IpScanner(String[] ipsToScan, int port){
         this.port = port;
 		this.ipsToScan = ipsToScan;
-		this.callback = callback;
 		foundIps = new ArrayList<String>();
     }
 
 	//start scanning the network
 	//we will spawn threads that each one will try to connect to an ip
 	//when a live server is detected we call ChatmanClient.setServer() and break operation
-    @Override
-    public void run() {
+	//this method is blocking!
+    public ArrayList<String> scan() {
 		
 			int numHosts = ipsToScan.length;
             Thread[] scanners = new Thread[numHosts];
@@ -95,9 +92,7 @@ public class IpScanner implements Runnable {
 				
             }while(c);  
             
-            //now we have finished scanning the network for live servers
-			callback.call(foundIps);
-			
+			return foundIps;
     }
 	
 	private class portScanner implements Runnable{

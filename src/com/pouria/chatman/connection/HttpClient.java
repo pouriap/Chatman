@@ -19,12 +19,8 @@ package com.pouria.chatman.connection;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.ChatmanClient;
-import com.pouria.chatman.classes.CommandClientConnect;
-import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandSetLabelStatus;
-import com.pouria.chatman.classes.IpScannerCallback;
-import com.pouria.chatman.classes.SendCallback;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.ChatmanConfig;
 import java.io.File;
@@ -55,6 +51,7 @@ public class HttpClient implements ChatmanClient{
 	private final RequestConfig configTimeoutFile;
 	private final int timeoutMillis = 300;	//millis
 	private final int timeoutMillisFile = 5;	//mins
+	private final ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
 	
 	public HttpClient(){
 		configTimeoutText = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
@@ -68,52 +65,31 @@ public class HttpClient implements ChatmanClient{
 			.build();
 	}
 
-	//todo: vaghti connect nistim va 'send' ro mizanim behemoon mige dar hale
-	//connect shodan va connect ham mishe amm baadesh kari nemikone
-	//felan ino ignore mikonam chon kheili kam ettefagh miofte
+	//this function is blocking!
 	@Override
-	public void send(ChatmanMessage message, SendCallback callback){
-		
-		if(serverIP == null){
-			callback.call(false, "Server not found, reconnecting...");
-			connect();
-			return;
-		}
-		
-		int messageType = message.getType();
-		boolean success = false;
-		
-		switch(messageType){
-			case ChatmanMessage.TYPE_TEXT:
-				success = sendTextMessage(message, callback);
-				break;
-			case ChatmanMessage.TYPE_SHUTDOWN:
-				success = sendTextMessage(message, callback);
-				break;
-			case ChatmanMessage.TYPE_ABORT_SHUTDOWN:
-				success = sendTextMessage(message, callback);
-				break;
-			case ChatmanMessage.TYPE_SHOWGUI:
-				sendTextMessage(message, callback);
-				break;
-			case ChatmanMessage.TYPE_FILE:
-				success = sendFileMessage(message, callback);
-				break;
+	public boolean send(ChatmanMessage message){
 
-			default:
-				break;
+		boolean success;
+
+		if(message.getType() == ChatmanMessage.TYPE_FILE){
+			success = sendFileMessage(message);
+		}
+		else{
+			success = sendTextMessage(message);
+		}
+
+		if(success){
+			message.setIsSent(true);
+		}
+		else{
+			removeServer();
 		}
 		
-		//if send fails we reset the server IP so that the client will try to find out if 
-		//server is online and if not show the user apporpriate "server not found" error 
-		//instead of "not sent" message
-		if(!success){
-			this.serverIP = null;
-		}
-		
+		return success;
+
 	}
 	
-	private boolean sendTextMessage(ChatmanMessage message, SendCallback callback){
+	private boolean sendTextMessage(ChatmanMessage message){
 
 		boolean success = false;
 		String reason = "";
@@ -151,12 +127,11 @@ public class HttpClient implements ChatmanClient{
 			Helper.getInstance().log("sending text message failed. reason: " + reason);
 		}
 		
-		callback.call(success, reason);
 		return success;
 
 	}
 	
-	private boolean sendFileMessage(ChatmanMessage message, SendCallback callback){
+	private boolean sendFileMessage(ChatmanMessage message){
 
 		boolean success = false;
 		String reason = "";
@@ -193,47 +168,47 @@ public class HttpClient implements ChatmanClient{
 			Helper.getInstance().log("sending file message failed. reason: " + reason);
 		}
 		
-		callback.call(success, reason);
 		return success;
 	}
 
 	@Override
-	public void connect(){
+	//this is blocking!
+	public boolean connect(){
 		
 		if(connectInProgress){
-			return;
+			return false;
 		}
 		
-        ChatFrame.getInstance().setLabelStatus(Helper.getInstance().getStr("searching_network"));
+		System.out.println("connecting...");
+		connectInProgress = true;
+		removeServer();
 
-		setConnectInProgress(true);
-		this.serverIP = null;
+        ChatFrame.getInstance().setLabelStatus(Helper.getInstance().getStr("searching_network"));		
+		
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
 		String[] ipsToScan = getIpsToScan();
-		Thread scanner;
 		
-		IpScannerCallback callback = new IpScannerCallback() {
-			@Override
-			public void call(ArrayList<String> foundIps) {
-				//if server found
-				if(!foundIps.isEmpty()){
-					String ip = foundIps.get(0);
-					setServer(ip);
-				}
-				else{
-					(new CommandInvokeLater(new CommandConfirmDialog(
-							new CommandClientConnect(),
-							Helper.getInstance().getStr("server_retry_confirm"),
-							Helper.getInstance().getStr("server_not_found")
-					))).execute();
-				}
-				//in either case
-				setConnectInProgress(false);
-			}
-		};
+		IpScanner scanner = new IpScanner(ipsToScan, serverPort);
+		ArrayList<String> foundIps = scanner.scan();
+		boolean success = !foundIps.isEmpty();
+		if(success){
+			String ip = foundIps.get(0);
+			setServer(ip);
+			System.out.println("connection successful");
+		}
+		else{
+			removeServer();
+			System.out.println("connection failed");
+		}
 		
-		scanner = new Thread(new IpScanner(ipsToScan, serverPort, callback));
-		scanner.start();
+		connectInProgress = false;
+		
+		return success;
+		
+	}
+	
+	public boolean isConnectInProgress(){
+		return connectInProgress;
 	}
 	
 	private String[] getIpsToScan(){
@@ -262,24 +237,24 @@ public class HttpClient implements ChatmanClient{
 		this.serverIP = (String) server;
 		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + this.serverIP + Helper.getInstance().getStr("stablished")))).execute();
 	}
+	
+	private synchronized void removeServer(){
+		this.serverIP = null;
+		(new CommandInvokeLater(new CommandSetLabelStatus("server not found"))).execute();
+	}
 
-	public void setConnectInProgress(boolean b){
-
-		this.connectInProgress = b;
-		if(connectInProgress){
-			ChatFrame.getInstance().disableInputTextArea();
+	//TODO: change unnecessary public functions to private
+	
+	@Override
+	public boolean isServerConnected(){
+		
+		if(this.serverIP == null){
+			return false;
 		}
-		else{
-			ChatFrame.getInstance().enableInputTextArea();
-		}
+		
+		ChatmanMessage pingMessage = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
+		boolean success = send(pingMessage);
+		return success;
 	}
 	
-	public boolean isConnectInProgress(){
-		return this.connectInProgress;
-	}
-	
-	public boolean isServerFound(){
-		return (serverIP != null);
-	}
-
 }

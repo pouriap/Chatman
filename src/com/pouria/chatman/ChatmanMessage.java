@@ -33,13 +33,16 @@ public class ChatmanMessage {
 	private String content;
 	private String sender;
 	private long time;
-	
+	private boolean isSent = false;
+	private boolean isOurMessage = false;
+
 	public static final int TYPE_BADMESSAGE = 0;
 	public static final int TYPE_TEXT = 1;
 	public static final int TYPE_SHUTDOWN = 2;
 	public static final int TYPE_ABORT_SHUTDOWN = 3;
 	public static final int TYPE_FILE = 4;
 	public static final int TYPE_SHOWGUI = 5;
+	public static final int TYPE_PING = 6;
 	
 	public ChatmanMessage(int type, String content, String sender, long time){
 		this.type = type;
@@ -140,6 +143,7 @@ public class ChatmanMessage {
 			//parse web links 
 			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'>$1</a> ");
 			//parse emoticons
+			//todo: change emoticon text to something like :laugh:
 			String url = getClass().getResource("/resources/emoticons_large/").toString();
 			t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
 		}
@@ -159,8 +163,11 @@ public class ChatmanMessage {
 			t = "[ABORT SHUTDOWN COMMAND]";
 		}
 		
+		String senderColor = (isSent)? "white" : "red";	
+		String senderName = (isOurMessage)? "You" : sender;
+		
 		//each message is a div
-		t = "<div style='padding:5px;'><span class='time'>["+_time+"]  |  </span><b style='font-size:14px'>" + sender + "</b>: " + t + "</div>";
+		t = "<div style='padding:5px;'><span class='time'>["+_time+"]  |  </span><b style='font-size:14px;color:"+senderColor+"'>" + senderName + ":</b> " + t + "</div>";
         return t;
 	}
 	
@@ -168,12 +175,20 @@ public class ChatmanMessage {
 		return this.sender;
 	}
 	
-	public void setSender(String sender){
-		this.sender = sender;
+	public void setIsOurMessage(boolean b){
+		this.isOurMessage = b;
 	}
 	
 	public long getTime(){
 		return this.time;
+	}
+	
+	public boolean isSent() {
+		return isSent;
+	}
+
+	public void setIsSent(boolean isSent) {
+		this.isSent = isSent;
 	}
 	
 }

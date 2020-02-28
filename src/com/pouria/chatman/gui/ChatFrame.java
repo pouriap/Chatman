@@ -10,14 +10,8 @@ import com.pouria.chatman.Chatman;
 import com.pouria.chatman.ChatmanHistory;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
-import com.pouria.chatman.classes.CommandClearInputText;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
-import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandShowError;
-import com.pouria.chatman.classes.CommandUpdateChatHistory;
 import com.pouria.chatman.classes.HistoryTablePagination;
-import com.pouria.chatman.classes.SendCallback;
-import com.pouria.chatman.connection.HttpClient;
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -748,17 +742,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("remote_shutdown_message"), Helper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
             final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
-			chatman.send(message, new SendCallback() {
-				@Override
-				public void call(boolean success, String reason) {
-					if(success){
-						(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
-					}
-					else{
-						(new CommandInvokeLater(new CommandShowError("Failed: "+reason))).execute();
-					}
-				}
-			});
+			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
 
@@ -832,17 +816,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("abort_remote_shutdown_message"), Helper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
             final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_ABORT_SHUTDOWN, "", username);
-			chatman.send(message, new SendCallback() {
-				@Override
-				public void call(boolean success, String reason) {
-					if(success){
-						(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
-					}
-					else{
-						(new CommandInvokeLater(new CommandShowError("Failed: "+reason))).execute();
-					}
-				}
-			});
+			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
@@ -948,17 +922,7 @@ public class ChatFrame extends javax.swing.JFrame {
 						String filePath = file.getAbsolutePath();
 						String sender = Helper.getInstance().getStr("file_sent");
 						final ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, sender);
-						chatman.send(fileMessage, new SendCallback() {
-							@Override
-							public void call(boolean success, String reason) {
-								if(success){
-									(new CommandInvokeLater(new CommandUpdateChatHistory(fileMessage))).execute();
-								}
-								else{
-									(new CommandInvokeLater(new CommandShowError("Send Failed: " + reason))).execute();
-								}
-							}
-						});
+						chatman.sendMessage(fileMessage);
 
 						clearInputText();
                     }
@@ -1107,6 +1071,7 @@ public class ChatFrame extends javax.swing.JFrame {
     public void startChatman(){
 		
 		chatman = new Chatman();
+		chatman.startUnsentWatcher();
 		
 		try{
 			
@@ -1118,20 +1083,18 @@ public class ChatFrame extends javax.swing.JFrame {
 			//send a showgui message to localhost (showgui messages always go to localhost)
 			ChatmanMessage showGuiMessage = new ChatmanMessage(ChatmanMessage.TYPE_SHOWGUI, "", "");
 			chatman.getClient().setServer("127.0.0.1");
-			chatman.send(showGuiMessage, new SendCallback() {
-				@Override
-				public void call(boolean success, String reason) {
-					//if localhost responds we exit
-					if(success){
-						System.exit(0);
-					}
-					//if localhost doesn't repond it means there's a problem
-					else{
-						String error = "Could not start server: " + msg;
-						(new CommandInvokeLater(new CommandFatalErrorExit(error))).execute();
-					}
-				}
-			});
+			//this is a very special case where we don't even have gui so we directly access the send() method
+			boolean success = chatman.getClient().send(showGuiMessage);
+			//if localhost responds we exit
+			if(success){
+				System.exit(0);
+			}
+			//if localhost doesn't repond it means there's a problem
+			else{
+				String error = "Could not start server: " + msg;
+				(new CommandFatalErrorExit(error)).execute();
+			}
+
 		}
 		
     }
@@ -1257,7 +1220,8 @@ public class ChatFrame extends javax.swing.JFrame {
 		tableEmojis.setModel(model);
 		
 	}
-    
+    				//TODO: labelstatus is a mess
+
     //sends the content of textAreaInput
     private void sendInputText(){
 		     
@@ -1268,21 +1232,9 @@ public class ChatFrame extends javax.swing.JFrame {
             return;
 
 		final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
-		setInputEnabled(false);
-		chatman.send(message, new SendCallback() {
-			@Override
-			public void call(boolean success, String reason) {
-				if(success){
-					message.setSender("You");
-					(new CommandInvokeLater(new CommandUpdateChatHistory(message))).execute();
-					(new CommandInvokeLater(new CommandClearInputText())).execute();
-				}
-				else{
-					(new CommandInvokeLater(new CommandShowError("Error: " + reason))).execute();
-				}
-				setInputEnabled(true);
-			}
-		});
+		message.setIsOurMessage(true);
+		chatman.sendMessage(message);
+		clearInputText();
 
     }
     
@@ -1437,9 +1389,6 @@ public class ChatFrame extends javax.swing.JFrame {
 	//shows the chatman window
 	public void showWindow(){
 		this.setVisible(true);
-		if(!((HttpClient)chatman.getClient()).isServerFound()){
-			chatman.getClient().connect();
-		}
 	}
 	
     //the end of chatman. that's it. no auto pilot :(

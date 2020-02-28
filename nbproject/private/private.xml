@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/Chatman.java</file>
@@ -9,6 +9,7 @@
             <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/IncomingMessageHandler.java</file>
             <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/gui/ChatFrame.java</file>
             <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/connection/HttpClient.java</file>
+            <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/classes/ChatmanClient.java</file>
             <file>file:/D:/Personal%20Folder/Pouria/My%20Documents/NetBeansProjects/Chatman/src/com/pouria/chatman/ChatmanConfig.java</file>
         </group>
     </open-files>

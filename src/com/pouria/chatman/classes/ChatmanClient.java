@@ -19,33 +19,44 @@ package com.pouria.chatman.classes;
 import com.pouria.chatman.ChatmanMessage;
 
 /**
+ * every method in this class should be blocking!!!
  *
  * @author pouriap
  */
 public interface ChatmanClient {
 
 	/**
-	 * sends a ChatmanMessage to the other person we are talking to
+	 * sends a ChatmanMessage to the other person we are talking to<br>
+	 * this function should be blocking!
 	 * @param message 
-	 * @param callback 
+	 * @return  the result of send operation
 	 */	
-	public void send(ChatmanMessage message, SendCallback callback);
+	public boolean send(ChatmanMessage message);
 	
 	/**
 	 * connects to the person we want to talk to if their IP is specified <br>
 	 * should search network if their IP is not specified <br>
 	 * the connection/search process takes place in a thread <br>
 	 * the setServer() method is called from that thread in order to specify the 
-	 * server the client should send() messages to
+	 * server the client should send() messages to<br>
+	 * this function should be blocking!
+	 * @return whether connection with server was successful
 	 */
-	public void connect();
+	public boolean connect();
 	
 	/**
 	 * sets the server this client is supposed to connect to <br>
 	 * the server Object can be anything depending on the implementation<br>
-	 * is called when server is found in search/connect threads
+	 * is called when server is found in search/connect threads<br>
+	 * this function should be blocking!
 	 * @param server 
 	 */
 	public void setServer(Object server);
+	
+	/**
+	 * this function must be blocking!
+	 * @return 
+	 */
+	public boolean isServerConnected();
 	
 }
