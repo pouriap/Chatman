@@ -18,13 +18,19 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.ChatmanServer;
-import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandUpdateChatHistory;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
 import com.pouria.chatman.gui.ChatFrame;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -32,87 +38,97 @@ import java.util.ArrayList;
  */
 public class Chatman {
 	
-	ChatmanServer server;
-	ChatmanClient client;
-	ChatmanHistory history;
+	private final ChatmanServer server;
+	private final ChatmanClient client;
+	private final ChatmanHistory history;
+	private final BgTasksManager bgTasksMngr;
 	
-	ArrayList<ChatmanMessage> unsavedMessages = new ArrayList<ChatmanMessage>();
-	ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
-	ArrayList<ChatmanMessage> allConversationMessages = new ArrayList<ChatmanMessage>();
+	private final int CONNECT_COOLDOWN = 1000 * 30;	//30 sec
+	private final int HISTORY_SAVE_INTERVAL = 1000 * 100; //100 sec
+	private final int CONFIG_SAVE_INTERVAL = 1000 * 100; //100 sec
+	private final int HEARTBEAT_INTERVAL = 1000 * 60; //60 sec
+	
+	private long lastConnectTime = 0;
+	
+	Lock unsavedLock = new ReentrantLock();
+	Lock unsentLock = new ReentrantLock();
+	
+	private final ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
+	private final ArrayList<ChatmanMessage> allConversationMessages = new ArrayList<ChatmanMessage>();
+	private final ConcurrentLinkedQueue<ChatmanMessage> sendQueue = new ConcurrentLinkedQueue<>();
 	
 	public Chatman(){
 		server = new HttpServer();
 		client = new HttpClient();
 		history = new ChatmanHistory();
+		bgTasksMngr = new BgTasksManager();
+		client.addListener(bgTasksMngr);
+		bgTasksMngr.start();
 	}
 	
-	public void startUnsentWatcher(){
-		//constantly try to sendMessage unsent messages
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-				
-				while(true){
-					try{
-						
-						if(!client.isServerSet()){
-							client.connect();
-						}
-						sendUnsentMessages();
-						Thread.sleep(1000*100);
-						
-					}catch(Exception e){
-						final Exception ex = e;
-						String error = "unsent messages thread cannot sleep: " + e.getMessage();
-						(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
-					}
-				}
-				
-			}
-		};
-		Thread th = new Thread(r);
-		th.start();
-	}
-	
-	public void sendMessage(ChatmanMessage message){
+	public void sendMessage(ChatmanMessage m){
+
+		//message ro ghabl az thread sakhtan tooye saf bezar ke tartibe message he be ham nakhore
+		//bad az inke message tooye thread ferestade shod be tartib message ha ro be conversationpane ezafe mikonim
+		sendQueue.add(m);
 		
-		final ChatmanMessage m = message;
+		final ChatmanMessage thisMessage = m;
 		
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-				//this is a guard to preserve order, don't mess with it unless you know what you're doing
-				if(client.isServerSet()){
-					//if we are sending a message and there are unsent messages send them first to preserve order
-					if(!unsentMessages.isEmpty()){
-						sendUnsentMessages();
+		Runnable r = () -> {
+			//wait for unsent messages to be sent in case it is in progress
+			bgTasksMngr.waitForUnsentMessagesToBeSent();
+			while(true){
+				ChatmanMessage firstMessage = sendQueue.peek();
+				//agar in message avvalin message dar saf ast anra befrest
+				if(firstMessage.equals(thisMessage)){
+					boolean success = client.send(thisMessage);
+					(new CommandInvokeLater(new CommandUpdateChatHistory(thisMessage))).execute();
+					if(success){
+						history.addToUnsavedMessages(m);
 					}
-					//server set hast vali momkene disconnect shode bashe pas check mikonim hatman rafte bashe
-					boolean success = client.send(m);
-					if(!success){
-						addToUnsentMessages(m);
+					else{
+						addToUnsentMessages(thisMessage);
+						connectWithCooldown();
 					}
-					(new CommandInvokeLater(new CommandUpdateChatHistory(m))).execute();
+					//in message ro az queue bekesh biroon ke nafare baadi ferestade beshe
+					sendQueue.poll();
+					break;
 				}
-				//if server is not set
-				else{
-					addToUnsentMessages(m);
-					(new CommandInvokeLater(new CommandUpdateChatHistory(m))).execute();
-					//agar dar hale vasl shodan nistim vasl sho
-					if(!((HttpClient)client).isConnectInProgress()){	//in kar tooye connect() khodash anjam mishavad inja baraye vozooh gozashtam
-						boolean connected = client.connect();
-						//agar vasl shodi unsent hara befrest
-						if(connected){
-							sendUnsentMessages();
-						}
-					}
-				}
+				//agar nist sabr kon ta nobate in thisMessage beshe dar queue
+				try{
+					Thread.sleep(10);
+				}catch(Exception e){}
 			}
+
 		};
 		
 		Thread th = new Thread(r);
 		th.start();
 
+	}
+	
+	public void connectWithCooldown(){
+		long time = System.currentTimeMillis();
+		if(time - lastConnectTime > CONNECT_COOLDOWN){
+			client.connect();
+			lastConnectTime = time;
+		}
+	}
+	
+    public void saveHistory(){
+		history.save();
+    }
+	
+	private void addToUnsentMessages(ChatmanMessage message){
+		//accessing thread must have this lock
+		synchronized(unsentMessages){
+			this.unsentMessages.add(message);
+		}
+	}
+	
+	//anything that accesses Lists should be synchronized
+	public synchronized void addToAllMessages(ChatmanMessage message){
+		allConversationMessages.add(message);
 	}
 	
 	public ChatmanServer getServer(){
@@ -123,43 +139,111 @@ public class Chatman {
 		return client;
 	}
 	
-	public void addToUnsavedMessages(ChatmanMessage message){
-		unsavedMessages.add(message);
-	}
 	
-	//not thread safe
-    public void saveHistory(){
-		history.save(unsavedMessages);
-    }
-	
-	public synchronized void addToUnsentMessages(ChatmanMessage message){
-		this.unsentMessages.add(message);
-	}
-	
-	public synchronized void sendUnsentMessages(){
+	/**
+	 * A class that manages background tasks that happen in threads
+	 */
+	private class BgTasksManager implements Observer{
 		
-		ChatmanMessage unsents[] = new ChatmanMessage[unsentMessages.size()];
-		unsentMessages.toArray(unsents);
-		for(int i=0; i<unsents.length && client.isServerSet(); i++){
-			ChatmanMessage unsentMessage = unsents[i];
-			boolean success = client.send(unsentMessage);
-			if(success){
-				this.unsentMessages.remove(unsentMessage);
-				//remove the unsent one and add the sent one to the end
-				this.allConversationMessages.remove(unsentMessage);
-				this.allConversationMessages.add(unsentMessage);
+		private Thread unsentSenderThread;
+		
+		//starts threads/timers that should be running in the background
+		public void start(){
+			
+			//connect for the first time
+			Runnable r = () -> {
+				client.connect();
+			};
+			(new Thread(r)).start();
+			
+			//save history
+			Timer historyTimer = new Timer("history saver");
+			TimerTask historyTask = new TimerTask() {
+				@Override
+				public void run() {
+					saveHistory();
+				}
+			};
+			historyTimer.scheduleAtFixedRate(historyTask, 0, HISTORY_SAVE_INTERVAL);
+			
+			//save config
+			Timer configTimer = new Timer("config saver");
+			TimerTask configTask = new TimerTask() {
+				@Override
+				public void run() {
+					ChatmanConfig.getInstance().save();
+				}
+			};
+			configTimer.scheduleAtFixedRate(configTask, 0, CONFIG_SAVE_INTERVAL);	
+			
+			//send heartbeat
+			Timer heartBeatTimer = new Timer("heartbeat timer");
+			TimerTask heartBeatTask = new TimerTask() {
+				@Override
+				public void run() {
+					ChatmanMessage m = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
+					boolean connected = client.send(m);
+					if(!connected && !unsentMessages.isEmpty()){
+						client.connect();
+					}
+				}
+			};
+			heartBeatTimer.scheduleAtFixedRate(heartBeatTask, 0, HEARTBEAT_INTERVAL);
+			
+		}
+		
+		/**
+		 * is called from client when a server is found
+		 * @param o
+		 * @param arg 
+		 */
+		@Override
+		public synchronized void update(Observable o, Object arg) {
+			Runnable r = () -> {
+				sendUnsentMessages();
+			};
+			unsentSenderThread = new Thread(r);
+			unsentSenderThread.start();
+		}
+		
+		//is only called from update() which is only called when a server is set
+		private void sendUnsentMessages(){
+			synchronized(unsentMessages){
+
+				if(unsentMessages.isEmpty()){
+					return;
+				}
+
+				ChatmanMessage unsents[] = new ChatmanMessage[unsentMessages.size()];
+				unsentMessages.toArray(unsents);
+				for(int i=0; i<unsents.length; i++){
+					ChatmanMessage unsentMessage = unsents[i];
+					boolean success = client.send(unsentMessage);
+					if(success){
+						unsentMessages.remove(unsentMessage);
+						//remove the unsent one and add the sent one to the end
+						allConversationMessages.remove(unsentMessage);
+						allConversationMessages.add(unsentMessage);
+					}
+				}
+
+				String conversationTextAll = "";
+				for(ChatmanMessage message: allConversationMessages){
+					conversationTextAll += message.getDisplayableContent();
+				}
+				ChatFrame.getInstance().updateConversationTextAll(conversationTextAll);
+
 			}
 		}
-		
-		String conversationTextAll = "";
-		for(ChatmanMessage message: allConversationMessages){
-			conversationTextAll += message.getDisplayableContent();
+
+		public void waitForUnsentMessagesToBeSent(){
+			try{
+				if(unsentSenderThread != null){
+					unsentSenderThread.join();
+				}
+			}catch(InterruptedException e){}
 		}
-		ChatFrame.getInstance().updateConversationTextAll(conversationTextAll);
-	}
-	
-	public void addToAllMessages(ChatmanMessage message){
-		allConversationMessages.add(message);
+
 	}
 	
 }

@@ -31,9 +31,10 @@ import java.util.Calendar;
 public class ChatmanHistory {
 	
 	private static String previousChatHistory = "";
+	private final ArrayList<ChatmanMessage> unsavedMessages = new ArrayList<ChatmanMessage>();
 	
-	public void save(ArrayList<ChatmanMessage> unsavedMessages){
-		
+	public synchronized void save(){
+
 		//we don't want to save empty stuff
         if(unsavedMessages.isEmpty())
             return;
@@ -47,7 +48,11 @@ public class ChatmanHistory {
             con = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
             con.setAutoCommit(false);
 			
-			for(ChatmanMessage message: unsavedMessages){
+			ChatmanMessage unsaveds[] = new ChatmanMessage[unsavedMessages.size()];
+			unsavedMessages.toArray(unsaveds);
+			for(int i=0; i<unsaveds.length; i++){
+				
+				ChatmanMessage message = unsaveds[i];
 				long messageTime = message.getTime();
 				//set message date to 00:00:00 of the day the message was sent
 				Calendar messageDate = Calendar.getInstance();
@@ -81,6 +86,8 @@ public class ChatmanHistory {
 					con.commit();	
 					stmt.close();
 				}
+				//if success
+				unsavedMessages.remove(message);
 
 			}
 			
@@ -89,11 +96,11 @@ public class ChatmanHistory {
         } catch ( Exception e ) {
             ChatFrame.getInstance().message(Helper.getInstance().getStr("history_save_fail") + e.getMessage());
         }
-		
+				
 	}
 	
-	public String load(int day){
-		return "";
+	public synchronized void addToUnsavedMessages(ChatmanMessage message){
+		unsavedMessages.add(message);
 	}
 	
 	public static void storeCurrentHistory(String history){

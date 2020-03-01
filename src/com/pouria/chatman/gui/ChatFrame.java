@@ -1123,9 +1123,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			}
 
 		}
-		
-		chatman.startUnsentWatcher();
-		
+				
     }
     
     //Called from myInits()
@@ -1288,7 +1286,6 @@ public class ChatFrame extends javax.swing.JFrame {
      
 		conversationTextAll += message.getDisplayableContent();
 		chatman.addToAllMessages(message);
-		chatman.addToUnsavedMessages(message);
 		updateTextAreaConversation(conversationTextAll);
 		        
     }
@@ -1411,7 +1408,6 @@ public class ChatFrame extends javax.swing.JFrame {
 	//TODO: add some visual effects like hover and shit
     //TODO: check history sent/unsent color
 	//TODO: check history scroll behavior
-	//TODO: save history/config
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

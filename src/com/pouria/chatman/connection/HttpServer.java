@@ -76,15 +76,10 @@ public class HttpServer implements ChatmanServer{
 		//we do this in a thread because if we block request takes too long and times out
 		private void notifyServerIsUp(String serverIP){
 			final String ip = serverIP;
-			Runnable r = new Runnable() {
-				@Override
-				public void run() {
-					ChatFrame.getInstance().getChatmanInstance().getClient().setServer(ip);
-					ChatFrame.getInstance().getChatmanInstance().sendUnsentMessages();
-				}
+			Runnable r = () -> {
+				ChatFrame.getInstance().getChatmanInstance().getClient().setServer(ip);
 			};
-			Thread th = new Thread(r);
-			th.start();
+			(new Thread(r)).start();
 		}
 	}
 	

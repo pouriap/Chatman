@@ -25,6 +25,8 @@ import com.pouria.chatman.ChatmanConfig;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -42,7 +44,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
  *
  * @author pouriap
  */
-public class HttpClient implements ChatmanClient{
+public class HttpClient extends Observable implements ChatmanClient{
 	
 	private String serverIP = null;
 	private boolean connectInProgress = false;
@@ -50,10 +52,11 @@ public class HttpClient implements ChatmanClient{
 	private final RequestConfig configTimeoutFile;
 	private final int timeoutMillis = 300;	//millis
 	private final int timeoutMillisFile = 5;	//mins
-	private final ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
+
 	
 	public HttpClient(){
-		configTimeoutText = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+		configTimeoutText = RequestConfig.custom()
+			.setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
 			.setResponseTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
 			.setConnectionRequestTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
 			.build();
@@ -66,7 +69,11 @@ public class HttpClient implements ChatmanClient{
 
 	//this function is blocking!
 	@Override
-	public boolean send(ChatmanMessage message){
+	public synchronized boolean send(ChatmanMessage message){
+		
+		if(serverIP == null){
+			return false;
+		}
 
 		boolean success;
 
@@ -172,7 +179,7 @@ public class HttpClient implements ChatmanClient{
 
 	@Override
 	//this is blocking!
-	public boolean connect(){
+	public synchronized boolean connect(){
 		
 		if(connectInProgress){
 			return false;
@@ -204,10 +211,6 @@ public class HttpClient implements ChatmanClient{
 		
 	}
 	
-	public boolean isConnectInProgress(){
-		return connectInProgress;
-	}
-	
 	private String[] getIpsToScan(){
 		
 		String[] ipsToScan;
@@ -233,6 +236,8 @@ public class HttpClient implements ChatmanClient{
 	public synchronized void setServer(Object server) {
 		this.serverIP = (String) server;
 		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + this.serverIP + Helper.getInstance().getStr("stablished")))).execute();
+		setChanged();
+		notifyObservers();
 	}
 	
 	private synchronized void removeServer(){
@@ -241,15 +246,8 @@ public class HttpClient implements ChatmanClient{
 	}
 
 	@Override
-	public boolean isServerSet(){
-		
-		if(this.serverIP == null){
-			return false;
-		}return true;
-		
-		//ChatmanMessage pingMessage = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
-		//boolean success = send(pingMessage);
-		//return success;
+	public void addListener(Observer o){
+		addObserver(o);
 	}
 	
 }

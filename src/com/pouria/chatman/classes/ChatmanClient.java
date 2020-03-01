@@ -17,13 +17,14 @@
 package com.pouria.chatman.classes;
 
 import com.pouria.chatman.ChatmanMessage;
+import java.util.Observer;
 
 /**
  * every method in this class should be blocking!!!
  *
  * @author pouriap
  */
-public interface ChatmanClient {
+public interface ChatmanClient{
 
 	/**
 	 * sends a ChatmanMessage to the other person we are talking to<br>
@@ -53,10 +54,7 @@ public interface ChatmanClient {
 	 */
 	public void setServer(Object server);
 	
-	/**
-	 * this function must be blocking!
-	 * @return 
-	 */
-	public boolean isServerSet();
+	
+	public void addListener(Observer o);
 	
 }
