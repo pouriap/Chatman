@@ -43,6 +43,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -76,6 +77,9 @@ public class ChatFrame extends javax.swing.JFrame {
 	private boolean inputEnabled = true;
 	private AdjustmentListener scrollListenerAlwaysDown;
 	PopupDialog newMessagePopup;
+	
+	private final Color colorLabelHovered = new Color(81, 81, 81);
+	private final Color colorLabelNormal = new Color(51, 51, 51);
 	
 
 	
@@ -424,6 +428,15 @@ public class ChatFrame extends javax.swing.JFrame {
         labelNextEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelNextEmojiPage.setOpaque(true);
         labelNextEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                labelNextEmojiPageMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                labelNextEmojiPageMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                labelNextEmojiPageMousePressed(evt);
+            }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 labelNextEmojiPageMouseReleased(evt);
             }
@@ -440,6 +453,15 @@ public class ChatFrame extends javax.swing.JFrame {
         labelPrevEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelPrevEmojiPage.setOpaque(true);
         labelPrevEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                labelPrevEmojiPageMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                labelPrevEmojiPageMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                labelPrevEmojiPageMousePressed(evt);
+            }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 labelPrevEmojiPageMouseReleased(evt);
             }
@@ -456,8 +478,17 @@ public class ChatFrame extends javax.swing.JFrame {
         labelSend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelSend.setOpaque(true);
         labelSend.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                labelSendMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                labelSendMouseExited(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 labelSendMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                labelSendMouseReleased(evt);
             }
         });
         getContentPane().add(labelSend);
@@ -472,6 +503,15 @@ public class ChatFrame extends javax.swing.JFrame {
         labelClear.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelClear.setOpaque(true);
         labelClear.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                labelClearMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                labelClearMouseExited(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                labelClearMousePressed(evt);
+            }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 labelClearMouseReleased(evt);
             }
@@ -667,7 +707,8 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_panelPopupNormalMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
-        clearInputText();
+		buttonMouseUP((JLabel)evt.getComponent());
+		clearInputText();
     }//GEN-LAST:event_labelClearMouseReleased
 
     private void textAreaInputMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaInputMouseReleased
@@ -771,12 +812,12 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuWakeOnLanActionPerformed
 
     private void labelNextEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseReleased
-        
+        buttonMouseUP((JLabel)evt.getComponent());
 		nextEmojiPage();
     }//GEN-LAST:event_labelNextEmojiPageMouseReleased
 
     private void labelPrevEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseReleased
-        
+		buttonMouseUP((JLabel)evt.getComponent());
 		prevEmojiPage();
     }//GEN-LAST:event_labelPrevEmojiPageMouseReleased
 
@@ -813,7 +854,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuChangeBgMouseReleased
 
     private void labelSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMousePressed
-		sendInputText();
+		buttonMouseDown((JLabel)evt.getComponent());
     }//GEN-LAST:event_labelSendMousePressed
 
     private void textAreaInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaInputKeyPressed
@@ -858,6 +899,55 @@ public class ChatFrame extends javax.swing.JFrame {
     private void scrollPaneConversationMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_scrollPaneConversationMouseEntered
         scrollPaneConversation.getVerticalScrollBar().removeAdjustmentListener(scrollListenerAlwaysDown);
     }//GEN-LAST:event_scrollPaneConversationMouseEntered
+
+    private void labelSendMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseEntered
+		buttonMouseEntered((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelSendMouseEntered
+
+    private void labelSendMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseExited
+		buttonMouseExitted((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelSendMouseExited
+
+    private void labelClearMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseEntered
+		buttonMouseEntered((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelClearMouseEntered
+
+    private void labelClearMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseExited
+		buttonMouseExitted((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelClearMouseExited
+
+    private void labelPrevEmojiPageMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseEntered
+		buttonMouseEntered((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelPrevEmojiPageMouseEntered
+
+    private void labelPrevEmojiPageMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseExited
+        buttonMouseExitted((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelPrevEmojiPageMouseExited
+
+    private void labelNextEmojiPageMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseEntered
+		buttonMouseEntered((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelNextEmojiPageMouseEntered
+
+    private void labelNextEmojiPageMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseExited
+        buttonMouseExitted((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelNextEmojiPageMouseExited
+
+    private void labelSendMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseReleased
+        buttonMouseUP((JLabel)evt.getComponent());
+		sendInputText();
+    }//GEN-LAST:event_labelSendMouseReleased
+
+    private void labelPrevEmojiPageMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMousePressed
+        buttonMouseDown((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelPrevEmojiPageMousePressed
+
+    private void labelNextEmojiPageMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMousePressed
+        buttonMouseDown((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelNextEmojiPageMousePressed
+
+    private void labelClearMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMousePressed
+        buttonMouseDown((JLabel)evt.getComponent());
+    }//GEN-LAST:event_labelClearMousePressed
 
     /**
      * @param args the command line arguments
@@ -1016,9 +1106,9 @@ public class ChatFrame extends javax.swing.JFrame {
 			{
 				{"steal", "taichi", "teehee", "what", "yeah"},
 				{"yesss", "yipee", "dancingg", "bat", "na"},
-				{"na", "na", "na", "na", "na"},
-				{"na", "na", "na", "na", "na"},
-				{"na", "na", "na", "na", "na"}
+				{"null", "null", "null", "null", "null"},
+				{"null", "null", "null", "null", "null"},
+				{"null", "null", "null", "null", "null"}
 			}
         };
 		nextEmojiPage();
@@ -1208,10 +1298,14 @@ public class ChatFrame extends javax.swing.JFrame {
 				for(int col = 0;col<5;col++){
 					String name = emoticonsArray[row][col];
 					URL url = getClass().getResource("/resources/emoticons/" + name + ".gif");
-					if(url != null)
-						name = url.toString();
-					String h = "<html><img src='" + name + "' /></html>";
-					model.setValueAt(h, row, col);
+					String html;
+					if(url == null){
+						html = "<html></html>";
+					}
+					else{
+						html = "<html><img src='" + url.toString() + "' /></html>";
+					}
+					model.setValueAt(html, row, col);
 				}
 			}
 			
@@ -1327,7 +1421,25 @@ public class ChatFrame extends javax.swing.JFrame {
     public void clearInputText(){
         updateInputText("", false);
     }
-    
+	
+	private void buttonMouseEntered(JLabel label){
+		label.setBackground(colorLabelHovered);
+	}
+	
+	private void buttonMouseExitted(JLabel label){
+		label.setBackground(colorLabelNormal);
+		//if mouse left while being held down
+		buttonMouseUP(label);
+	}
+	
+	private void buttonMouseDown(JLabel label){
+		label.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+	}
+	
+	private void buttonMouseUP(JLabel label){
+		label.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+	}
+	 
     //well, sets the background
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
@@ -1343,15 +1455,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	public String getUserName(){
 		return this.username;
 	}
-	
-	public void disableInputTextArea(){
-		textAreaInput.setEnabled(false);
-	}
-	
-	public void enableInputTextArea(){
-		textAreaInput.setEnabled(true);
-	}
-    
+	   
     //gives us the hero that we don't deserve
     public Chatman getChatmanInstance(){
         return chatman;
@@ -1376,13 +1480,7 @@ public class ChatFrame extends javax.swing.JFrame {
         m = "<html><span style='font-size:14px;'>" + m + "</span></html>";
         JOptionPane.showMessageDialog(null, m);
     } 
-	
-	public void setInputEnabled(boolean enabled){
-		textAreaInput.setEnabled(enabled);
-		labelSend.setEnabled(enabled);
-		this.inputEnabled = enabled;
-	}
-    
+	  
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
         return !this.isVisible() && !newMessagePopup.isVisible();
@@ -1404,10 +1502,6 @@ public class ChatFrame extends javax.swing.JFrame {
         ChatmanConfig.getInstance().save();
         System.exit(exitCode);
     }
-
-	//TODO: add some visual effects like hover and shit
-    //TODO: check history sent/unsent color
-	//TODO: check history scroll behavior
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

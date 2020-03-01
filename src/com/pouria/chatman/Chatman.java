@@ -164,7 +164,7 @@ public class Chatman {
 					saveHistory();
 				}
 			};
-			historyTimer.scheduleAtFixedRate(historyTask, 0, HISTORY_SAVE_INTERVAL);
+			historyTimer.scheduleAtFixedRate(historyTask, HISTORY_SAVE_INTERVAL, HISTORY_SAVE_INTERVAL);
 			
 			//save config
 			Timer configTimer = new Timer("config saver");
@@ -174,7 +174,7 @@ public class Chatman {
 					ChatmanConfig.getInstance().save();
 				}
 			};
-			configTimer.scheduleAtFixedRate(configTask, 0, CONFIG_SAVE_INTERVAL);	
+			configTimer.scheduleAtFixedRate(configTask, CONFIG_SAVE_INTERVAL, CONFIG_SAVE_INTERVAL);	
 			
 			//send heartbeat
 			Timer heartBeatTimer = new Timer("heartbeat timer");
@@ -188,7 +188,7 @@ public class Chatman {
 					}
 				}
 			};
-			heartBeatTimer.scheduleAtFixedRate(heartBeatTask, 0, HEARTBEAT_INTERVAL);
+			heartBeatTimer.scheduleAtFixedRate(heartBeatTask, 1000, HEARTBEAT_INTERVAL);
 			
 		}
 		
@@ -217,13 +217,14 @@ public class Chatman {
 				ChatmanMessage unsents[] = new ChatmanMessage[unsentMessages.size()];
 				unsentMessages.toArray(unsents);
 				for(int i=0; i<unsents.length; i++){
-					ChatmanMessage unsentMessage = unsents[i];
-					boolean success = client.send(unsentMessage);
+					ChatmanMessage message = unsents[i];
+					boolean success = client.send(message);
 					if(success){
-						unsentMessages.remove(unsentMessage);
+						unsentMessages.remove(message);
 						//remove the unsent one and add the sent one to the end
-						allConversationMessages.remove(unsentMessage);
-						allConversationMessages.add(unsentMessage);
+						allConversationMessages.remove(message);
+						allConversationMessages.add(message);
+						history.addToUnsavedMessages(message);
 					}
 				}
 
