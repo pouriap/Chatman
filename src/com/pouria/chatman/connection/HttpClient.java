@@ -125,13 +125,19 @@ public class HttpClient extends Observable implements ChatmanClient{
 			else{
 				reason = "http request returned code: " + code;
 				success = false;
-				Helper.getInstance().log("sending text message failed. reason: " + reason);
+				//don'g log the pings
+				if(message.getType() != ChatmanMessage.TYPE_PING){
+					Helper.getInstance().log("sending text message failed. reason: " + reason);
+				}
 			}
 			
 		}catch(Exception e){
 			reason = "http request could not be sent: " + e.getMessage();
 			success = false;
-			Helper.getInstance().log("sending text message failed. reason: " + reason);
+			//don't log the pings
+			if(message.getType() != ChatmanMessage.TYPE_PING){
+				Helper.getInstance().log("sending text message failed. reason: " + reason);
+			}
 		}
 		
 		return success;

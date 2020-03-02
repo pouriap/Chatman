@@ -162,11 +162,11 @@ public class ChatmanMessage {
 		else if(this.type == TYPE_ABORT_SHUTDOWN){
 			t = "[ABORT SHUTDOWN COMMAND]";
 		}
-		String senderColor = (!isSent && isOurMessage)? "red" : "white";
+		String color = (!isSent && isOurMessage)? "red" : "white";
 		String senderName = (isOurMessage)? "You" : sender;
 		
 		//each message is a div
-		t = "<div style='padding:5px;'><span class='time'>["+_time+"]  |  </span><b style='font-size:14px;color:"+senderColor+"'>" + senderName + ":</b> " + t + "</div>";
+		t = "<div style='padding:5px;'><span style='color:"+color+"' class='time'>["+_time+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + t + "</div>";
         return t;
 	}
 	

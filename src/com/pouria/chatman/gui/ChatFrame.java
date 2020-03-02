@@ -11,6 +11,7 @@ import com.pouria.chatman.ChatmanHistory;
 import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
+import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.HistoryTablePagination;
 import java.awt.AWTException;
 import java.awt.Color;
@@ -894,18 +895,24 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_labelBatMouseReleased
 
     private void textAreaConversationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseClicked
+
+		if(evt.getButton() == MouseEvent.BUTTON1){
+			return;
+		}
+		
+		HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
+		
 		if(conversationPaneCssToggle == 1){
-			HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 			kit.setStyleSheet(cssShowTime);
-			textAreaConversation.setEditorKit(kit);
-			updateTextAreaConversation(conversationTextAll);
 		}
 		else{
-			HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 			kit.setStyleSheet(cssHideTime);
-			textAreaConversation.setEditorKit(kit);
-			updateTextAreaConversation(conversationTextAll);
 		}
+		
+		textAreaConversation.setEditorKit(kit);
+		textAreaConversation.setText(defaultTextAreaHtml);
+		updateTextAreaConversation(conversationTextAll);
+
 		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
     }//GEN-LAST:event_textAreaConversationMouseClicked
 
@@ -1025,13 +1032,9 @@ public class ChatFrame extends javax.swing.JFrame {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
                 try {
-                    //clear any text
-                    clearInputText();
-                    
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> droppedFiles = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
-                        textAreaInput.setText(file.getAbsolutePath());
                         //check file size
                         int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size", ChatmanConfig.DEFAULT_FILEDROP_SIZEWARNING));
                         if(file.length()> max*1000*1000){
@@ -1048,7 +1051,6 @@ public class ChatFrame extends javax.swing.JFrame {
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
 						chatman.sendMessage(fileMessage);
-						clearInputText();
                     }
                 } catch (Exception ex) {
                     message(Helper.getInstance().getStr("open_file_fail"));
@@ -1444,6 +1446,9 @@ public class ChatFrame extends javax.swing.JFrame {
         String html = textAreaConversation.getText();
 		Document doc = Jsoup.parse(html);
 		Element textDiv = doc.select("body#text").first();
+		if(textDiv == null){
+			(new CommandInvokeLater(new CommandFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+		}
 		textDiv.html(text);
 		textAreaConversation.setText(doc.outerHtml());
 	}
@@ -1453,6 +1458,9 @@ public class ChatFrame extends javax.swing.JFrame {
         String html = textAreaInput.getText();
 		Document doc = Jsoup.parse(html);
 		Element textDiv = doc.select("body#text").first();
+		if(textDiv == null){
+			(new CommandInvokeLater(new CommandFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+		}
 		if(append){
 			textDiv.append(t);
 		}
@@ -1466,6 +1474,9 @@ public class ChatFrame extends javax.swing.JFrame {
         String html = textAreaInput.getText();
 		Document doc = Jsoup.parse(html);
 		Element textDiv = doc.select("body#text").first();
+		if(textDiv == null){
+			(new CommandInvokeLater(new CommandFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+		}
 		return textDiv.html();
     }
     

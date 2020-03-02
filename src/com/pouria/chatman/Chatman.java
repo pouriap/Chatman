@@ -158,9 +158,11 @@ public class Chatman {
 		//starts threads/timers that should be running in the background
 		public void start(){
 			
-			//connect for the first time
+			//connect for the first time and send a first ping letting them know we're up
 			Runnable r = () -> {
 				client.connect();
+				ChatmanMessage m = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
+				client.send(m);
 			};
 			(new Thread(r)).start();
 			
@@ -196,7 +198,7 @@ public class Chatman {
 					}
 				}
 			};
-			heartBeatTimer.scheduleAtFixedRate(heartBeatTask, 1000, HEARTBEAT_INTERVAL);
+			heartBeatTimer.scheduleAtFixedRate(heartBeatTask, HEARTBEAT_INTERVAL, HEARTBEAT_INTERVAL);
 			
 		}
 		

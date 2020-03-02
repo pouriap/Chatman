@@ -7,3 +7,5 @@ log*.txt*
 /config.conf
 dist/
 /config.conf
+/history.sqlite
+/dist/Chatman.jar
