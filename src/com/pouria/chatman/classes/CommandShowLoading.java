@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Pouria Pirhadi
+ * Copyright (C) 2020 pouriap
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,24 +16,23 @@
  */
 package com.pouria.chatman.classes;
 
-import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
  * @author pouriap
  */
-public class CommandUpdateChatHistory implements Command{
-    ChatFrame gui;
-    ChatmanMessage message;
-    
-    public CommandUpdateChatHistory(ChatmanMessage message){
-        this.gui = ChatFrame.getInstance();
-        this.message = message;
-    }
-    
-    @Override
-    public void execute(){
-        gui.addToConversation(message);
-    }
+public class CommandShowLoading implements Command{
+
+	boolean visible;
+	
+	public CommandShowLoading(boolean visible){
+		this.visible = visible;
+	}
+	
+	@Override
+	public void execute() {
+		ChatFrame.getInstance().setLoadingVisible(visible);
+	}
+	
 }

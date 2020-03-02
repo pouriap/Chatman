@@ -19,7 +19,7 @@ package com.pouria.chatman;
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandUpdateChatHistory;
+import com.pouria.chatman.classes.CommandUpdateConversation;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
 import com.pouria.chatman.gui.ChatFrame;
@@ -82,7 +82,7 @@ public class Chatman {
 				//agar in message avvalin message dar saf ast anra befrest
 				if(firstMessage.equals(thisMessage)){
 					boolean success = client.send(thisMessage);
-					(new CommandInvokeLater(new CommandUpdateChatHistory(thisMessage))).execute();
+					(new CommandInvokeLater(new CommandUpdateConversation(thisMessage))).execute();
 					if(success){
 						history.addToUnsavedMessages(m);
 					}
@@ -137,6 +137,14 @@ public class Chatman {
 	
 	public ChatmanClient getClient(){
 		return client;
+	}
+	
+	public long getLastMessageTime(){
+		if(allConversationMessages.isEmpty()){
+			return System.currentTimeMillis();
+		}
+		ChatmanMessage lastMessage = allConversationMessages.get(allConversationMessages.size()-1);
+		return lastMessage.getTime();
 	}
 	
 	

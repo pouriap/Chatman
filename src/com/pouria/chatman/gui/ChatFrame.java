@@ -66,6 +66,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private static ChatFrame instance = null; 
     private Chatman chatman;
     private String[] defaultTextAreaHtml;
+	private String oldMessagesHrHtml;
 	private StyleSheet cssHideTime;
 	private StyleSheet cssShowTime;
 	private int conversationPaneCssToggle = 1;
@@ -81,8 +82,11 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final Color colorLabelHovered = new Color(81, 81, 81);
 	private final Color colorLabelNormal = new Color(51, 51, 51);
 	
+	private final long HR_TIMEDIFF = 1000*60*60;	//1hour
 
 	
+	
+
     private ChatFrame(){
         initComponents();
     }
@@ -130,6 +134,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelClear = new javax.swing.JLabel();
         labelStatusLabl = new javax.swing.JLabel();
         labelStatus = new javax.swing.JLabel();
+        labelLoading = new javax.swing.JLabel();
         labelStatusBackground = new javax.swing.JLabel();
         labelFrameBg = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -331,6 +336,7 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         getContentPane().setLayout(null);
 
+        scrollPaneConversation.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.gray));
         scrollPaneConversation.setOpaque(false);
         scrollPaneConversation.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -339,7 +345,7 @@ public class ChatFrame extends javax.swing.JFrame {
         });
 
         textAreaConversation.setEditable(false);
-        textAreaConversation.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        textAreaConversation.setBorder(null);
         textAreaConversation.setContentType("text/html"); // NOI18N
         textAreaConversation.setAutoscrolls(false);
         textAreaConversation.setOpaque(false);
@@ -361,10 +367,10 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(scrollPaneConversation);
         scrollPaneConversation.setBounds(20, 20, 455, 210);
 
-        scrollPaneInput.setBorder(null);
+        scrollPaneInput.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.gray));
         scrollPaneInput.setOpaque(false);
 
-        textAreaInput.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        textAreaInput.setBorder(null);
         textAreaInput.setContentType("text/html"); // NOI18N
         textAreaInput.setCaretColor(new java.awt.Color(255, 255, 255));
         textAreaInput.setOpaque(false);
@@ -391,7 +397,7 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelInputBg);
         labelInputBg.setBounds(20, 330, 270, 150);
 
-        tableEmojis.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 153, 153), 1, true));
+        tableEmojis.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.gray));
         tableEmojis.setForeground(new java.awt.Color(255, 255, 255));
         tableEmojis.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -519,23 +525,29 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelClear);
         labelClear.setBounds(160, 490, 130, 30);
 
-        labelStatusLabl.setForeground(new java.awt.Color(255, 255, 255));
+        labelStatusLabl.setBackground(new java.awt.Color(51, 51, 51));
+        labelStatusLabl.setForeground(new java.awt.Color(51, 51, 51));
         labelStatusLabl.setText("Status:");
         getContentPane().add(labelStatusLabl);
         labelStatusLabl.setBounds(20, 560, 150, 30);
 
-        labelStatus.setForeground(new java.awt.Color(255, 255, 255));
-        labelStatus.setText("Offline");
+        labelStatus.setBackground(new java.awt.Color(51, 51, 51));
+        labelStatus.setForeground(new java.awt.Color(51, 51, 51));
+        labelStatus.setText("در حال جستجوی شبکه");
         getContentPane().add(labelStatus);
         labelStatus.setBounds(170, 560, 300, 30);
 
-        labelStatusBackground.setBackground(new java.awt.Color(51, 51, 51));
+        labelLoading.setIcon(new javax.swing.ImageIcon("C:\\Users\\Pouria\\Desktop\\4321.gif")); // NOI18N
+        getContentPane().add(labelLoading);
+        labelLoading.setBounds(310, 557, 50, 40);
+
+        labelStatusBackground.setBackground(new java.awt.Color(239, 239, 239));
         labelStatusBackground.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelStatusBackground.setAlignmentY(0.0F);
         labelStatusBackground.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.darkGray));
         labelStatusBackground.setOpaque(true);
         getContentPane().add(labelStatusBackground);
-        labelStatusBackground.setBounds(-5, 560, 500, 40);
+        labelStatusBackground.setBounds(-5, 560, 560, 40);
 
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
         labelFrameBg.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -545,6 +557,8 @@ public class ChatFrame extends javax.swing.JFrame {
         labelFrameBg.setPreferredSize(new java.awt.Dimension(500, 600));
         getContentPane().add(labelFrameBg);
         labelFrameBg.setBounds(0, 0, 494, 600);
+
+        jMenuBar1.setBackground(new java.awt.Color(204, 204, 204));
 
         menuFile.setText("گزینه ها");
         menuFile.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -1133,6 +1147,10 @@ public class ChatFrame extends javax.swing.JFrame {
 		textAreaConversation.setEditorKit(tkit);		
         clearInputText();
         clearTextAreaConversation();
+		
+		
+		//HTML of old messages line
+		oldMessagesHrHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>older messages<br>____________________________________________________<br></div>";
         
         
         //Make ScrollPanes invisible
@@ -1156,7 +1174,8 @@ public class ChatFrame extends javax.swing.JFrame {
         Toolkit kit = Toolkit.getDefaultToolkit();
         Image img = kit.createImage(url);
         this.setIconImage(img);
-        
+
+		
         //history dialog
         url = getClass().getResource("/resources/history.png");
         img = kit.createImage(url);
@@ -1228,6 +1247,7 @@ public class ChatFrame extends javax.swing.JFrame {
         final TrayIcon trayIcon = new TrayIcon(ticon.getImage());
 		final SystemTray tray = SystemTray.getSystemTray();
 		final PopupMenu popup = new PopupMenu();
+
 		
         // create a right-click menu 
         MenuItem openItem = new MenuItem("Open");
@@ -1377,7 +1397,12 @@ public class ChatFrame extends javax.swing.JFrame {
         else if(!this.isActive()){
             newMessagePopup.playSound();
         }
-     
+		
+		//put a horizontal line if last message is too old
+		if(message.getTime() - chatman.getLastMessageTime() > HR_TIMEDIFF){
+			conversationTextAll += oldMessagesHrHtml;
+		}
+
 		conversationTextAll += message.getDisplayableContent();
 		chatman.addToAllMessages(message);
 		updateTextAreaConversation(conversationTextAll);
@@ -1480,6 +1505,11 @@ public class ChatFrame extends javax.swing.JFrame {
         m = "<html><span style='font-size:14px;'>" + m + "</span></html>";
         JOptionPane.showMessageDialog(null, m);
     } 
+	
+	//shows loading gif
+	public void setLoadingVisible(boolean visible){
+		labelLoading.setVisible(visible);
+	}
 	  
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
@@ -1495,6 +1525,9 @@ public class ChatFrame extends javax.swing.JFrame {
 	public void showWindow(){
 		this.setVisible(true);
 	}
+	
+	//TODO: control+v appends to text even when all of it is selected
+	//TODO: mishe farsi rast chin beshe??
 	
     //the end of chatman. that's it. no auto pilot :(
     public synchronized void exit(int exitCode){
@@ -1516,6 +1549,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelConvoBg;
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelInputBg;
+    private javax.swing.JLabel labelLoading;
     private javax.swing.JLabel labelMessageIcon;
     private javax.swing.JLabel labelNewMessage;
     private javax.swing.JLabel labelNextEmojiPage;

@@ -22,6 +22,7 @@ import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandSetLabelStatus;
 import com.pouria.chatman.ChatmanConfig;
+import com.pouria.chatman.classes.CommandShowLoading;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -189,6 +190,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 		removeServer();
 
 		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("searching_network")))).execute();
+		(new CommandInvokeLater(new CommandShowLoading(true))).execute();
 		
         int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
 		String[] ipsToScan = getIpsToScan();
@@ -206,6 +208,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 		}
 		
 		connectInProgress = false;
+		(new CommandInvokeLater(new CommandShowLoading(false))).execute();
 		
 		return success;
 		
