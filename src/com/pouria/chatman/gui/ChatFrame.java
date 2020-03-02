@@ -53,6 +53,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  *
@@ -65,7 +68,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private static ChatFrame instance = null; 
     private Chatman chatman;
-    private String[] defaultTextAreaHtml;
+    private String defaultTextAreaHtml;
 	private String oldMessagesHrHtml;
 	private StyleSheet cssHideTime;
 	private StyleSheet cssShowTime;
@@ -1018,8 +1021,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		newMessagePopup.setMode(PopupDialog.MODE_BAT);
 		
         //TextArea Dorp
-        //We read the whole file as text and then base64_encode it which causes a LOT of memory
-        //to be consumed. But i'm lazy, so it's ok.
         textAreaInput.setDropTarget(new DropTarget() {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
@@ -1066,7 +1067,34 @@ public class ChatFrame extends javax.swing.JFrame {
 				JTextField tempField = new JTextField();
 				tempField.paste();
 				String pastedText = tempField.getText();
-                updateInputText(pastedText, true);
+				//agar ax darim faghat akhar paste kon chon nemish
+				if(getInputText().contains("<img")){
+					updateInputText(pastedText, true);
+					return;
+				}
+				//vaghti yek ghesmat as text select shode va mikhaim oonja paste konim				
+				String selectedText = textAreaInput.getSelectedText();
+				if(selectedText!=null && !selectedText.isEmpty()){
+					String currentText = textAreaInput.getText();
+					currentText = currentText.replace(selectedText, pastedText);
+					textAreaInput.setText(currentText);
+					return;
+				}
+				//vaghti vasate text paste mikonim
+				int currentCaretPos = textAreaInput.getCaretPosition();
+				textAreaInput.setCaretPosition(textAreaInput.getDocument().getLength());
+				int lastCaretPos = textAreaInput.getCaretPosition();
+				if(currentCaretPos != lastCaretPos){
+					String currentText = getInputText();
+					String firstHalf = currentText.substring(0, currentCaretPos-1);
+					String secondHalf = currentText.substring(currentCaretPos-1, currentText.length());
+					updateInputText(firstHalf+pastedText+secondHalf, false);
+					textAreaInput.setCaretPosition(currentCaretPos + pastedText.length());
+					return;
+				}
+				//vaghti akhare text paste mikonim
+				updateInputText(pastedText, true);
+				
             }
         };
 		
@@ -1139,14 +1167,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		
         //Empty HTML Texts
-        defaultTextAreaHtml = new String[2];
-        defaultTextAreaHtml[0] = "<html><head><style type=\"text/css\">#text { color: white; font-family: Tahoma; font-size: 12px; }</style></head><body><div id=\"text\">";
-        defaultTextAreaHtml[1] = "</div></body></html>";
+        defaultTextAreaHtml = "<html><head><style type='text/css'>#text { color: white; font-family: Tahoma; font-size: 12px; }</style></head><body id='text'></body></html>";
 		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
 		textAreaConversation.setEditorKit(tkit);		
-        clearInputText();
-        clearTextAreaConversation();
+        textAreaInput.setText(defaultTextAreaHtml);
+		textAreaConversation.setText(defaultTextAreaHtml);
 		
 		
 		//HTML of old messages line
@@ -1409,48 +1435,50 @@ public class ChatFrame extends javax.swing.JFrame {
 		        
     }
 	
-	public void updateConversationTextAll(String text){
+	public void updateConversation(String text){
 		conversationTextAll = text;
 		updateTextAreaConversation(text);
 	}
     
-	public void updateTextAreaConversation(String text){
-		textAreaConversation.setText(defaultTextAreaHtml[0] + text + defaultTextAreaHtml[1]);
+	private void updateTextAreaConversation(String text){
+        String html = textAreaConversation.getText();
+		Document doc = Jsoup.parse(html);
+		Element textDiv = doc.select("body#text").first();
+		textDiv.html(text);
+		textAreaConversation.setText(doc.outerHtml());
 	}
-    
-    public void clearTextAreaConversation(){
-        updateTextAreaConversation("");
-    }
 	  
     //is called when we want to add something to the outgoing text like emoticons, paste stuff, or disconnect message
     public void updateInputText(String t, boolean append){
-
-        if(append){
-            textAreaInput.setText(defaultTextAreaHtml[0] + getInputText() + t + defaultTextAreaHtml[1]);
-        }
-        else{
-            textAreaInput.setText(defaultTextAreaHtml[0] + t + defaultTextAreaHtml[1]);
-        }
+        String html = textAreaInput.getText();
+		Document doc = Jsoup.parse(html);
+		Element textDiv = doc.select("body#text").first();
+		if(append){
+			textDiv.append(t);
+		}
+		else{
+			textDiv.html(t);
+		}
+		textAreaInput.setText(doc.outerHtml());
     }
     
-    //because i couldn't find a way to get the text in a clean manner, i am extracting stuff between <div></div> tags
-    //which i have added for this porpuse to defaultTextAreaHtml
     public String getInputText(){
-        String s = textAreaInput.getText();
-        if(!s.contains("<div id=\"text\">"))
-            return "";
-        return s.substring((s.indexOf("<div id=\"text\">"))+15, (s.indexOf("</div>"))-1).trim();
+        String html = textAreaInput.getText();
+		Document doc = Jsoup.parse(html);
+		Element textDiv = doc.select("body#text").first();
+		return textDiv.html();
     }
     
-    //clears textAreaInput
     public void clearInputText(){
         updateInputText("", false);
     }
 	
+	//do this when mouse enters a 'button'
 	private void buttonMouseEntered(JLabel label){
 		label.setBackground(colorLabelHovered);
 	}
 	
+	//do this when mouse exits a 'button'
 	private void buttonMouseExitted(JLabel label){
 		label.setBackground(colorLabelNormal);
 		//if mouse left while being held down
@@ -1465,7 +1493,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		label.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 	}
 	 
-    //well, sets the background
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
     }

@@ -6,3 +6,4 @@ nbdist/
 log*.txt*
 /config.conf
 dist/
+/config.conf

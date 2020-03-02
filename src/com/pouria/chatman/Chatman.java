@@ -240,7 +240,7 @@ public class Chatman {
 				for(ChatmanMessage message: allConversationMessages){
 					conversationTextAll += message.getDisplayableContent();
 				}
-				ChatFrame.getInstance().updateConversationTextAll(conversationTextAll);
+				ChatFrame.getInstance().updateConversation(conversationTextAll);
 
 			}
 		}
