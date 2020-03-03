@@ -162,6 +162,10 @@ public class ChatmanMessage {
 		else if(this.type == TYPE_ABORT_SHUTDOWN){
 			t = "[ABORT SHUTDOWN COMMAND]";
 		}
+		else{
+			//other message types don't have a display
+			return "";
+		}
 		String color = (!isSent && isOurMessage)? "red" : "white";
 		String senderName = (isOurMessage)? "You" : sender;
 		

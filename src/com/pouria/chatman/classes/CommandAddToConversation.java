@@ -23,11 +23,11 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CommandUpdateConversation implements Command{
+public class CommandAddToConversation implements Command{
     ChatFrame gui;
     ChatmanMessage message;
     
-    public CommandUpdateConversation(ChatmanMessage message){
+    public CommandAddToConversation(ChatmanMessage message){
         this.gui = ChatFrame.getInstance();
         this.message = message;
     }

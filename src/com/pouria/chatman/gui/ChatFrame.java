@@ -541,8 +541,10 @@ public class ChatFrame extends javax.swing.JFrame {
         labelStatus.setText("در حال جستجوی شبکه");
         getContentPane().add(labelStatus);
         labelStatus.setBounds(170, 560, 300, 30);
+
+        labelLoading.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/loading.gif"))); // NOI18N
         getContentPane().add(labelLoading);
-        labelLoading.setBounds(310, 557, 50, 40);
+        labelLoading.setBounds(310, 557, 40, 40);
 
         labelStatusBackground.setBackground(new java.awt.Color(239, 239, 239));
         labelStatusBackground.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1440,7 +1442,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		conversationTextAll += message.getDisplayableContent();
 		chatman.addToAllMessages(message);
 		updateTextAreaConversation(conversationTextAll);
-		        
+
     }
 	
 	public void updateConversation(String text){

@@ -19,7 +19,7 @@ package com.pouria.chatman;
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandUpdateConversation;
+import com.pouria.chatman.classes.CommandAddToConversation;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
 import com.pouria.chatman.gui.ChatFrame;
@@ -29,8 +29,6 @@ import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -49,9 +47,6 @@ public class Chatman {
 	private final int HEARTBEAT_INTERVAL = 1000 * 60; //60 sec
 	
 	private long lastConnectTime = 0;
-	
-	Lock unsavedLock = new ReentrantLock();
-	Lock unsentLock = new ReentrantLock();
 	
 	private final ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
 	private final ArrayList<ChatmanMessage> allConversationMessages = new ArrayList<ChatmanMessage>();
@@ -84,7 +79,7 @@ public class Chatman {
 				//agar in message avvalin message dar saf ast anra befrest
 				if(firstMessage.equals(thisMessage)){
 					boolean success = client.send(thisMessage);
-					(new CommandInvokeLater(new CommandUpdateConversation(thisMessage))).execute();
+					(new CommandInvokeLater(new CommandAddToConversation(thisMessage))).execute();
 					if(success){
 						history.addToUnsavedMessages(m);
 					}
@@ -131,6 +126,10 @@ public class Chatman {
 	//anything that accesses Lists should be synchronized
 	public synchronized void addToAllMessages(ChatmanMessage message){
 		allConversationMessages.add(message);
+	}
+	
+	public void addToUnsavedMessages(ChatmanMessage message){
+		history.addToUnsavedMessages(message);
 	}
 	
 	public ChatmanServer getServer(){
