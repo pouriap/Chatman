@@ -35,7 +35,7 @@ public class ChatmanConfig {
 	private final String CONFIG_FILE_NAME = "config.conf";
 	
 	public static final String DEFAULT_BG = "batman_1.jpg";
-	public static final String DEFAULT_SERVER_PORT = "9988";
+	public static final String DEFAULT_SERVER_PORT = "8645";
 	public static final String DEFAULT_SUBNET = "192.168.1.*";
 	public static final String DEFAULT_HOSTS_SCAN = "100";
 	public static final String DEFAULT_FILEDROP_SIZEWARNING = "50";
@@ -54,9 +54,11 @@ public class ChatmanConfig {
 			}
 			//if there isn't a config file try to create it
 			else{
+				Helper.getInstance().log("config file doesn't exist. creating it");
 				setAsDefault();
 				configFile.createNewFile();
 				config.store((new FileOutputStream(configFile)), "Automatically generated config file");
+				Helper.getInstance().log("default config file created successfully");
 			}
 		//if load/create fails it's a fatal error
 		}catch(Exception e){

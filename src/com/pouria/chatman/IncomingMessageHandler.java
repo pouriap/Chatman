@@ -140,7 +140,7 @@ public class IncomingMessageHandler {
 						ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, sender);
 						ChatFrame.getInstance().getChatmanInstance().sendMessage(message);
 					}catch(IOException e){
-						Helper.getInstance().log("abort failed");
+						Helper.getInstance().log("failed to abort local shutdown");
 						//tell the user abort failed. we don't tell the other computer because it's not necessary
 						(new CommandShowError(Helper.getInstance().getStr("shutdown-abort-fail"))).execute();  // we don't need invokelater because we're already in invokelater
 					}

@@ -19,9 +19,13 @@ package com.pouria.chatman;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.ResourceBundleWrapper;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.logging.FileHandler;
@@ -132,6 +136,29 @@ public class Helper {
 		}
 		
 		return localIp;
+	}
+	
+	public void checkDatabaseFile() throws Exception{
+		
+		File dbFile = new File("history.sqlite");
+		if(dbFile.isFile()){
+			return;
+		}
+
+		log("history.sqlite doesn't exist. creating it");
+		dbFile.createNewFile();
+		log("history.sqlite created successfully");
+		
+		log("creating database tables");
+		Connection con = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
+		Statement stmt = con.createStatement();
+		String query = "CREATE TABLE IF NOT EXISTS chat_sessions (id INTEGER PRIMARY KEY ASC AUTOINCREMENT UNIQUE NOT NULL, date INTEGER UNIQUE NOT NULL, text VARCHAR NOT NULL)";
+		stmt.execute(query);
+		
+		stmt.close();
+		con.close();
+		log("tables created succesffully");
+
 	}
 	
 	public synchronized void log(String msg){

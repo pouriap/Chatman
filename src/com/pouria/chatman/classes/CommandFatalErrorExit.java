@@ -50,7 +50,11 @@ public class CommandFatalErrorExit implements Command{
 		message += "\nThis is a fatal error, exitting application.";
 		message += "\nSee the logs for more info.";
         JOptionPane.showMessageDialog(null, message, "Fatal Error!", JOptionPane.ERROR_MESSAGE);
-		gui.exit(1);
+		try{
+			gui.exit(1);
+		}catch(Exception e){
+			System.exit(1);
+		}
     }
 	
     

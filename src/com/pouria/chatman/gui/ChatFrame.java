@@ -12,6 +12,7 @@ import com.pouria.chatman.ChatmanMessage;
 import com.pouria.chatman.Helper;
 import com.pouria.chatman.classes.CommandFatalErrorExit;
 import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CommandShowError;
 import com.pouria.chatman.classes.HistoryTablePagination;
 import java.awt.AWTException;
 import java.awt.Color;
@@ -540,8 +541,6 @@ public class ChatFrame extends javax.swing.JFrame {
         labelStatus.setText("در حال جستجوی شبکه");
         getContentPane().add(labelStatus);
         labelStatus.setBounds(170, 560, 300, 30);
-
-        labelLoading.setIcon(new javax.swing.ImageIcon("C:\\Users\\Pouria\\Desktop\\4321.gif")); // NOI18N
         getContentPane().add(labelLoading);
         labelLoading.setBounds(310, 557, 50, 40);
 
@@ -721,7 +720,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuExitActionPerformed
 
     private void panelPopupNormalMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelPopupNormalMouseReleased
-		popopClicked();
+		popopClicked(evt.getButton());
     }//GEN-LAST:event_panelPopupNormalMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
@@ -804,14 +803,14 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
-        JOptionPane.showMessageDialog(null, Helper.getInstance().getStr("license"), Helper.getInstance().getStr("about"), JOptionPane.PLAIN_MESSAGE, null);
+        JOptionPane.showMessageDialog(null, Helper.getInstance().getStr("license"), Helper.getInstance().getStr("about"), JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_menuAboutActionPerformed
 
     private void menuRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRemoteShutdownActionPerformed
 
 		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("remote_shutdown_message"), Helper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
+            ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
@@ -840,18 +839,19 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_labelPrevEmojiPageMouseReleased
 
     private void menuAbortLocalShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortLocalShutdownActionPerformed
-        
 		try{
 			Helper.getInstance().abortLocalShutdown();
+			String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
+            final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, username);
+			chatman.sendMessage(message);
 		}catch(IOException e){
 			Helper.getInstance().log("failed to abort local shutdown (from menu)");
-			message(Helper.getInstance().getStr("shutdown-abort-fail"));
+			(new CommandShowError(Helper.getInstance().getStr("shutdown-abort-fail"))).execute();  // we don't need invokelater because we're on GUI
 		}
     }//GEN-LAST:event_menuAbortLocalShutdownActionPerformed
 
     private void menuChangeBgMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuChangeBgMouseReleased
         
-		
 		boolean isLeftClick = SwingUtilities.isLeftMouseButton(evt);
 		
 		if(isLeftClick){
@@ -891,7 +891,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
     private void labelBatMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelBatMouseReleased
-        popopClicked();
+        popopClicked(evt.getButton());
     }//GEN-LAST:event_labelBatMouseReleased
 
     private void textAreaConversationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseClicked
@@ -1016,6 +1016,13 @@ public class ChatFrame extends javax.swing.JFrame {
     public void initialize(){
 		
 		createTrayIcon();
+		
+		//checks if history.sqlite exists and if not tries to create it
+		try{
+			Helper.getInstance().checkDatabaseFile();
+		}catch(Exception e){
+			(new CommandFatalErrorExit("history database cannot be created", e)).execute();
+		}
         
         //Locale
 		Helper.getInstance().setLocale(ChatmanConfig.getInstance().getLocale());
@@ -1046,7 +1053,7 @@ public class ChatFrame extends javax.swing.JFrame {
                         }
                         //send the file
 						String filePath = file.getAbsolutePath();
-						String sender = Helper.getInstance().getStr("file_sent");
+						String sender = Helper.getInstance().getStr("file_sent");			
 						final ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, sender);
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
@@ -1288,7 +1295,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		ActionListener actionOpen = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				popopClicked();
+				popopClicked(MouseEvent.BUTTON1);
 			}
 		};
 		ActionListener actionExit = new ActionListener() {
@@ -1406,7 +1413,6 @@ public class ChatFrame extends javax.swing.JFrame {
             return;
 
 		final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
-		message.setIsOurMessage(true);
 		chatman.sendMessage(message);
 		clearInputText();
 
@@ -1524,13 +1530,16 @@ public class ChatFrame extends javax.swing.JFrame {
         return chatman;
     }
 	
-	public void popopClicked(){
+	public void popopClicked(int mouseButton){
         //close the "New Message" popup and show the application window
         newMessagePopup.hidePopup();
-        //Show
-        showWindow();
-        //Focus
-        textAreaInput.requestFocus();
+		//if click show windows else just hide popup
+		if(mouseButton == MouseEvent.BUTTON1){
+			//Show
+			showWindow();
+			//Focus
+			textAreaInput.requestFocus();
+		}
 	}
 
     //sets the status label at the bottom
@@ -1564,8 +1573,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		this.setVisible(true);
 	}
 	
-	//TODO: control+v appends to text even when all of it is selected
-	//TODO: mishe farsi rast chin beshe??
 	
     //the end of chatman. that's it. no auto pilot :(
     public synchronized void exit(int exitCode){

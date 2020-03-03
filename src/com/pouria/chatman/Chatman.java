@@ -72,6 +72,8 @@ public class Chatman {
 		//bad az inke message tooye thread ferestade shod be tartib message ha ro be conversationpane ezafe mikonim
 		sendQueue.add(m);
 		
+		//if we're sending it it's our message
+		m.setIsOurMessage(true);
 		final ChatmanMessage thisMessage = m;
 		
 		Runnable r = () -> {
