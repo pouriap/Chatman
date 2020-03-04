@@ -61,11 +61,6 @@ public class Chatman {
 		sendQueue.process();
 	}
 	
-	//TODO: this doesn't belong here
-	public void addToUnsavedMessages(ChatmanMessage message){
-		history.addToUnsavedMessages(message);
-	}
-	
     public void saveHistory(){
 		history.save();
     }
@@ -91,8 +86,14 @@ public class Chatman {
 		return lastMessage.getTime();
 	}
 	
-	//synchronized to be safe
-	public synchronized String getConversationTextAll(){
+	public synchronized ChatmanMessage[] getAllMessages(){
+		ChatmanMessage[] messages = new ChatmanMessage[allConversationMessages.size()];
+		allConversationMessages.toArray(messages);
+		return messages;
+	}
+	
+	//all access to lists should be synchronized
+	public synchronized String getAllMessagesText(){
 		String conversationTextAll = "";
 		for(ChatmanMessage message: allConversationMessages){
 			conversationTextAll += message.getDisplayableContent();

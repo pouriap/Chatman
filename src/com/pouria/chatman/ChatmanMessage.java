@@ -36,6 +36,8 @@ public class ChatmanMessage {
 	private boolean isFailed = false;
 	private boolean isOurMessage = false;
 	private boolean isDisplayed = false;
+	private boolean isSaved = false;
+
 
 	public static final int TYPE_BADMESSAGE = 0;
 	public static final int TYPE_TEXT = 1;
@@ -204,6 +206,14 @@ public class ChatmanMessage {
 	
 	public void setIsDisplayed(boolean displayed){
 		this.isDisplayed = displayed;
+	}
+	
+	public boolean isSaved() {
+		return isSaved;
+	}
+
+	public void setIsSaved(boolean isSaved) {
+		this.isSaved = isSaved;
 	}
 
 	

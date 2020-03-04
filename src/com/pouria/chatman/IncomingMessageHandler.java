@@ -21,7 +21,6 @@ import com.pouria.chatman.classes.Command;
 import com.pouria.chatman.classes.CommandConfirmDialog;
 import com.pouria.chatman.classes.CommandInvokeLater;
 import com.pouria.chatman.classes.CommandShowError;
-import com.pouria.chatman.classes.CommandAddToConversation;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.File;
 import java.io.IOException;
@@ -77,11 +76,9 @@ public class IncomingMessageHandler {
 	
 	public void processBadMessage(){
 		Helper.getInstance().log("bad message received");
-		(new CommandInvokeLater(new CommandAddToConversation(message))).execute();
 	}
 	
 	public void processTextMessage(){
-		(new CommandInvokeLater(new CommandAddToConversation(message))).execute();
 	}
 	
 	public void processFileMessage(){
@@ -105,14 +102,11 @@ public class IncomingMessageHandler {
 			Helper.getInstance().log("file copied");
 			//set file path (=content) to the one saved in Chatman Downloads
 			message.setContent(dstFile.getAbsolutePath());
-			(new CommandInvokeLater(new CommandAddToConversation(message))).execute();
 			
 		}catch(IOException e){
 			Helper.getInstance().log("copying file from tmp folder to download direcoty failed");
 			String content = Helper.getInstance().getStr("file-receive-failed");
-			String sender = Helper.getInstance().getStr("error");
-			ChatmanMessage displayedMessage = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, content, sender, message.getTime());
-			(new CommandInvokeLater(new CommandAddToConversation(displayedMessage))).execute();
+			message.setContent("ERROR: " + content);
 		}
 	}
 	
@@ -158,13 +152,11 @@ public class IncomingMessageHandler {
 			ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, error, sender);
 			ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		}
-		
-		//show recieved remote-shutdown message to the user
-		(new CommandInvokeLater(new CommandAddToConversation(message))).execute();
 
 	}
 	
 	public void processAbortShutdown(){
+		
 		String msgText;
 		String sender = ChatFrame.getInstance().getUserName();
 		Helper.getInstance().log("remote-abort-shutdown received");
@@ -179,11 +171,6 @@ public class IncomingMessageHandler {
 		//tell the other computer if abort was successfull
 		ChatmanMessage msg = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, msgText, sender);
 		ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
-		
-		//show received abort-remote-shutdown message to the user
-		(new CommandInvokeLater(new CommandAddToConversation(message))).execute();
-		//tell our user if abort was successfull
-		(new CommandInvokeLater(new CommandAddToConversation(msg))).execute();
 		
 	}
 	

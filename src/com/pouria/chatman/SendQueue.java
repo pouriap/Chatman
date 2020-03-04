@@ -102,11 +102,9 @@ public class SendQueue {
 	}
 	
 	public void process(){
-		if(processThread != null){
-			if(!processThread.isAlive()){
-				processThread = new Thread(r, "Send-Queue-Processor");
-				processThread.start();
-			}
+		if(!processThread.isAlive()){
+			processThread = new Thread(r, "Send-Queue-Processor");
+			processThread.start();
 		}
 	}
 	

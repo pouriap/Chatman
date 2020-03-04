@@ -1408,14 +1408,15 @@ public class ChatFrame extends javax.swing.JFrame {
 			scrollPaneConversation.getVerticalScrollBar().addAdjustmentListener(scrollListenerAlwaysDown);
 		}
 		     
-        String s = getInputText();
+        String text = getInputText();
         
         //return if input is empty or input is disabled
-        if(s.isEmpty() || !inputEnabled)
+        if(text.isEmpty() || !inputEnabled)
             return;
 
-		final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, s, username);
+		final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, text, username);
 		chatman.sendMessage(message);
+
 		clearInputText();
 
     }
@@ -1451,7 +1452,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//this is for failed messages that are sent now
 		if(message.isDisplayed() && message.isFailed()==false){
-			conversationTextAll = chatman.getConversationTextAll();
+			conversationTextAll = chatman.getAllMessagesText();
 		}
 		else{
 			conversationTextAll += message.getDisplayableContent();

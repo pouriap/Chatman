@@ -21,7 +21,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -31,14 +30,9 @@ import java.util.Calendar;
 public class ChatmanHistory {
 	
 	private static String previousChatHistory = "";
-	private final ArrayList<ChatmanMessage> unsavedMessages = new ArrayList<ChatmanMessage>();
 	
 	public synchronized void save(){
-
-		//we don't want to save empty stuff
-        if(unsavedMessages.isEmpty())
-            return;
-        
+   
         Connection con;
         PreparedStatement stmt;
 		
@@ -48,11 +42,14 @@ public class ChatmanHistory {
             con = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
             con.setAutoCommit(false);
 			
-			ChatmanMessage unsaveds[] = new ChatmanMessage[unsavedMessages.size()];
-			unsavedMessages.toArray(unsaveds);
-			for(int i=0; i<unsaveds.length; i++){
+			ChatmanMessage allMessages[] = ChatFrame.getInstance().getChatmanInstance().getAllMessages();
+
+			for(ChatmanMessage message : allMessages){
 				
-				ChatmanMessage message = unsaveds[i];
+				if(message.isSaved()){
+					continue;
+				}
+				
 				long messageTime = message.getTime();
 				//set message date to 00:00:00 of the day the message was sent
 				Calendar messageDate = Calendar.getInstance();
@@ -86,9 +83,10 @@ public class ChatmanHistory {
 					con.commit();	
 					stmt.close();
 				}
+				
 				//if success
-				unsavedMessages.remove(message);
-
+				message.setIsSaved(true);
+				
 			}
 			
 			con.close();
@@ -97,10 +95,6 @@ public class ChatmanHistory {
             ChatFrame.getInstance().message(Helper.getInstance().getStr("history_save_fail") + e.getMessage());
         }
 				
-	}
-	
-	public synchronized void addToUnsavedMessages(ChatmanMessage message){
-		unsavedMessages.add(message);
 	}
 	
 	public static void storeCurrentHistory(String history){

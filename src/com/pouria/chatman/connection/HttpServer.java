@@ -17,10 +17,10 @@
 package com.pouria.chatman.connection;
 
 import com.pouria.chatman.ChatmanMessage;
-import com.pouria.chatman.IncomingMessageHandler;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.ChatmanConfig;
+import com.pouria.chatman.MessageHandler;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -63,11 +63,11 @@ public class HttpServer implements ChatmanServer{
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			ChatmanMessage message = new ChatmanMessage(formData);
-			IncomingMessageHandler MsgHandler = new IncomingMessageHandler(message);
+			MessageHandler handler = new MessageHandler(ChatmanMessage.DIR_IN);
+			handler.handle(message);
 			//set server everytime we recieve a message to avoid unnecessary searches
 			String ourIP = exchange.getDestinationAddress().getAddress().getHostAddress();
 			String peerIP = exchange.getSourceAddress().getAddress().getHostAddress();
-			MsgHandler.handle();
 			//to avoid setting server as our own IP when we sendMessage showGUI messages from our own PC
 			if(!peerIP.equals(ourIP) && !peerIP.equals("127.0.0.1")){
 				notifyServerIsUp(peerIP);
