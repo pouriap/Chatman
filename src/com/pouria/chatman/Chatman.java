@@ -18,17 +18,13 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.ChatmanServer;
-import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandAddToConversation;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
-import com.pouria.chatman.gui.ChatFrame;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  *
@@ -41,16 +37,12 @@ public class Chatman {
 	private final ChatmanHistory history;
 	private final BgTasksManager bgTasksMngr;
 	
-	private final int CONNECT_COOLDOWN = 1000 * 30;	//30 sec
 	private final int HISTORY_SAVE_INTERVAL = 1000 * 100; //100 sec
 	private final int CONFIG_SAVE_INTERVAL = 1000 * 100; //100 sec
 	private final int HEARTBEAT_INTERVAL = 1000 * 60; //60 sec
 	
-	private long lastConnectTime = 0;
-	
-	private final ArrayList<ChatmanMessage> unsentMessages = new ArrayList<ChatmanMessage>();
 	private final ArrayList<ChatmanMessage> allConversationMessages = new ArrayList<ChatmanMessage>();
-	private final ConcurrentLinkedQueue<ChatmanMessage> sendQueue = new ConcurrentLinkedQueue<>();
+	private final SendQueue sendQueue = new SendQueue();
 	
 	public Chatman(){
 		server = new HttpServer();
@@ -61,75 +53,26 @@ public class Chatman {
 		bgTasksMngr.start();
 	}
 	
+	//TODO: add names to threads
+	
 	public void sendMessage(ChatmanMessage m){
-
-		//message ro ghabl az thread sakhtan tooye saf bezar ke tartibe message he be ham nakhore
-		//bad az inke message tooye thread ferestade shod be tartib message ha ro be conversationpane ezafe mikonim
+		//TODO: add sendQueue as static to Outgoingmessagehandler 
 		sendQueue.add(m);
-		
-		//if we're sending it it's our message
-		m.setIsOurMessage(true);
-		final ChatmanMessage thisMessage = m;
-		
-		Runnable r = () -> {
-			//wait for unsent messages to be sent in case it is in progress
-			bgTasksMngr.waitForUnsentMessagesToBeSent();
-			while(true){
-				ChatmanMessage firstMessage = sendQueue.peek();
-				//agar in message avvalin message dar saf ast anra befrest
-				if(firstMessage.equals(thisMessage)){
-					boolean success = client.send(thisMessage);
-					(new CommandInvokeLater(new CommandAddToConversation(thisMessage))).execute();
-					if(success){
-						history.addToUnsavedMessages(m);
-					}
-					else{
-						addToUnsentMessages(thisMessage);
-						connectWithCooldown();
-					}
-					//in message ro az queue bekesh biroon ke nafare baadi ferestade beshe
-					sendQueue.poll();
-					break;
-				}
-				//agar nist sabr kon ta nobate in thisMessage beshe dar queue
-				try{
-					Thread.sleep(10);
-				}catch(Exception e){}
-			}
-
-		};
-		
-		Thread th = new Thread(r);
-		th.start();
-
+		sendQueue.process();
 	}
 	
-	public void connectWithCooldown(){
-		long time = System.currentTimeMillis();
-		if(time - lastConnectTime > CONNECT_COOLDOWN){
-			client.connect();
-			lastConnectTime = time;
-		}
+	//TODO: this doesn't belong here
+	public void addToUnsavedMessages(ChatmanMessage message){
+		history.addToUnsavedMessages(message);
 	}
 	
     public void saveHistory(){
 		history.save();
     }
 	
-	private void addToUnsentMessages(ChatmanMessage message){
-		//accessing thread must have this lock
-		synchronized(unsentMessages){
-			this.unsentMessages.add(message);
-		}
-	}
-	
 	//anything that accesses Lists should be synchronized
 	public synchronized void addToAllMessages(ChatmanMessage message){
 		allConversationMessages.add(message);
-	}
-	
-	public void addToUnsavedMessages(ChatmanMessage message){
-		history.addToUnsavedMessages(message);
 	}
 	
 	public ChatmanServer getServer(){
@@ -148,13 +91,20 @@ public class Chatman {
 		return lastMessage.getTime();
 	}
 	
+	//synchronized to be safe
+	public synchronized String getConversationTextAll(){
+		String conversationTextAll = "";
+		for(ChatmanMessage message: allConversationMessages){
+			conversationTextAll += message.getDisplayableContent();
+		}
+		return conversationTextAll;
+	}
+	
 	
 	/**
 	 * A class that manages background tasks that happen in threads
 	 */
 	private class BgTasksManager implements Observer{
-		
-		private Thread unsentSenderThread;
 		
 		//starts threads/timers that should be running in the background
 		public void start(){
@@ -194,7 +144,7 @@ public class Chatman {
 				public void run() {
 					ChatmanMessage m = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
 					boolean connected = client.send(m);
-					if(!connected && !unsentMessages.isEmpty()){
+					if(!connected && !sendQueue.isEmpty()){
 						client.connect();
 					}
 				}
@@ -210,50 +160,7 @@ public class Chatman {
 		 */
 		@Override
 		public synchronized void update(Observable o, Object arg) {
-			Runnable r = () -> {
-				sendUnsentMessages();
-			};
-			unsentSenderThread = new Thread(r);
-			unsentSenderThread.start();
-		}
-		
-		//is only called from update() which is only called when a server is set
-		private void sendUnsentMessages(){
-			synchronized(unsentMessages){
-
-				if(unsentMessages.isEmpty()){
-					return;
-				}
-
-				ChatmanMessage unsents[] = new ChatmanMessage[unsentMessages.size()];
-				unsentMessages.toArray(unsents);
-				for(int i=0; i<unsents.length; i++){
-					ChatmanMessage message = unsents[i];
-					boolean success = client.send(message);
-					if(success){
-						unsentMessages.remove(message);
-						//remove the unsent one and add the sent one to the end
-						allConversationMessages.remove(message);
-						allConversationMessages.add(message);
-						history.addToUnsavedMessages(message);
-					}
-				}
-
-				String conversationTextAll = "";
-				for(ChatmanMessage message: allConversationMessages){
-					conversationTextAll += message.getDisplayableContent();
-				}
-				ChatFrame.getInstance().updateConversation(conversationTextAll);
-
-			}
-		}
-
-		public void waitForUnsentMessagesToBeSent(){
-			try{
-				if(unsentSenderThread != null){
-					unsentSenderThread.join();
-				}
-			}catch(InterruptedException e){}
+			sendQueue.process();
 		}
 
 	}

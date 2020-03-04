@@ -1423,7 +1423,17 @@ public class ChatFrame extends javax.swing.JFrame {
     //adds a message to messages history and shows it in conversation panel
     //it is called both when we sendInputText a message or receive a message
     public void addToConversation(ChatmanMessage message){
-        
+		
+		//messages with no content
+		if(message.getDisplayableContent().isEmpty()){
+			return;
+		}
+		
+		//failed messages that have failed again
+		if(message.isDisplayed() && message.isFailed()){
+			return;
+		}
+
         //popup when first message received
         if(isHidden()){
             newMessagePopup.showPopup();
@@ -1438,10 +1448,17 @@ public class ChatFrame extends javax.swing.JFrame {
 		if(message.getTime() - chatman.getLastMessageTime() > HR_TIMEDIFF){
 			conversationTextAll += oldMessagesHrHtml;
 		}
-
-		conversationTextAll += message.getDisplayableContent();
-		chatman.addToAllMessages(message);
+		
+		//this is for failed messages that are sent now
+		if(message.isDisplayed() && message.isFailed()==false){
+			conversationTextAll = chatman.getConversationTextAll();
+		}
+		else{
+			conversationTextAll += message.getDisplayableContent();
+		}
+		
 		updateTextAreaConversation(conversationTextAll);
+		message.setIsDisplayed(true);
 
     }
 	

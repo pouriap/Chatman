@@ -33,8 +33,9 @@ public class ChatmanMessage {
 	private String content;
 	private String sender;
 	private long time;
-	private boolean isSent = false;
+	private boolean isFailed = false;
 	private boolean isOurMessage = false;
+	private boolean isDisplayed = false;
 
 	public static final int TYPE_BADMESSAGE = 0;
 	public static final int TYPE_TEXT = 1;
@@ -43,6 +44,9 @@ public class ChatmanMessage {
 	public static final int TYPE_FILE = 4;
 	public static final int TYPE_SHOWGUI = 5;
 	public static final int TYPE_PING = 6;
+	
+	public static final int DIR_IN = 0;
+	public static final int DIR_OUT = 1;
 	
 	public ChatmanMessage(int type, String content, String sender, long time){
 		this.type = type;
@@ -166,7 +170,7 @@ public class ChatmanMessage {
 			//other message types don't have a display
 			return "";
 		}
-		String color = (!isSent && isOurMessage)? "red" : "white";
+		String color = (isFailed)? "red" : "white";
 		String senderName = (isOurMessage)? "You" : sender;
 		
 		//each message is a div
@@ -186,12 +190,21 @@ public class ChatmanMessage {
 		return this.time;
 	}
 	
-	public boolean isSent() {
-		return isSent;
+	public boolean isFailed(){
+		return this.isFailed;
+	}
+	
+	public void setIsFailed(boolean failed){
+		this.isFailed = failed;
+	}
+	
+	public boolean isDisplayed(){
+		return this.isDisplayed;
+	}
+	
+	public void setIsDisplayed(boolean displayed){
+		this.isDisplayed = displayed;
 	}
 
-	public void setIsSent(boolean isSent) {
-		this.isSent = isSent;
-	}
 	
 }

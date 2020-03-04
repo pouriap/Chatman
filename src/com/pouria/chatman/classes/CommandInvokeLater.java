@@ -16,6 +16,9 @@
  */
 package com.pouria.chatman.classes;
 
+import com.pouria.chatman.Helper;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javax.swing.SwingUtilities;
 
 /**
@@ -25,23 +28,63 @@ import javax.swing.SwingUtilities;
  * get one or more Command objects and runs their Execute() method in a thread-safe manner
  */
 public class CommandInvokeLater implements Command{
-    Command[] innerCommands;
+	//TODO: should all calls be invokeAndWait?
+    private final Command[] innerCommands;
+	private final boolean sync;
     
     public CommandInvokeLater(Command c){
         innerCommands = new Command[]{c};
+		sync = false;
     }
     
     public CommandInvokeLater(Command[] c){
         innerCommands = c;
+		sync = false;
     }
+	
+	public CommandInvokeLater(Command c, boolean synchronous){
+		innerCommands = new Command[]{c};
+		sync = synchronous;
+	}
     
     @Override
     public void execute(){
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                for(Command command: innerCommands)
-                    command.execute();
-            }
-        });
+		
+		//don't use invokelater if we're on event dispatch thread as suggested by JAVA docs
+		if(SwingUtilities.isEventDispatchThread()){
+			for(Command command: innerCommands){
+				command.execute();
+			}
+		}
+		
+		if(sync){
+			try{
+				SwingUtilities.invokeAndWait(() -> {
+					for(Command command: innerCommands){
+						command.execute();
+					}
+				});
+			}catch(Exception e){
+				//this is for debug
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				e.printStackTrace(pw);
+				String stackTrace = sw.toString();
+				Helper.getInstance().log("invokeAndWait Failed" + "\nStack Trace:\n" + stackTrace);
+				//if wait fails then do normal invokeAndWait
+				SwingUtilities.invokeLater(() -> {
+					for(Command command: innerCommands){
+						command.execute();
+					}
+				});
+			}
+		}
+		else{
+			SwingUtilities.invokeLater(() -> {
+				for(Command command: innerCommands){
+					command.execute();
+				}
+			});
+		}
     }
 }

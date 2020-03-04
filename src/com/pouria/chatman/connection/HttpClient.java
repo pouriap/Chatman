@@ -85,10 +85,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 			success = sendTextMessage(message);
 		}
 
-		if(success){
-			message.setIsSent(true);
-		}
-		else{
+		if(!success){
 			removeServer();
 		}
 		

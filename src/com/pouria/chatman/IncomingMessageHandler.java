@@ -73,10 +73,6 @@ public class IncomingMessageHandler {
 				break;
 		}
 		
-		if(message.getType()!=ChatmanMessage.TYPE_PING && message.getType()!=ChatmanMessage.TYPE_SHOWGUI){
-			ChatFrame.getInstance().getChatmanInstance().addToUnsavedMessages(message);
-		}
-		
 	}
 	
 	public void processBadMessage(){
