@@ -43,11 +43,10 @@ public class MessageHandler {
 			handler.handle();
 		}
 		
-		//add to history 
+		//add to all messages
 		if(
 				message.getType() != CMMessage.TYPE_PING
 				&& message.getType() != CMMessage.TYPE_SHOWGUI
-				&& message.getStatus()== CMMessage.STATUS_SENT
 		){
 			ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
 		}

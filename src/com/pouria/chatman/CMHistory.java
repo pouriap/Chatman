@@ -46,7 +46,8 @@ public class CMHistory {
 
 			for(CMMessage message : allMessages){
 				
-				if(message.isSaved()){
+				//don't save saved or failed messages
+				if(message.isSaved() || message.getStatus()==CMMessage.STATUS_SENDFAIL){
 					continue;
 				}
 				

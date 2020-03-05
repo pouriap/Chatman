@@ -176,7 +176,7 @@ public class CMMessage {
 			//other message types don't have a display
 			return "";
 		}
-		String color = (status!=STATUS_SENT)? "red" : "white";
+		String color = (status==STATUS_SENDFAIL)? "red" : "white";
 		String senderName = (isOurMessage)? "You" : sender;
 		
 		//each message is a div
@@ -190,6 +190,10 @@ public class CMMessage {
 	
 	public void setIsOurMessage(boolean b){
 		this.isOurMessage = b;
+	}
+	
+	public boolean isOurMessage(){
+		return this.isOurMessage;
 	}
 	
 	public long getTime(){

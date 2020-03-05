@@ -64,7 +64,10 @@ public class Chatman {
 	
 	//anything that accesses Lists should be synchronized
 	public synchronized void addToAllMessages(CMMessage message){
-		allConversationMessages.add(message);
+		//don't add duplicates (when resending failed messages)
+		if(!allConversationMessages.contains(message)){
+			allConversationMessages.add(message);
+		}
 	}
 	
 	public ChatmanServer getServer(){

@@ -1436,23 +1436,23 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 
         //popup when first message received
-        if(isHidden()){
+        if(isHidden() && !message.isOurMessage()){
             newMessagePopup.showPopup();
             newMessagePopup.playSound();
         }
         //bleep if we received message and was not focused
-        else if(!this.isActive()){
+        else if(!this.isActive() && !message.isOurMessage()){
             newMessagePopup.playSound();
         }
-		
-		//put a horizontal line if last message is too old
-		if(message.getTime() - chatman.getLastMessageTime() > HR_TIMEDIFF){
-			conversationTextAll += oldMessagesHrHtml;
-		}
 		
 		//this is for failed messages that are sent now
 		if(message.isDisplayed() && message.getStatus()==CMMessage.STATUS_SENT){
 			//refresh convo to make red ones white
+			conversationTextAll = chatman.getAllMessagesText();
+		}
+		//put a horizontal line if last message is too old
+		else if(message.getTime() - chatman.getLastMessageTime() > HR_TIMEDIFF){
+			//refresh convo to put the line
 			conversationTextAll = chatman.getAllMessagesText();
 		}
 		else{
@@ -1463,12 +1463,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		message.setIsDisplayed(true);
 
     }
-	
-	public void updateConversation(String text){
-		conversationTextAll = text;
-		updateTextAreaConversation(text);
-	}
-    
+	 
 	private void updateTextAreaConversation(String text){
         String html = textAreaConversation.getText();
 		Document doc = Jsoup.parse(html);
