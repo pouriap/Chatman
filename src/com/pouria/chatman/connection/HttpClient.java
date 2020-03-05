@@ -69,6 +69,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 	}
 
 	//this function is blocking!
+	//TODO: create sendTextMessage and sendFileMessage and add all this shit to outoginghandler
 	@Override
 	public synchronized boolean send(CMMessage message){
 		
@@ -240,10 +241,15 @@ public class HttpClient extends Observable implements ChatmanClient{
 
 	@Override
 	public synchronized void setServer(Object server) {
-		this.serverIP = (String) server;
-		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + this.serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
-		setChanged();
-		notifyObservers();
+		if(server == null){
+			removeServer();
+		}
+		else{
+			this.serverIP = (String) server;
+			(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + this.serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
+			setChanged();
+			notifyObservers();
+		}
 	}
 	
 	private synchronized void removeServer(){

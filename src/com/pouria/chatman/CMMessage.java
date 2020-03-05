@@ -35,9 +35,10 @@ public class CMMessage {
 	private long time;
 	private int status = STATUS_NOTSENT;
 	private boolean isOurMessage = false;
-	private boolean isDisplayed = false;
 	private boolean isSaved = false;
-
+	
+	private final String COLOR_SENT= "#d8d8d8";
+	private final String COLOR_FAILED = "#f73900";
 
 	public static final int TYPE_BADMESSAGE = 0;
 	public static final int TYPE_TEXT = 1;
@@ -147,7 +148,7 @@ public class CMMessage {
 		String t = content;
 		Date d = new Date(time);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        String _time = dateFormat.format(d);
+        String timeTxt = dateFormat.format(d);
 	
 		if(this.type == TYPE_TEXT){
 			//parse web links 
@@ -176,11 +177,11 @@ public class CMMessage {
 			//other message types don't have a display
 			return "";
 		}
-		String color = (status==STATUS_SENDFAIL)? "red" : "white";
+		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : COLOR_SENT;
 		String senderName = (isOurMessage)? "You" : sender;
 		
 		//each message is a div
-		t = "<div style='padding:5px;'><span style='color:"+color+"' class='time'>["+_time+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + t + "</div>";
+		t = "<div style='padding:5px;'><span class='time'>["+timeTxt+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + t + "</div>";
         return t;
 	}
 	

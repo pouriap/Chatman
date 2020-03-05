@@ -29,8 +29,6 @@ import java.util.Calendar;
  */
 public class CMHistory {
 	
-	private static String previousChatHistory = "";
-	
 	public synchronized void save(){
    
         Connection con;
@@ -95,7 +93,7 @@ public class CMHistory {
         } catch ( Exception e ) {
             ChatFrame.getInstance().message(CMHelper.getInstance().getStr("history_save_fail") + e.getMessage());
         }
-				//TODO: what happens if we exit in the middle of saving history from thread
+		
 	}
 
 }
