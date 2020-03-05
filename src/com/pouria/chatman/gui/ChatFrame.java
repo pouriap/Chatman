@@ -77,14 +77,12 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
-	private String horizontalLineHtml;
 	private AdjustmentListener scrollListenerAlwaysDown;
 	PopupDialog newMessagePopup;
 	
 	private final Color colorLabelHovered = new Color(81, 81, 81);
 	private final Color colorLabelNormal = new Color(51, 51, 51);
 	
-	private final long HR_TIMEDIFF = 1000*60*60;	//1hour
 
 	
 	
@@ -1178,11 +1176,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		textAreaConversation.setEditorKit(tkit);		
         textAreaInput.setText(defaultTextAreaHtml);
 		textAreaConversation.setText(defaultTextAreaHtml);
-		
-		
-		//HTML of old messages line
-		horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>older messages<br>____________________________________________________<br></div>";
-        
+
         
         //Make ScrollPanes invisible
         scrollPaneInput.setOpaque(false);
