@@ -7,7 +7,6 @@ package com.pouria.chatman.gui;
 
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.Chatman;
-import com.pouria.chatman.CMHistory;
 import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.classes.CmdFatalErrorExit;
@@ -71,16 +70,14 @@ public class ChatFrame extends javax.swing.JFrame {
     private static ChatFrame instance = null; 
     private Chatman chatman;
     private String defaultTextAreaHtml;
-	private String oldMessagesHrHtml;
 	private StyleSheet cssHideTime;
 	private StyleSheet cssShowTime;
 	private int conversationPaneCssToggle = 1;
-    private String conversationTextAll = "";
     private HistoryTablePagination historyPagination;
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
-	private boolean inputEnabled = true;
+	private String horizontalLineHtml;
 	private AdjustmentListener scrollListenerAlwaysDown;
 	PopupDialog newMessagePopup;
 	
@@ -740,7 +737,6 @@ public class ChatFrame extends javax.swing.JFrame {
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
         
 		//is run everytime history dialog opens 
-		CMHistory.storeCurrentHistory(conversationTextAll);
 		
         historyPagination = new HistoryTablePagination(
                 tableHistory,
@@ -769,15 +765,13 @@ public class ChatFrame extends javax.swing.JFrame {
         //put selected history item in textAreaChatHistory
         int row = tableHistory.getSelectedRow();
         String savedHistory = tableHistory.getModel().getValueAt(row, 1).toString();
-		conversationTextAll = savedHistory;
-		updateTextAreaConversation(conversationTextAll);
+		updateTextAreaConversation(savedHistory);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
-		conversationTextAll = CMHistory.getStoredHistory();
-		updateTextAreaConversation(conversationTextAll);
+		updateTextAreaConversation(chatman.getAllMessagesText());
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
@@ -913,7 +907,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		textAreaConversation.setEditorKit(kit);
 		textAreaConversation.setText(defaultTextAreaHtml);
-		updateTextAreaConversation(conversationTextAll);
+		updateTextAreaConversation(chatman.getAllMessagesText());
 
 		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
     }//GEN-LAST:event_textAreaConversationMouseClicked
@@ -1187,7 +1181,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		
 		//HTML of old messages line
-		oldMessagesHrHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>older messages<br>____________________________________________________<br></div>";
+		horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>older messages<br>____________________________________________________<br></div>";
         
         
         //Make ScrollPanes invisible
@@ -1410,8 +1404,8 @@ public class ChatFrame extends javax.swing.JFrame {
 		     
         String text = getInputText();
         
-        //return if input is empty or input is disabled
-        if(text.isEmpty() || !inputEnabled)
+        //return if input is empty
+        if(text.isEmpty())
             return;
 
 		final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, text, username);
@@ -1423,18 +1417,13 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //adds a message to messages history and shows it in conversation panel
     //it is called both when we sendInputText a message or receive a message
-    public void addToConversation(CMMessage message){
+    public void showMessage(CMMessage message){
 		
-		//messages with no content
+		//don't do anything for ping and other shit messages
 		if(message.getDisplayableContent().isEmpty()){
 			return;
 		}
 		
-		//failed messages that have failed again
-		if(message.isDisplayed() && message.getStatus()==CMMessage.STATUS_SENDFAIL){
-			return;
-		}
-
         //popup when first message received
         if(isHidden() && !message.isOurMessage()){
             newMessagePopup.showPopup();
@@ -1444,23 +1433,8 @@ public class ChatFrame extends javax.swing.JFrame {
         else if(!this.isActive() && !message.isOurMessage()){
             newMessagePopup.playSound();
         }
-		
-		//this is for failed messages that are sent now
-		if(message.isDisplayed() && message.getStatus()==CMMessage.STATUS_SENT){
-			//refresh convo to make red ones white
-			conversationTextAll = chatman.getAllMessagesText();
-		}
-		//put a horizontal line if last message is too old
-		else if(message.getTime() - chatman.getLastMessageTime() > HR_TIMEDIFF){
-			//refresh convo to put the line
-			conversationTextAll = chatman.getAllMessagesText();
-		}
-		else{
-			conversationTextAll += message.getDisplayableContent();
-		}
-		
-		updateTextAreaConversation(conversationTextAll);
-		message.setIsDisplayed(true);
+			
+		updateTextAreaConversation(chatman.getAllMessagesText());
 
     }
 	 

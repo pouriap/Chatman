@@ -16,8 +16,8 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CmdAddToConversation;
 import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.classes.CmdShowMessage;
 import com.pouria.chatman.gui.ChatFrame;
 
 /**
@@ -52,11 +52,8 @@ public class MessageHandler {
 		}
 		
 		//add to gui
-		//synchronous bashe baraye inke isDisplayed dar akhar set mishe va dar
-		//sendQueue az isDisplayed estefasde mikonim
-		(new CmdInvokeLater(new CmdAddToConversation(message), true)).execute();
+		(new CmdInvokeLater(new CmdShowMessage(message))).execute();
 
-		
 	}
 	
 }

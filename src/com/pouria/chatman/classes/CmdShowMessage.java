@@ -23,17 +23,17 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CmdAddToConversation implements Command{
+public class CmdShowMessage implements Command{
     ChatFrame gui;
     CMMessage message;
     
-    public CmdAddToConversation(CMMessage message){
+    public CmdShowMessage(CMMessage message){
         this.gui = ChatFrame.getInstance();
         this.message = message;
     }
     
     @Override
     public void execute(){
-        gui.addToConversation(message);
+        gui.showMessage(message);
     }
 }

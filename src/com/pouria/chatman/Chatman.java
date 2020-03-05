@@ -94,6 +94,7 @@ public class Chatman {
 	
 	//all access to lists should be synchronized
 	public synchronized String getAllMessagesText(){
+		//this takes ~20ms with a shitload of messages
 		String conversationTextAll = "";
 		for(CMMessage message: allConversationMessages){
 			conversationTextAll += message.getDisplayableContent();

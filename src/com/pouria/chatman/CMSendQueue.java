@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CmdAddToConversation;
+import com.pouria.chatman.classes.CmdShowMessage;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.gui.ChatFrame;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -53,15 +53,11 @@ public class CMSendQueue {
 					if(connectFail){
 						//add them to gui because meessages are added to gui int messageHandler whicih we don't use here
 						for(CMMessage message : queue){
-							if(message.isDisplayed()){
-								//if it's already displayed continue
-								continue;
-							}
 							//add them to conversation without sending
 							message.setStatus(CMMessage.STATUS_SENDFAIL);
 							message.setIsOurMessage(true);
 							ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
-							(new CmdInvokeLater(new CmdAddToConversation(message), true)).execute();
+							(new CmdInvokeLater(new CmdShowMessage(message), true)).execute();
 						}
 						return;
 					}

@@ -95,14 +95,7 @@ public class CMHistory {
         } catch ( Exception e ) {
             ChatFrame.getInstance().message(CMHelper.getInstance().getStr("history_save_fail") + e.getMessage());
         }
-				
+				//TODO: what happens if we exit in the middle of saving history from thread
 	}
-	
-	public static void storeCurrentHistory(String history){
-		previousChatHistory = history;
-	}
-	
-	public static String getStoredHistory(){
-		return previousChatHistory;
-	}
+
 }

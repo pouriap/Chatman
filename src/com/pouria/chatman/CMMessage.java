@@ -208,14 +208,6 @@ public class CMMessage {
 		this.status = status;
 	}
 	
-	public boolean isDisplayed(){
-		return this.isDisplayed;
-	}
-	
-	public void setIsDisplayed(boolean displayed){
-		this.isDisplayed = displayed;
-	}
-	
 	public boolean isSaved() {
 		return isSaved;
 	}
