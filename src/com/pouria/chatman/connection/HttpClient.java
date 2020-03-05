@@ -16,13 +16,13 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.ChatmanMessage;
-import com.pouria.chatman.Helper;
+import com.pouria.chatman.CMMessage;
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.classes.ChatmanClient;
-import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandSetLabelStatus;
-import com.pouria.chatman.ChatmanConfig;
-import com.pouria.chatman.classes.CommandShowLoading;
+import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.classes.CmdSetLabelStatus;
+import com.pouria.chatman.CMConfig;
+import com.pouria.chatman.classes.CmdShowLoading;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 
 	//this function is blocking!
 	@Override
-	public synchronized boolean send(ChatmanMessage message){
+	public synchronized boolean send(CMMessage message){
 		
 		if(serverIP == null){
 			return false;
@@ -78,7 +78,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 
 		boolean success;
 
-		if(message.getType() == ChatmanMessage.TYPE_FILE){
+		if(message.getType() == CMMessage.TYPE_FILE){
 			success = sendFileMessage(message);
 		}
 		else{
@@ -93,14 +93,14 @@ public class HttpClient extends Observable implements ChatmanClient{
 
 	}
 	
-	private boolean sendTextMessage(ChatmanMessage message){
+	private boolean sendTextMessage(CMMessage message){
 
 		boolean success = false;
 		String reason = "";
 		String messageText = message.getAsJsonString();
 				
 		try{
-			String remotePort = ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT);
+			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			List<NameValuePair> urlParameters = new ArrayList<>();
 			urlParameters.add(new BasicNameValuePair("message", messageText));
@@ -123,8 +123,8 @@ public class HttpClient extends Observable implements ChatmanClient{
 				reason = "http request returned code: " + code;
 				success = false;
 				//don'g log the pings
-				if(message.getType() != ChatmanMessage.TYPE_PING){
-					Helper.getInstance().log("sending text message failed. reason: " + reason);
+				if(message.getType() != CMMessage.TYPE_PING){
+					CMHelper.getInstance().log("sending text message failed. reason: " + reason);
 				}
 			}
 			
@@ -132,8 +132,8 @@ public class HttpClient extends Observable implements ChatmanClient{
 			reason = "http request could not be sent: " + e.getMessage();
 			success = false;
 			//don't log the pings
-			if(message.getType() != ChatmanMessage.TYPE_PING){
-				Helper.getInstance().log("sending text message failed. reason: " + reason);
+			if(message.getType() != CMMessage.TYPE_PING){
+				CMHelper.getInstance().log("sending text message failed. reason: " + reason);
 			}
 		}
 		
@@ -141,13 +141,13 @@ public class HttpClient extends Observable implements ChatmanClient{
 
 	}
 	
-	private boolean sendFileMessage(ChatmanMessage message){
+	private boolean sendFileMessage(CMMessage message){
 
 		boolean success = false;
 		String reason = "";
 		
 		try{
-			String remotePort = ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT);
+			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			String filePath = message.getContent();
 			File file = new File(filePath);
@@ -169,13 +169,13 @@ public class HttpClient extends Observable implements ChatmanClient{
 			else{
 				reason = "http request returned code: " + code;
 				success = false;
-				Helper.getInstance().log("sending file message failed. reason: " + reason);
+				CMHelper.getInstance().log("sending file message failed. reason: " + reason);
 			}
 
 		}catch(Exception e){
 			reason = "request could not be sent: " + e.getMessage();
 			success = false;
-			Helper.getInstance().log("sending file message failed. reason: " + reason);
+			CMHelper.getInstance().log("sending file message failed. reason: " + reason);
 		}
 		
 		return success;
@@ -192,10 +192,10 @@ public class HttpClient extends Observable implements ChatmanClient{
 		connectInProgress = true;
 		removeServer();
 
-		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("searching_network")))).execute();
-		(new CommandInvokeLater(new CommandShowLoading(true))).execute();
+		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("searching_network")))).execute();
+		(new CmdInvokeLater(new CmdShowLoading(true))).execute();
 		
-        int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
+        int serverPort = Integer.valueOf(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
 		String[] ipsToScan = getIpsToScan();
 		
 		IpScanner scanner = new IpScanner(ipsToScan, serverPort);
@@ -211,7 +211,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 		}
 		
 		connectInProgress = false;
-		(new CommandInvokeLater(new CommandShowLoading(false))).execute();
+		(new CmdInvokeLater(new CmdShowLoading(false))).execute();
 		
 		return success;
 		
@@ -221,13 +221,13 @@ public class HttpClient extends Observable implements ChatmanClient{
 		
 		String[] ipsToScan;
 		//if we have server's ip we don't scan the network
-        if(ChatmanConfig.getInstance().isSet("server-ip")){
-            String serverIp = ChatmanConfig.getInstance().get("server-ip", "");
+        if(CMConfig.getInstance().isSet("server-ip")){
+            String serverIp = CMConfig.getInstance().get("server-ip", "");
 			ipsToScan = new String[]{serverIp};
         }
         else{
-            String subnet = ChatmanConfig.getInstance().get("subnet-mask", ChatmanConfig.DEFAULT_SUBNET);
-			int numHostsToScan = Integer.valueOf(ChatmanConfig.getInstance().get("num-hosts-to-scan", ChatmanConfig.DEFAULT_HOSTS_SCAN));
+            String subnet = CMConfig.getInstance().get("subnet-mask", CMConfig.DEFAULT_SUBNET);
+			int numHostsToScan = Integer.valueOf(CMConfig.getInstance().get("num-hosts-to-scan", CMConfig.DEFAULT_HOSTS_SCAN));
 			ipsToScan = new String[numHostsToScan];
 			for(int i=0; i<numHostsToScan; i++){
 				String ip = subnet.replace("*", String.valueOf(i));
@@ -241,14 +241,14 @@ public class HttpClient extends Observable implements ChatmanClient{
 	@Override
 	public synchronized void setServer(Object server) {
 		this.serverIP = (String) server;
-		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("connection_with") + this.serverIP + Helper.getInstance().getStr("stablished")))).execute();
+		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + this.serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
 		setChanged();
 		notifyObservers();
 	}
 	
 	private synchronized void removeServer(){
 		this.serverIP = null;
-		(new CommandInvokeLater(new CommandSetLabelStatus(Helper.getInstance().getStr("server_not_found")))).execute();
+		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("server_not_found")))).execute();
 	}
 
 	@Override

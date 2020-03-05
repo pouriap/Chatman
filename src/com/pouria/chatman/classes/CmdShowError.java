@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Pouria Pirhadi
+ * Copyright (C) 2020 pouriap
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,24 +16,22 @@
  */
 package com.pouria.chatman.classes;
 
-import com.pouria.chatman.ChatmanMessage;
-import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.CMHelper;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author pouriap
  */
-public class CommandAddToConversation implements Command{
-    ChatFrame gui;
-    ChatmanMessage message;
+public class CmdShowError implements Command{
+    String message;
     
-    public CommandAddToConversation(ChatmanMessage message){
-        this.gui = ChatFrame.getInstance();
+    public CmdShowError(String message){
         this.message = message;
     }
     
     @Override
     public void execute(){
-        gui.addToConversation(message);
+        JOptionPane.showMessageDialog(null, message, CMHelper.getInstance().getStr("error"), JOptionPane.ERROR_MESSAGE);
     }
 }

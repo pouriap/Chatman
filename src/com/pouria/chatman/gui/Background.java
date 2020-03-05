@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman.gui;
 
-import com.pouria.chatman.ChatmanConfig;
+import com.pouria.chatman.CMConfig;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -53,7 +53,7 @@ public class Background {
                 }
             }
             //then initialize current bg
-            current = ChatmanConfig.getInstance().get("background-image", ChatmanConfig.DEFAULT_BG);
+            current = CMConfig.getInstance().get("background-image", CMConfig.DEFAULT_BG);
 
         }catch(Exception e){
             //i know. i just don't care
@@ -69,7 +69,7 @@ public class Background {
         
         int nextIndex = backgrounds.indexOf(current) + 1;
         current = (nextIndex < backgrounds.size())? backgrounds.get(nextIndex) : backgrounds.get(0);
-        ChatmanConfig.getInstance().set("background-image", current);
+        CMConfig.getInstance().set("background-image", current);
     }
 	
 	public void prev(){
@@ -78,7 +78,7 @@ public class Background {
         
         int prevIndex = backgrounds.indexOf(current) - 1;
         current = (prevIndex < 0)? backgrounds.get(backgrounds.size()-1) : backgrounds.get(prevIndex);
-        ChatmanConfig.getInstance().set("background-image", current);
+        CMConfig.getInstance().set("background-image", current);
 	}
 
     //gets the filename of the current background

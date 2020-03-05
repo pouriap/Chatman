@@ -16,8 +16,8 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandAddToConversation;
-import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CmdAddToConversation;
+import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.gui.ChatFrame;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -25,25 +25,26 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * @author pouriap
  */
-public class SendQueue {
+public class CMSendQueue {
 	
-	private final ConcurrentLinkedQueue<ChatmanMessage> queue = new ConcurrentLinkedQueue<ChatmanMessage>();
+	private final ConcurrentLinkedQueue<CMMessage> queue = new ConcurrentLinkedQueue<CMMessage>();
 	private Thread processThread = new Thread();
 	private final Runnable r;
 	private final int CONNECT_COOLDOWN = 1000 * 30;	//30 sec
 	private long lastConnectTime = 0;
 	
-	public SendQueue(){
+	public CMSendQueue(){
 		r = () -> {
 			//ta zamani ke chizi dar queue has edame bede
 			while(!queue.isEmpty()){
 				//avvalin message ra befrest
-				ChatmanMessage firstMessage = queue.peek();
-				MessageHandler sender = new MessageHandler(ChatmanMessage.DIR_OUT);
+				CMMessage firstMessage = queue.peek();
+				MessageHandler sender = new MessageHandler(CMMessage.DIR_OUT);
 				sender.handle(firstMessage);
 				//agar ferestade shod az saf dar biar va boro baadi
-				if(firstMessage.getStatus() == ChatmanMessage.STATUS_SENT){
+				if(firstMessage.getStatus() == CMMessage.STATUS_SENT){
 					queue.poll();
+					continue;
 				}
 				//agar nashod connect sho
 				else{
@@ -51,22 +52,22 @@ public class SendQueue {
 					//agar connect nashod hamaro 'unsent' kon va processing ro motevaghef kon chon faide nadare
 					if(connectFail){
 						//add them to gui because meessages are added to gui int messageHandler whicih we don't use here
-						for(ChatmanMessage message : queue){
+						for(CMMessage message : queue){
 							if(message.isDisplayed()){
 								//if it's already displayed continue
 								continue;
 							}
-							message.setStatus(ChatmanMessage.STATUS_SENDFAIL);
+							message.setStatus(CMMessage.STATUS_SENDFAIL);
 							message.setIsOurMessage(true);
 							//add them to conversation without sending
-							(new CommandInvokeLater(new CommandAddToConversation(message), true)).execute();
+							(new CmdInvokeLater(new CmdAddToConversation(message), true)).execute();
 						}
 						return;
 					}
 					else{
 						//agar connect shod dobare az avval befrest
 						//khodesh ettefagh miofte chon tooye while() hastim
-						//nokte: har vagh serveri peida mishavad SendQueue() call mishavad
+						//nokte: har vagh serveri peida mishavad CMSendQueue() call mishavad
 						//vali chon ma khodeman alan inja hastim oon call barmigarde va hamin edame peida mikone
 					}
 				}
@@ -77,7 +78,6 @@ public class SendQueue {
 	private boolean connectWithCooldown(){
 		long time = System.currentTimeMillis();
 		if(time - lastConnectTime > CONNECT_COOLDOWN){
-			//TODO: can we get it better?
 			boolean success = ChatFrame.getInstance().getChatmanInstance().getClient().connect();
 			lastConnectTime = time;
 			return success;
@@ -85,15 +85,15 @@ public class SendQueue {
 		return false;
 	}
 	
-	public void add(ChatmanMessage object){
+	public void add(CMMessage object){
 		queue.add(object);
 	}
 	
-	public ChatmanMessage peek(){
+	public CMMessage peek(){
 		return queue.peek();
 	}
 	
-	public ChatmanMessage poll(){
+	public CMMessage poll(){
 		return queue.poll();
 	}
 	
@@ -103,7 +103,7 @@ public class SendQueue {
 	
 	public void process(){
 		if(!processThread.isAlive()){
-			processThread = new Thread(r, "Send-Queue-Processor");
+			processThread = new Thread(r, "CM-SendQeue-Processor");
 			processThread.start();
 		}
 	}

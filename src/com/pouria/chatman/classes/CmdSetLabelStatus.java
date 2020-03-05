@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 pouriap
+ * Copyright (C) 2016 Pouria Pirhadi
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,17 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CommandClearInputText implements Command{
-	
-	@Override
-	public void execute() {
-		ChatFrame.getInstance().clearInputText();
-	}
-	
+public class CmdSetLabelStatus implements Command{
+    ChatFrame gui;
+    String text;
+    
+    public CmdSetLabelStatus(String text){
+        this.gui = ChatFrame.getInstance();
+        this.text = text;
+    }
+    
+    @Override
+    public void execute(){
+        gui.setLabelStatus(text);
+    }
 }

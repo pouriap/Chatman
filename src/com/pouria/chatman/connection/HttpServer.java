@@ -16,10 +16,10 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.ChatmanMessage;
+import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.gui.ChatFrame;
-import com.pouria.chatman.ChatmanConfig;
+import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.MessageHandler;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -38,7 +38,7 @@ public class HttpServer implements ChatmanServer{
 	@Override
 	public void start() throws IOException{
 		
-		int serverPort = Integer.valueOf(ChatmanConfig.getInstance().get("server-port", ChatmanConfig.DEFAULT_SERVER_PORT));
+		int serverPort = Integer.valueOf(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
 		final ChatmanHandler handler = new ChatmanHandler();
 		
 		Undertow server = Undertow.builder()
@@ -62,8 +62,8 @@ public class HttpServer implements ChatmanServer{
 		public void handleRequest(HttpServerExchange exchange) throws Exception {
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
-			ChatmanMessage message = new ChatmanMessage(formData);
-			MessageHandler handler = new MessageHandler(ChatmanMessage.DIR_IN);
+			CMMessage message = new CMMessage(formData);
+			MessageHandler handler = new MessageHandler(CMMessage.DIR_IN);
 			handler.handle(message);
 			//set server everytime we recieve a message to avoid unnecessary searches
 			String ourIP = exchange.getDestinationAddress().getAddress().getHostAddress();
@@ -79,7 +79,7 @@ public class HttpServer implements ChatmanServer{
 			Runnable r = () -> {
 				ChatFrame.getInstance().getChatmanInstance().getClient().setServer(ip);
 			};
-			(new Thread(r)).start();
+			(new Thread(r, "CM-Server-Notify")).start();
 		}
 	}
 	

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 pouriap
+ * Copyright (C) 2016 Pouria Pirhadi
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,29 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman;
+package com.pouria.chatman.classes;
 
-import com.pouria.chatman.classes.ChatmanClient;
+import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
  * @author pouriap
  */
-public class OutgoingMessageHandler {
-	
-	private final CMMessage message;
-	private final ChatmanClient client = ChatFrame.getInstance().getChatmanInstance().getClient();
-	
-	public OutgoingMessageHandler(CMMessage message){
-		this.message = message;
-	}
-	
-	public void handle(){
-		boolean success = client.send(message);
-		message.setIsOurMessage(true);
-		int status = (success)? CMMessage.STATUS_SENT : CMMessage.STATUS_SENDFAIL;
-		message.setStatus(status);
-	}
-	
+public class CmdAddToConversation implements Command{
+    ChatFrame gui;
+    CMMessage message;
+    
+    public CmdAddToConversation(CMMessage message){
+        this.gui = ChatFrame.getInstance();
+        this.message = message;
+    }
+    
+    @Override
+    public void execute(){
+        gui.addToConversation(message);
+    }
 }

@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman.classes;
 
-import com.pouria.chatman.Helper;
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -26,12 +26,12 @@ import javax.swing.JOptionPane;
  * shows an error and exits
  * @author pouriap
  */
-public class CommandFatalErrorExit implements Command{
+public class CmdFatalErrorExit implements Command{
     String message;
 	ChatFrame gui;
 	Exception exception;
     
-    public CommandFatalErrorExit(String message, Exception exception){
+    public CmdFatalErrorExit(String message, Exception exception){
         this.message = message;
 		this.exception = exception;
 		this.gui = ChatFrame.getInstance();
@@ -45,7 +45,7 @@ public class CommandFatalErrorExit implements Command{
 		exception.printStackTrace(pw);
 		String stackTrace = sw.toString();
 		
-		Helper.getInstance().log("Fatal Error: " + message + "\nStack Trace:\n" + stackTrace); 
+		CMHelper.getInstance().log("Fatal Error: " + message + "\nStack Trace:\n" + stackTrace); 
 		
 		message += "\nThis is a fatal error, exitting application.";
 		message += "\nSee the logs for more info.";

@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman.classes;
 
-import com.pouria.chatman.Helper;
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.gui.ChatFrame;
 import java.sql.ResultSet;
 import java.text.DateFormat;
@@ -61,7 +61,7 @@ public class HistoryTablePagination extends AbstractPagination{
                 //u = day of week
                 dateFormat = new SimpleDateFormat("u");
                 String weekDay = dateFormat.format(d);
-                String[] weekdays = Helper.getInstance().getStr("week_days").split(",");
+                String[] weekdays = CMHelper.getInstance().getStr("week_days").split(",");
                 weekDay = weekdays[Integer.valueOf(weekDay) -1];
                 format = "'" + weekDay + "' yyyy-MM-dd ";
                 
@@ -77,19 +77,19 @@ public class HistoryTablePagination extends AbstractPagination{
                 if(distance < (7 * oneDay)){
                     switch(todayNumber - dayNumber){
                         case 0:
-                            format = "'" + Helper.getInstance().getStr("today") + " '";
+                            format = "'" + CMHelper.getInstance().getStr("today") + " '";
                             break;
                         case 1:
-                            format = "'" + Helper.getInstance().getStr("yesterday") + " '";
+                            format = "'" + CMHelper.getInstance().getStr("yesterday") + " '";
                             break;
                         case 2:
-                            format = "'" + Helper.getInstance().getStr("two_days_ago") + " '";
+                            format = "'" + CMHelper.getInstance().getStr("two_days_ago") + " '";
                             break;
                         case 3:
-                            format = "'" + Helper.getInstance().getStr("three_days_ago") + " '";
+                            format = "'" + CMHelper.getInstance().getStr("three_days_ago") + " '";
                             break;
                         case 4:
-                            format = "'" + Helper.getInstance().getStr("four_days_ago") + " '";
+                            format = "'" + CMHelper.getInstance().getStr("four_days_ago") + " '";
                             break;
                         default:
                             break;
@@ -104,7 +104,7 @@ public class HistoryTablePagination extends AbstractPagination{
             }//while
             
         }catch ( Exception e ){
-            gui.message(Helper.getInstance().getStr("history_fail") + e.getMessage() + "1");
+            gui.message(CMHelper.getInstance().getStr("history_fail") + e.getMessage() + "1");
         }
         
         return resultCount;

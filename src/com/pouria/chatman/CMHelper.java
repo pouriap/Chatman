@@ -16,8 +16,8 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandFatalErrorExit;
-import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CmdFatalErrorExit;
+import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.ResourceBundleWrapper;
 import java.io.File;
 import java.io.IOException;
@@ -36,22 +36,22 @@ import java.util.logging.SimpleFormatter;
  *
  * @author pouriap
  */
-public class Helper {
+public class CMHelper {
 	
 	private ResourceBundleWrapper l;
 	private Logger logger;
 	
 	public final int OS_WIN = 0, OS_LIN = 1;
 	
-	private Helper() {
+	private CMHelper() {
 	}
 	
-	public static Helper getInstance() {
+	public static CMHelper getInstance() {
 		return HelperHolder.INSTANCE;
 	}
 	
 	private static class HelperHolder {
-		private static final Helper INSTANCE = new Helper();
+		private static final CMHelper INSTANCE = new CMHelper();
 	}
 	
 	public void setLocale(Locale locale){
@@ -60,7 +60,7 @@ public class Helper {
 		}catch(Exception e){
 			final Exception ex = e;
 			String error = "Could not get locale";
-			(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
 		}
     }
 	
@@ -110,7 +110,7 @@ public class Helper {
 	
 	public String getLocalIp(){
         //find local ip address
-		String subnet = ChatmanConfig.getInstance().get("subnet-mask", ChatmanConfig.DEFAULT_SUBNET);
+		String subnet = CMConfig.getInstance().get("subnet-mask", CMConfig.DEFAULT_SUBNET);
         String sub = subnet.replace(".*","");
         String localIp = "";
 
@@ -132,7 +132,7 @@ public class Helper {
 		}catch(Exception e){
 			final Exception ex = e;
 			String error = "Could not get local IP";
-			(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
 		}
 		
 		return localIp;

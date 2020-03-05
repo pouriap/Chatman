@@ -89,7 +89,7 @@ public abstract class AbstractPagination {
         }catch(ClassNotFoundException e){
 			final Exception ex = e;
             String error = "History pagination fail: " + e.getMessage();
-			(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
         }
 
     }

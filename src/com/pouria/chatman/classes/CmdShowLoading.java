@@ -22,11 +22,11 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CommandShowLoading implements Command{
+public class CmdShowLoading implements Command{
 
 	boolean visible;
 	
-	public CommandShowLoading(boolean visible){
+	public CmdShowLoading(boolean visible){
 		this.visible = visible;
 	}
 	

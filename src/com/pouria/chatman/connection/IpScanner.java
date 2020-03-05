@@ -16,9 +16,9 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.Helper;
-import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandFatalErrorExit;
+import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.classes.CmdFatalErrorExit;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -54,14 +54,14 @@ public class IpScanner {
 		
 			int numHosts = ipsToScan.length;
             Thread[] scanners = new Thread[numHosts];
-			String localIp = Helper.getInstance().getLocalIp();
+			String localIp = CMHelper.getInstance().getLocalIp();
 			
             for(int i=0; i<numHosts; i++){
                 String addr = ipsToScan[i];
                 //don't scan local ip
                 if(addr.equals(localIp))
                     continue;
-                scanners[i] = new Thread(new portScanner(addr, port));
+                scanners[i] = new Thread(new portScanner(addr, port), "CM-Port-Scanner-"+String.valueOf(i));
                 scanners[i].start();
             }
             
@@ -74,8 +74,8 @@ public class IpScanner {
                     Thread.sleep(100);
                 }catch(InterruptedException e){
 					final Exception ex = e;
-					String error = Helper.getInstance().getStr("thread_sleep_fail");
-                    (new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
+					String error = CMHelper.getInstance().getStr("thread_sleep_fail");
+                    (new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
                 }
 				
                 //break if all threads are finished

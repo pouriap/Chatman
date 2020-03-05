@@ -16,22 +16,17 @@
  */
 package com.pouria.chatman.classes;
 
-import com.pouria.chatman.Helper;
-import javax.swing.JOptionPane;
+import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
  * @author pouriap
  */
-public class CommandShowError implements Command{
-    String message;
-    
-    public CommandShowError(String message){
-        this.message = message;
-    }
-    
-    @Override
-    public void execute(){
-        JOptionPane.showMessageDialog(null, message, Helper.getInstance().getStr("error"), JOptionPane.ERROR_MESSAGE);
-    }
+public class CmdClearInputText implements Command{
+	
+	@Override
+	public void execute() {
+		ChatFrame.getInstance().clearInputText();
+	}
+	
 }

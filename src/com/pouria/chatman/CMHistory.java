@@ -27,7 +27,7 @@ import java.util.Calendar;
  *
  * @author pouriap
  */
-public class ChatmanHistory {
+public class CMHistory {
 	
 	private static String previousChatHistory = "";
 	
@@ -42,9 +42,9 @@ public class ChatmanHistory {
             con = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
             con.setAutoCommit(false);
 			
-			ChatmanMessage allMessages[] = ChatFrame.getInstance().getChatmanInstance().getAllMessages();
+			CMMessage allMessages[] = ChatFrame.getInstance().getChatmanInstance().getAllMessages();
 
-			for(ChatmanMessage message : allMessages){
+			for(CMMessage message : allMessages){
 				
 				if(message.isSaved()){
 					continue;
@@ -92,7 +92,7 @@ public class ChatmanHistory {
 			con.close();
 					
         } catch ( Exception e ) {
-            ChatFrame.getInstance().message(Helper.getInstance().getStr("history_save_fail") + e.getMessage());
+            ChatFrame.getInstance().message(CMHelper.getInstance().getStr("history_save_fail") + e.getMessage());
         }
 				
 	}

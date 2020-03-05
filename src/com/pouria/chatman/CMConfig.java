@@ -16,8 +16,8 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandFatalErrorExit;
-import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CmdFatalErrorExit;
+import com.pouria.chatman.classes.CmdInvokeLater;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,7 +28,7 @@ import java.util.Properties;
  *
  * @author pouriap
  */
-public class ChatmanConfig {
+public class CMConfig {
 	
 	private final Properties config;
 	private final File configFile;
@@ -42,7 +42,7 @@ public class ChatmanConfig {
 	public static final String DEFAULT_LOCALE = "fa_IR";
 	
 	
-	private ChatmanConfig() {
+	private CMConfig() {
 		
 		config = new Properties();
 		configFile = new File(CONFIG_FILE_NAME);
@@ -54,28 +54,28 @@ public class ChatmanConfig {
 			}
 			//if there isn't a config file try to create it
 			else{
-				Helper.getInstance().log("config file doesn't exist. creating it");
+				CMHelper.getInstance().log("config file doesn't exist. creating it");
 				setAsDefault();
 				configFile.createNewFile();
 				config.store((new FileOutputStream(configFile)), "Automatically generated config file");
-				Helper.getInstance().log("default config file created successfully");
+				CMHelper.getInstance().log("default config file created successfully");
 			}
 		//if load/create fails it's a fatal error
 		}catch(Exception e){
 			final Exception ex = e;
 			String error = "Failed to read or create config file. " + e.getMessage();
-			(new CommandInvokeLater(new CommandFatalErrorExit(error, ex))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
 		}
 		
 	}
 	
-	public static ChatmanConfig getInstance() {
+	public static CMConfig getInstance() {
 		return ChatmanConfigHolder.INSTANCE;
 	}
 	
 	private static class ChatmanConfigHolder {
 
-		private static final ChatmanConfig INSTANCE = new ChatmanConfig();
+		private static final CMConfig INSTANCE = new CMConfig();
 	}
 	
 	private void setAsDefault(){
@@ -98,7 +98,7 @@ public class ChatmanConfig {
 		try{
 			config.store((new FileOutputStream(configFile)), "config saved");
 		}catch(Exception e){
-			Helper.getInstance().log("failed to save config file");
+			CMHelper.getInstance().log("failed to save config file");
 		}
 	}
 	

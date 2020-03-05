@@ -34,29 +34,26 @@ public class Chatman {
 	
 	private final ChatmanServer server;
 	private final ChatmanClient client;
-	private final ChatmanHistory history;
+	private final CMHistory history;
 	private final BgTasksManager bgTasksMngr;
 	
 	private final int HISTORY_SAVE_INTERVAL = 1000 * 100; //100 sec
 	private final int CONFIG_SAVE_INTERVAL = 1000 * 100; //100 sec
 	private final int HEARTBEAT_INTERVAL = 1000 * 60; //60 sec
 	
-	private final ArrayList<ChatmanMessage> allConversationMessages = new ArrayList<ChatmanMessage>();
-	private final SendQueue sendQueue = new SendQueue();
+	private final ArrayList<CMMessage> allConversationMessages = new ArrayList<CMMessage>();
+	private final CMSendQueue sendQueue = new CMSendQueue();
 	
 	public Chatman(){
 		server = new HttpServer();
 		client = new HttpClient();
-		history = new ChatmanHistory();
+		history = new CMHistory();
 		bgTasksMngr = new BgTasksManager();
 		client.addListener(bgTasksMngr);
 		bgTasksMngr.start();
 	}
-	
-	//TODO: add names to threads
-	
-	public void sendMessage(ChatmanMessage m){
-		//TODO: add sendQueue as static to Outgoingmessagehandler 
+		
+	public void sendMessage(CMMessage m){
 		sendQueue.add(m);
 		sendQueue.process();
 	}
@@ -66,7 +63,7 @@ public class Chatman {
     }
 	
 	//anything that accesses Lists should be synchronized
-	public synchronized void addToAllMessages(ChatmanMessage message){
+	public synchronized void addToAllMessages(CMMessage message){
 		allConversationMessages.add(message);
 	}
 	
@@ -82,12 +79,12 @@ public class Chatman {
 		if(allConversationMessages.isEmpty()){
 			return System.currentTimeMillis();
 		}
-		ChatmanMessage lastMessage = allConversationMessages.get(allConversationMessages.size()-1);
+		CMMessage lastMessage = allConversationMessages.get(allConversationMessages.size()-1);
 		return lastMessage.getTime();
 	}
 	
-	public synchronized ChatmanMessage[] getAllMessages(){
-		ChatmanMessage[] messages = new ChatmanMessage[allConversationMessages.size()];
+	public synchronized CMMessage[] getAllMessages(){
+		CMMessage[] messages = new CMMessage[allConversationMessages.size()];
 		allConversationMessages.toArray(messages);
 		return messages;
 	}
@@ -95,7 +92,7 @@ public class Chatman {
 	//all access to lists should be synchronized
 	public synchronized String getAllMessagesText(){
 		String conversationTextAll = "";
-		for(ChatmanMessage message: allConversationMessages){
+		for(CMMessage message: allConversationMessages){
 			conversationTextAll += message.getDisplayableContent();
 		}
 		return conversationTextAll;
@@ -113,13 +110,13 @@ public class Chatman {
 			//connect for the first time and send a first ping letting them know we're up
 			Runnable r = () -> {
 				client.connect();
-				ChatmanMessage m = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
+				CMMessage m = new CMMessage(CMMessage.TYPE_PING, "", "");
 				client.send(m);
 			};
-			(new Thread(r)).start();
+			(new Thread(r, "CM-Initial-Connect")).start();
 			
 			//save history
-			Timer historyTimer = new Timer("history saver");
+			Timer historyTimer = new Timer("CM-History-Saver");
 			TimerTask historyTask = new TimerTask() {
 				@Override
 				public void run() {
@@ -129,21 +126,21 @@ public class Chatman {
 			historyTimer.scheduleAtFixedRate(historyTask, HISTORY_SAVE_INTERVAL, HISTORY_SAVE_INTERVAL);
 			
 			//save config
-			Timer configTimer = new Timer("config saver");
+			Timer configTimer = new Timer("CM-Convifg-Saver");
 			TimerTask configTask = new TimerTask() {
 				@Override
 				public void run() {
-					ChatmanConfig.getInstance().save();
+					CMConfig.getInstance().save();
 				}
 			};
 			configTimer.scheduleAtFixedRate(configTask, CONFIG_SAVE_INTERVAL, CONFIG_SAVE_INTERVAL);	
 			
 			//send heartbeat
-			Timer heartBeatTimer = new Timer("heartbeat timer");
+			Timer heartBeatTimer = new Timer("CM-Heartbeat-Sender");
 			TimerTask heartBeatTask = new TimerTask() {
 				@Override
 				public void run() {
-					ChatmanMessage m = new ChatmanMessage(ChatmanMessage.TYPE_PING, "", "");
+					CMMessage m = new CMMessage(CMMessage.TYPE_PING, "", "");
 					boolean connected = client.send(m);
 					if(!connected && !sendQueue.isEmpty()){
 						client.connect();

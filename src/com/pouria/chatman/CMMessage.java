@@ -27,7 +27,7 @@ import org.json.JSONObject;
  *
  * @author pouriap
  */
-public class ChatmanMessage {
+public class CMMessage {
 
 	private int type;
 	private String content;
@@ -54,21 +54,21 @@ public class ChatmanMessage {
 	public static final int STATUS_SENT = 1;
 	public static final int STATUS_SENDFAIL = 2;
 	
-	public ChatmanMessage(int type, String content, String sender, long time){
+	public CMMessage(int type, String content, String sender, long time){
 		this.type = type;
 		this.content = content;
 		this.sender = sender;
 		this.time = time;
 	}
 	
-	public ChatmanMessage(int type, String content, String sender){
+	public CMMessage(int type, String content, String sender){
 		this.type = type;
 		this.content = content;
 		this.sender = sender;
-		this.time = Helper.getInstance().getTime();
+		this.time = CMHelper.getInstance().getTime();
 	}
 	
-	public ChatmanMessage(FormData postData){
+	public CMMessage(FormData postData){
 		
 		try{
 			//if normal message
@@ -92,8 +92,8 @@ public class ChatmanMessage {
 					this.type = TYPE_FILE;
 					//we have to store file name somewhere
 					this.content = filePath + "**" + fileName;
-					this.sender = Helper.getInstance().getStr("file_recieved");
-					this.time = Helper.getInstance().getTime();
+					this.sender = CMHelper.getInstance().getStr("file_recieved");
+					this.time = CMHelper.getInstance().getTime();
 				}
 				else{
 					throw new Exception("bad file message");
@@ -109,14 +109,14 @@ public class ChatmanMessage {
 			this.type = TYPE_BADMESSAGE;
 			this.content = "bad json syntax";
 			this.sender = "unknown";
-			this.time = Helper.getInstance().getTime();
+			this.time = CMHelper.getInstance().getTime();
 			
 		}catch(Exception e){
 			//create a 'bad message' instance as our message because the original one is lost
 			this.type = TYPE_BADMESSAGE;
 			this.content = "bad message";
 			this.sender = "unknown";
-			this.time = Helper.getInstance().getTime();	
+			this.time = CMHelper.getInstance().getTime();	
 		}
 	}
 	

@@ -16,9 +16,9 @@
  */
 package com.pouria.chatman.gui;
 
-import com.pouria.chatman.Helper;
-import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandShowError;
+import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.classes.CmdShowError;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -46,7 +46,7 @@ public class PopupDialog extends JDialog{
 	private int mode = MODE_NORMAL;
 	
 	public PopupDialog(){
-		os = Helper.getInstance().getOS();
+		os = CMHelper.getInstance().getOS();
 	}
 	
     //plays the bleep
@@ -58,7 +58,7 @@ public class PopupDialog extends JDialog{
 			Clip clip;
 			
 			//linux sucks so...
-			if(os == Helper.getInstance().OS_WIN){
+			if(os == CMHelper.getInstance().OS_WIN){
 				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification2.wav"));
 				clip = AudioSystem.getClip();
 			}
@@ -74,9 +74,9 @@ public class PopupDialog extends JDialog{
 			clip.start();
 
         }catch(Exception e){
-			Helper.getInstance().log("playing notification sound failed: " + e.getMessage());
-			String error = Helper.getInstance().getStr("audio_play_fail") + e.getMessage();
-            (new CommandInvokeLater(new CommandShowError(error))).execute();
+			CMHelper.getInstance().log("playing notification sound failed: " + e.getMessage());
+			String error = CMHelper.getInstance().getStr("audio_play_fail") + e.getMessage();
+            (new CmdInvokeLater(new CmdShowError(error))).execute();
         }
     }
 

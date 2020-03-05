@@ -5,14 +5,14 @@
  */
 package com.pouria.chatman.gui;
 
-import com.pouria.chatman.ChatmanConfig;
+import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.Chatman;
-import com.pouria.chatman.ChatmanHistory;
-import com.pouria.chatman.ChatmanMessage;
-import com.pouria.chatman.Helper;
-import com.pouria.chatman.classes.CommandFatalErrorExit;
-import com.pouria.chatman.classes.CommandInvokeLater;
-import com.pouria.chatman.classes.CommandShowError;
+import com.pouria.chatman.CMHistory;
+import com.pouria.chatman.CMMessage;
+import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.classes.CmdFatalErrorExit;
+import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.classes.CmdShowError;
 import com.pouria.chatman.classes.HistoryTablePagination;
 import java.awt.AWTException;
 import java.awt.Color;
@@ -707,11 +707,11 @@ public class ChatFrame extends javax.swing.JFrame {
                     Desktop.getDesktop().browse(evt.getURL().toURI());
                 
             }catch(IOException e){
-                message(Helper.getInstance().getStr("url_open_fail") + e.getMessage());
-				Helper.getInstance().log("failed to open url: " + e.getMessage());
+                message(CMHelper.getInstance().getStr("url_open_fail") + e.getMessage());
+				CMHelper.getInstance().log("failed to open url: " + e.getMessage());
             }catch(URISyntaxException e){
-                message(Helper.getInstance().getStr("bad_url") + e.getMessage());
-				Helper.getInstance().log("failed to open url: " + e.getMessage());
+                message(CMHelper.getInstance().getStr("bad_url") + e.getMessage());
+				CMHelper.getInstance().log("failed to open url: " + e.getMessage());
             }
         }
 		
@@ -740,7 +740,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
         
 		//is run everytime history dialog opens 
-		ChatmanHistory.storeCurrentHistory(conversationTextAll);
+		CMHistory.storeCurrentHistory(conversationTextAll);
 		
         historyPagination = new HistoryTablePagination(
                 tableHistory,
@@ -753,8 +753,8 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             
         }catch(SQLException e){
-			Helper.getInstance().log("failed to show history window: " + e.getMessage());
-            message(Helper.getInstance().getStr("history_fail") + e.getMessage());
+			CMHelper.getInstance().log("failed to show history window: " + e.getMessage());
+            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
         }
 
     }//GEN-LAST:event_dialogHistoryWindowOpened
@@ -776,7 +776,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
-		conversationTextAll = ChatmanHistory.getStoredHistory();
+		conversationTextAll = CMHistory.getStoredHistory();
 		updateTextAreaConversation(conversationTextAll);
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
@@ -787,8 +787,8 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
-			Helper.getInstance().log("history next page failed: " + e.getMessage());
-            message(Helper.getInstance().getStr("history_fail") + e.getMessage());
+			CMHelper.getInstance().log("history next page failed: " + e.getMessage());
+            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
 
@@ -799,20 +799,20 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
-			Helper.getInstance().log("history prev page failed: " + e.getMessage());
-            message(Helper.getInstance().getStr("history_fail") + e.getMessage());
+			CMHelper.getInstance().log("history prev page failed: " + e.getMessage());
+            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
         }
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
-        JOptionPane.showMessageDialog(null, Helper.getInstance().getStr("license"), Helper.getInstance().getStr("about"), JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, CMHelper.getInstance().getStr("license"), CMHelper.getInstance().getStr("about"), JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_menuAboutActionPerformed
 
     private void menuRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRemoteShutdownActionPerformed
 
-		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("remote_shutdown_message"), Helper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
+		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("remote_shutdown_message"), CMHelper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_SHUTDOWN, "", username);
+            CMMessage message = new CMMessage(CMMessage.TYPE_SHUTDOWN, "", username);
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
@@ -822,10 +822,10 @@ public class ChatFrame extends javax.swing.JFrame {
 		throw new UnsupportedOperationException("not supported yet");
 		/*
 		try{
-			Helper.getInstance().sendWakeOnLan("remote_ip");
+			CMHelper.getInstance().sendWakeOnLan("remote_ip");
 			
 		}catch(IOException e){
-			message(Helper.getInstance().getStr("wakeonlan_fail"));
+			message(CMHelper.getInstance().getStr("wakeonlan_fail"));
 		}
 		*/
     }//GEN-LAST:event_menuWakeOnLanActionPerformed
@@ -842,13 +842,13 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void menuAbortLocalShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortLocalShutdownActionPerformed
 		try{
-			Helper.getInstance().abortLocalShutdown();
+			CMHelper.getInstance().abortLocalShutdown();
 			String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-            final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, info, username);
+            final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, info, username);
 			chatman.sendMessage(message);
 		}catch(IOException e){
-			Helper.getInstance().log("failed to abort local shutdown (from menu)");
-			(new CommandShowError(Helper.getInstance().getStr("shutdown-abort-fail"))).execute();  // we don't need invokelater because we're on GUI
+			CMHelper.getInstance().log("failed to abort local shutdown (from menu)");
+			(new CmdShowError(CMHelper.getInstance().getStr("shutdown-abort-fail"))).execute();  // we don't need invokelater because we're on GUI
 		}
     }//GEN-LAST:event_menuAbortLocalShutdownActionPerformed
 
@@ -885,9 +885,9 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_textAreaInputKeyPressed
 
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
-		int answer = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("abort_remote_shutdown_message"), Helper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
+		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("abort_remote_shutdown_message"), CMHelper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_ABORT_SHUTDOWN, "", username);
+            final CMMessage message = new CMMessage(CMMessage.TYPE_ABORT_SHUTDOWN, "", username);
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
@@ -1021,13 +1021,13 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//checks if history.sqlite exists and if not tries to create it
 		try{
-			Helper.getInstance().checkDatabaseFile();
+			CMHelper.getInstance().checkDatabaseFile();
 		}catch(Exception e){
-			(new CommandFatalErrorExit("history database cannot be created", e)).execute();
+			(new CmdFatalErrorExit("history database cannot be created", e)).execute();
 		}
         
         //Locale
-		Helper.getInstance().setLocale(ChatmanConfig.getInstance().getLocale());
+		CMHelper.getInstance().setLocale(CMConfig.getInstance().getLocale());
 
         //setup GUI elements texts accordig to locale
         setupGUITexts();
@@ -1045,9 +1045,9 @@ public class ChatFrame extends javax.swing.JFrame {
                     List<File> droppedFiles = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     for (File file : droppedFiles) {
                         //check file size
-                        int max = Integer.valueOf(ChatmanConfig.getInstance().get("max-file-size", ChatmanConfig.DEFAULT_FILEDROP_SIZEWARNING));
+                        int max = Integer.valueOf(CMConfig.getInstance().get("max-file-size", CMConfig.DEFAULT_FILEDROP_SIZEWARNING));
                         if(file.length()> max*1000*1000){
-                            int choice = JOptionPane.showConfirmDialog(null, Helper.getInstance().getStr("file_big_warning"), Helper.getInstance().getStr("file_big_title"), JOptionPane.YES_NO_OPTION);
+                            int choice = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("file_big_warning"), CMHelper.getInstance().getStr("file_big_title"), JOptionPane.YES_NO_OPTION);
 							if(choice == JOptionPane.NO_OPTION){
 								//skip this file
 								continue;
@@ -1055,14 +1055,14 @@ public class ChatFrame extends javax.swing.JFrame {
                         }
                         //send the file
 						String filePath = file.getAbsolutePath();
-						String sender = Helper.getInstance().getStr("file_sent");			
-						final ChatmanMessage fileMessage = new ChatmanMessage(ChatmanMessage.TYPE_FILE, filePath, sender);
+						String sender = CMHelper.getInstance().getStr("file_sent");			
+						final CMMessage fileMessage = new CMMessage(CMMessage.TYPE_FILE, filePath, sender);
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
 						chatman.sendMessage(fileMessage);
                     }
                 } catch (Exception ex) {
-                    message(Helper.getInstance().getStr("open_file_fail"));
+                    message(CMHelper.getInstance().getStr("open_file_fail"));
                 }
             }
         });
@@ -1071,7 +1071,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //TextArea right click
 		
         //create a paste action to replace the default one because the default copoies styles/html too
-        Action pasteAction = new AbstractAction(Helper.getInstance().getStr("paste")) {
+        Action pasteAction = new AbstractAction(CMHelper.getInstance().getStr("paste")) {
             @Override
             public void actionPerformed(ActionEvent e) {
 				//only raw text is pasted in a textfield with no styles/html
@@ -1115,9 +1115,9 @@ public class ChatFrame extends javax.swing.JFrame {
 		       
         //get default copy and cut actions
         Action copyAction = textAreaInput.getActionMap().get(DefaultEditorKit.copyAction);
-        copyAction.putValue("Name", Helper.getInstance().getStr("copy"));
+        copyAction.putValue("Name", CMHelper.getInstance().getStr("copy"));
         Action cutAction = textAreaInput.getActionMap().get(DefaultEditorKit.cutAction);
-        cutAction.putValue("Name", Helper.getInstance().getStr("cut"));
+        cutAction.putValue("Name", CMHelper.getInstance().getStr("cut"));
 		
 		//add copy/cut/paste actions to our right click menu
         menuRightClick.add (pasteAction); 
@@ -1253,7 +1253,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}catch(Exception e){
 			final String msg = e.getMessage();
 			//send a showgui message to localhost (showgui messages always go to localhost)
-			ChatmanMessage showGuiMessage = new ChatmanMessage(ChatmanMessage.TYPE_SHOWGUI, "", "");
+			CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "");
 			chatman.getClient().setServer("127.0.0.1");
 			//this is a very special case where we don't even have gui so we directly access the send() method
 			boolean success = chatman.getClient().send(showGuiMessage);
@@ -1265,7 +1265,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			else{
 				final Exception ex = e;
 				String error = "Could not start server: " + msg;
-				(new CommandFatalErrorExit(error, ex)).execute();
+				(new CmdFatalErrorExit(error, ex)).execute();
 			}
 
 		}
@@ -1276,7 +1276,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	public void createTrayIcon(){
 		
         if (!SystemTray.isSupported()) {
-			Helper.getInstance().log("System tray not supported");
+			CMHelper.getInstance().log("System tray not supported");
             return;
         }
 		
@@ -1315,28 +1315,28 @@ public class ChatFrame extends javax.swing.JFrame {
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
-			Helper.getInstance().log("Tray icon could not be added");
+			CMHelper.getInstance().log("Tray icon could not be added");
         }
 	}
 	
     public void setupGUITexts(){
-        labelNewMessage.setText(Helper.getInstance().getStr("new_message"));
-        dialogHistory.setTitle(Helper.getInstance().getStr("history"));
-        buttonNextHistoryPage.setText(Helper.getInstance().getStr("next_page"));
-        buttonPrevHistoryPage.setText(Helper.getInstance().getStr("prev_page"));
-        labelSend.setText(Helper.getInstance().getStr("send"));
-        labelClear.setText(Helper.getInstance().getStr("clear"));
-        labelStatusLabl.setText(Helper.getInstance().getStr("status"));
-        labelStatus.setText(Helper.getInstance().getStr("offline"));
-        menuFile.setText(Helper.getInstance().getStr("options"));
-        menuChangeBg.setText(Helper.getInstance().getStr("change_bg"));
-        menuShowHistory.setText(Helper.getInstance().getStr("show_history"));
-		menuRemoteShutdown.setText(Helper.getInstance().getStr("remote_shutdown"));
-		menuAbortLocalShutdown.setText(Helper.getInstance().getStr("abort_local_shutdown"));
-		menuAbortRemoteShutdown.setText(Helper.getInstance().getStr("abort_remote_shutdown"));
-		menuWakeOnLan.setText(Helper.getInstance().getStr("wakeonlan"));
-        menuAbout.setText(Helper.getInstance().getStr("about"));
-        menuExit.setText(Helper.getInstance().getStr("exit"));
+        labelNewMessage.setText(CMHelper.getInstance().getStr("new_message"));
+        dialogHistory.setTitle(CMHelper.getInstance().getStr("history"));
+        buttonNextHistoryPage.setText(CMHelper.getInstance().getStr("next_page"));
+        buttonPrevHistoryPage.setText(CMHelper.getInstance().getStr("prev_page"));
+        labelSend.setText(CMHelper.getInstance().getStr("send"));
+        labelClear.setText(CMHelper.getInstance().getStr("clear"));
+        labelStatusLabl.setText(CMHelper.getInstance().getStr("status"));
+        labelStatus.setText(CMHelper.getInstance().getStr("offline"));
+        menuFile.setText(CMHelper.getInstance().getStr("options"));
+        menuChangeBg.setText(CMHelper.getInstance().getStr("change_bg"));
+        menuShowHistory.setText(CMHelper.getInstance().getStr("show_history"));
+		menuRemoteShutdown.setText(CMHelper.getInstance().getStr("remote_shutdown"));
+		menuAbortLocalShutdown.setText(CMHelper.getInstance().getStr("abort_local_shutdown"));
+		menuAbortRemoteShutdown.setText(CMHelper.getInstance().getStr("abort_remote_shutdown"));
+		menuWakeOnLan.setText(CMHelper.getInstance().getStr("wakeonlan"));
+        menuAbout.setText(CMHelper.getInstance().getStr("about"));
+        menuExit.setText(CMHelper.getInstance().getStr("exit"));
     }
 	
 	//populates a table with emoticons and returns the table model
@@ -1414,7 +1414,7 @@ public class ChatFrame extends javax.swing.JFrame {
         if(text.isEmpty() || !inputEnabled)
             return;
 
-		final ChatmanMessage message = new ChatmanMessage(ChatmanMessage.TYPE_TEXT, text, username);
+		final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, text, username);
 		chatman.sendMessage(message);
 
 		clearInputText();
@@ -1423,7 +1423,7 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //adds a message to messages history and shows it in conversation panel
     //it is called both when we sendInputText a message or receive a message
-    public void addToConversation(ChatmanMessage message){
+    public void addToConversation(CMMessage message){
 		
 		//messages with no content
 		if(message.getDisplayableContent().isEmpty()){
@@ -1431,7 +1431,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
 		//failed messages that have failed again
-		if(message.isDisplayed() && message.getStatus()==ChatmanMessage.STATUS_SENDFAIL){
+		if(message.isDisplayed() && message.getStatus()==CMMessage.STATUS_SENDFAIL){
 			return;
 		}
 
@@ -1451,7 +1451,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
 		//this is for failed messages that are sent now
-		if(message.isDisplayed() && message.getStatus()==ChatmanMessage.STATUS_SENT){
+		if(message.isDisplayed() && message.getStatus()==CMMessage.STATUS_SENT){
 			//refresh convo to make red ones white
 			conversationTextAll = chatman.getAllMessagesText();
 		}
@@ -1474,7 +1474,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		Document doc = Jsoup.parse(html);
 		Element textDiv = doc.select("body#text").first();
 		if(textDiv == null){
-			(new CommandInvokeLater(new CommandFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
 		}
 		textDiv.html(text);
 		textAreaConversation.setText(doc.outerHtml());
@@ -1486,7 +1486,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		Document doc = Jsoup.parse(html);
 		Element textDiv = doc.select("body#text").first();
 		if(textDiv == null){
-			(new CommandInvokeLater(new CommandFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
 		}
 		if(append){
 			textDiv.append(t);
@@ -1502,7 +1502,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		Document doc = Jsoup.parse(html);
 		Element textDiv = doc.select("body#text").first();
 		if(textDiv == null){
-			(new CommandInvokeLater(new CommandFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
 		}
 		return textDiv.html();
     }
@@ -1598,7 +1598,7 @@ public class ChatFrame extends javax.swing.JFrame {
     //the end of chatman. that's it. no auto pilot :(
     public synchronized void exit(int exitCode){
         chatman.saveHistory();
-        ChatmanConfig.getInstance().save();
+        CMConfig.getInstance().save();
         System.exit(exitCode);
     }
 

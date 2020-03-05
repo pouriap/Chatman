@@ -16,8 +16,8 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CommandAddToConversation;
-import com.pouria.chatman.classes.CommandInvokeLater;
+import com.pouria.chatman.classes.CmdAddToConversation;
+import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.gui.ChatFrame;
 
 /**
@@ -32,9 +32,9 @@ public class MessageHandler {
 		this.direction = direction;
 	}
 	
-	public void handle(ChatmanMessage message){
+	public void handle(CMMessage message){
 		
-		if(direction == ChatmanMessage.DIR_IN){
+		if(direction == CMMessage.DIR_IN){
 			IncomingMessageHandler handler = new IncomingMessageHandler(message);
 			handler.handle();
 		}
@@ -45,18 +45,17 @@ public class MessageHandler {
 		
 		//add to history 
 		if(
-				message.getType() != ChatmanMessage.TYPE_PING
-				&& message.getType() != ChatmanMessage.TYPE_SHOWGUI
-				&& message.getStatus()== ChatmanMessage.STATUS_SENT
+				message.getType() != CMMessage.TYPE_PING
+				&& message.getType() != CMMessage.TYPE_SHOWGUI
+				&& message.getStatus()== CMMessage.STATUS_SENT
 		){
-			//TODO: can we get instance better?
 			ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
 		}
 		
 		//add to gui
 		//synchronous bashe baraye inke isDisplayed dar akhar set mishe va dar
 		//sendQueue az isDisplayed estefasde mikonim
-		(new CommandInvokeLater(new CommandAddToConversation(message), true)).execute();
+		(new CmdInvokeLater(new CmdAddToConversation(message), true)).execute();
 
 		
 	}
