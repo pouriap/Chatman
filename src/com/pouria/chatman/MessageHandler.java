@@ -47,7 +47,7 @@ public class MessageHandler {
 		if(
 				message.getType() != ChatmanMessage.TYPE_PING
 				&& message.getType() != ChatmanMessage.TYPE_SHOWGUI
-				&& message.isFailed() == false
+				&& message.getStatus()== ChatmanMessage.STATUS_SENT
 		){
 			//TODO: can we get instance better?
 			ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);

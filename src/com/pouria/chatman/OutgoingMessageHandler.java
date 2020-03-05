@@ -36,7 +36,8 @@ public class OutgoingMessageHandler {
 	public void handle(){
 		boolean success = client.send(message);
 		message.setIsOurMessage(true);
-		message.setIsFailed(!success);
+		int status = (success)? ChatmanMessage.STATUS_SENT : ChatmanMessage.STATUS_SENDFAIL;
+		message.setStatus(status);
 	}
 	
 }

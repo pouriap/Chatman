@@ -1431,7 +1431,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
 		//failed messages that have failed again
-		if(message.isDisplayed() && message.isFailed()){
+		if(message.isDisplayed() && message.getStatus()==ChatmanMessage.STATUS_SENDFAIL){
 			return;
 		}
 
@@ -1451,7 +1451,8 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
 		//this is for failed messages that are sent now
-		if(message.isDisplayed() && message.isFailed()==false){
+		if(message.isDisplayed() && message.getStatus()==ChatmanMessage.STATUS_SENT){
+			//refresh convo to make red ones white
 			conversationTextAll = chatman.getAllMessagesText();
 		}
 		else{

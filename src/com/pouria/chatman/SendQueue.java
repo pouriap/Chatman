@@ -42,7 +42,7 @@ public class SendQueue {
 				MessageHandler sender = new MessageHandler(ChatmanMessage.DIR_OUT);
 				sender.handle(firstMessage);
 				//agar ferestade shod az saf dar biar va boro baadi
-				if(!firstMessage.isFailed()){
+				if(firstMessage.getStatus() == ChatmanMessage.STATUS_SENT){
 					queue.poll();
 				}
 				//agar nashod connect sho
@@ -56,7 +56,7 @@ public class SendQueue {
 								//if it's already displayed continue
 								continue;
 							}
-							message.setIsFailed(true);
+							message.setStatus(ChatmanMessage.STATUS_SENDFAIL);
 							message.setIsOurMessage(true);
 							//add them to conversation without sending
 							(new CommandInvokeLater(new CommandAddToConversation(message), true)).execute();
