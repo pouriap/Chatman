@@ -17,10 +17,15 @@ import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -44,11 +49,15 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
@@ -125,9 +134,10 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaConversation = new javax.swing.JEditorPane();
         scrollPaneInput = new javax.swing.JScrollPane();
         textAreaInput = new javax.swing.JEditorPane();
+        tableEmojis = new javax.swing.JTable();
         labelConvoBg = new javax.swing.JLabel();
         labelInputBg = new javax.swing.JLabel();
-        tableEmojis = new javax.swing.JTable();
+        labelTableBg = new javax.swing.JLabel();
         labelNextEmojiPage = new javax.swing.JLabel();
         labelPrevEmojiPage = new javax.swing.JLabel();
         labelSend = new javax.swing.JLabel();
@@ -336,7 +346,7 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         getContentPane().setLayout(null);
 
-        scrollPaneConversation.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.gray));
+        scrollPaneConversation.setBorder(null);
         scrollPaneConversation.setOpaque(false);
         scrollPaneConversation.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -365,9 +375,9 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneConversation.setViewportView(textAreaConversation);
 
         getContentPane().add(scrollPaneConversation);
-        scrollPaneConversation.setBounds(20, 20, 455, 210);
+        scrollPaneConversation.setBounds(25, 34, 440, 190);
 
-        scrollPaneInput.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.gray));
+        scrollPaneInput.setBorder(null);
         scrollPaneInput.setOpaque(false);
 
         textAreaInput.setBorder(null);
@@ -387,18 +397,8 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneInput.setViewportView(textAreaInput);
 
         getContentPane().add(scrollPaneInput);
-        scrollPaneInput.setBounds(20, 330, 270, 150);
+        scrollPaneInput.setBounds(30, 330, 255, 145);
 
-        labelConvoBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
-        getContentPane().add(labelConvoBg);
-        labelConvoBg.setBounds(20, 20, 455, 210);
-
-        labelInputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/opacity77.png"))); // NOI18N
-        getContentPane().add(labelInputBg);
-        labelInputBg.setBounds(20, 330, 270, 150);
-
-        tableEmojis.setBorder(javax.swing.BorderFactory.createEtchedBorder(java.awt.Color.lightGray, java.awt.Color.gray));
-        tableEmojis.setForeground(new java.awt.Color(255, 255, 255));
         tableEmojis.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
@@ -412,6 +412,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         ));
         tableEmojis.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        tableEmojis.setGridColor(new java.awt.Color(255, 255, 255));
         tableEmojis.setOpaque(false);
         tableEmojis.setRowHeight(30);
         tableEmojis.setRowSelectionAllowed(false);
@@ -422,17 +423,23 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(tableEmojis);
-        tableEmojis.setBounds(300, 330, 175, 150);
+        tableEmojis.setBounds(300, 328, 175, 150);
 
-        labelNextEmojiPage.setBackground(new java.awt.Color(51, 51, 51));
-        labelNextEmojiPage.setFont(new java.awt.Font("Sylfaen", 1, 14)); // NOI18N
-        labelNextEmojiPage.setForeground(new java.awt.Color(255, 255, 255));
+        labelConvoBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg-top-dark.png"))); // NOI18N
+        getContentPane().add(labelConvoBg);
+        labelConvoBg.setBounds(20, 10, 460, 230);
+
+        labelInputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg-bottom-dark.png"))); // NOI18N
+        getContentPane().add(labelInputBg);
+        labelInputBg.setBounds(20, 310, 280, 180);
+
+        labelTableBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bt-table-dark.png"))); // NOI18N
+        getContentPane().add(labelTableBg);
+        labelTableBg.setBounds(292, 317, 200, 170);
+
         labelNextEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelNextEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/next.png"))); // NOI18N
-        labelNextEmojiPage.setToolTipText("");
-        labelNextEmojiPage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        labelNextEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-next-dark-normal.png"))); // NOI18N
         labelNextEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        labelNextEmojiPage.setOpaque(true);
         labelNextEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 labelNextEmojiPageMouseEntered(evt);
@@ -450,14 +457,9 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelNextEmojiPage);
         labelNextEmojiPage.setBounds(390, 490, 30, 25);
 
-        labelPrevEmojiPage.setBackground(new java.awt.Color(51, 51, 51));
-        labelPrevEmojiPage.setFont(new java.awt.Font("Sylfaen", 1, 14)); // NOI18N
-        labelPrevEmojiPage.setForeground(new java.awt.Color(255, 255, 255));
         labelPrevEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelPrevEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/prev.png"))); // NOI18N
-        labelPrevEmojiPage.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        labelPrevEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-prev-dark-normal.png"))); // NOI18N
         labelPrevEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        labelPrevEmojiPage.setOpaque(true);
         labelPrevEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 labelPrevEmojiPageMouseEntered(evt);
@@ -475,14 +477,9 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelPrevEmojiPage);
         labelPrevEmojiPage.setBounds(350, 490, 30, 25);
 
-        labelSend.setBackground(new java.awt.Color(51, 51, 51));
-        labelSend.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        labelSend.setForeground(new java.awt.Color(255, 255, 255));
         labelSend.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelSend.setText("ارسال");
-        labelSend.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        labelSend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-send-dark-normal.png"))); // NOI18N
         labelSend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        labelSend.setOpaque(true);
         labelSend.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 labelSendMouseEntered(evt);
@@ -498,16 +495,11 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labelSend);
-        labelSend.setBounds(20, 490, 130, 30);
+        labelSend.setBounds(35, 490, 120, 40);
 
-        labelClear.setBackground(new java.awt.Color(51, 51, 51));
-        labelClear.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        labelClear.setForeground(new java.awt.Color(255, 255, 255));
         labelClear.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelClear.setText("پاک کردن");
-        labelClear.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        labelClear.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-clear-dark-normal.png"))); // NOI18N
         labelClear.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        labelClear.setOpaque(true);
         labelClear.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 labelClearMouseEntered(evt);
@@ -523,7 +515,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labelClear);
-        labelClear.setBounds(160, 490, 130, 30);
+        labelClear.setBounds(160, 490, 120, 40);
 
         labelStatusLabl.setBackground(new java.awt.Color(51, 51, 51));
         labelStatusLabl.setForeground(new java.awt.Color(51, 51, 51));
@@ -1125,8 +1117,9 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaInput.requestFocus();
         
         
-        //Table BG
-        tableEmojis.setBackground(new Color(50,50,50,170));  
+        //Table BG transparent
+        tableEmojis.setBackground(new Color(0,0,0,0));  
+		tableEmojis.setGridColor(new Color(0,0,0,0));
 
         
         //Populate Table
@@ -1170,7 +1163,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		
         //Empty HTML Texts
-        defaultTextAreaHtml = "<html><head><style type='text/css'>#text { color: white; font-family: Tahoma; font-size: 12px; }</style></head><body id='text'></body></html>";
+        defaultTextAreaHtml = "<html><head><style type='text/css'>#text { color: "+CMMessage.COLOR_NORMALTEXT+"; font-family: Tahoma; font-size: 12px; }</style></head><body id='text'></body></html>";
 		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
 		textAreaConversation.setEditorKit(tkit);		
@@ -1205,7 +1198,7 @@ public class ChatFrame extends javax.swing.JFrame {
         url = getClass().getResource("/resources/history.png");
         img = kit.createImage(url);
         dialogHistory.setIconImage(img);
-        
+        //TODO: emojis flash when there's a lot of emojis after sending 
 
         //Center
         this.setLocationRelativeTo(null);
@@ -1213,13 +1206,19 @@ public class ChatFrame extends javax.swing.JFrame {
 		//Hide wake on lan menu
 		menuWakeOnLan.setVisible(false);
 		
-		//Iransans font for sendInputText and clear
+		//Iransans font for everything
 		try{
 			InputStream is = getClass().getResourceAsStream("/resources/iransans.ttf");
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-			Font iranSans = font.deriveFont(15f);
-			labelSend.setFont(iranSans);
-			labelClear.setFont(iranSans);
+			Font iranSans = font.deriveFont(12f);
+			menuFile.setFont(iranSans);
+			menuChangeBg.setFont(iranSans);
+			menuShowHistory.setFont(iranSans);
+			menuRemoteShutdown.setFont(iranSans);
+			menuAbortRemoteShutdown.setFont(iranSans);
+			menuAbortLocalShutdown.setFont(iranSans);
+			menuAbout.setFont(iranSans);
+			menuExit.setFont(iranSans);
 		}catch(Exception e){
 			//font will revert to Tahoma
 		}
@@ -1312,8 +1311,8 @@ public class ChatFrame extends javax.swing.JFrame {
         dialogHistory.setTitle(CMHelper.getInstance().getStr("history"));
         buttonNextHistoryPage.setText(CMHelper.getInstance().getStr("next_page"));
         buttonPrevHistoryPage.setText(CMHelper.getInstance().getStr("prev_page"));
-        labelSend.setText(CMHelper.getInstance().getStr("send"));
-        labelClear.setText(CMHelper.getInstance().getStr("clear"));
+        //labelSend.setText(CMHelper.getInstance().getStr("send"));
+        //labelClear.setText(CMHelper.getInstance().getStr("clear"));
         labelStatusLabl.setText(CMHelper.getInstance().getStr("status"));
         labelStatus.setText(CMHelper.getInstance().getStr("offline"));
         menuFile.setText(CMHelper.getInstance().getStr("options"));
@@ -1395,7 +1394,93 @@ public class ChatFrame extends javax.swing.JFrame {
 		if(listenersCount == 0){
 			scrollPaneConversation.getVerticalScrollBar().addAdjustmentListener(scrollListenerAlwaysDown);
 		}
-		     
+		
+		JScrollBar scrollbar = scrollPaneConversation.getVerticalScrollBar();
+		scrollbar.setOpaque(false);
+		int defaultHeight = scrollbar.getPreferredSize().height;
+		scrollbar.setPreferredSize(new Dimension(10, defaultHeight));
+
+		scrollbar.setUI(new BasicScrollBarUI() {
+			@Override
+			protected JButton createIncreaseButton(int orientation){
+				JButton button = new JButton();
+				button.setOpaque(false);
+				button.setContentAreaFilled(false);
+				button.setBorderPainted(false);		
+				//hidden button hehe
+				//button.setIcon(new ImageIcon("C:\\Users\\Pouria\\Desktop\\down.png"));
+				return button;
+			}
+			@Override
+			protected JButton createDecreaseButton(int orientation){
+				JButton button = new JButton();
+				button.setOpaque(false);
+				button.setContentAreaFilled(false);
+				button.setBorderPainted(false);
+				//hidden button hehe
+				//button.setIcon(new ImageIcon("C:\\Users\\Pouria\\Desktop\\up.png"));
+				return button;
+			}
+			@Override
+			protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds)
+			{
+				//no track hehe
+				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g.setColor(new Color(45, 45, 45));
+				//g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
+				g.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 7, 7);
+
+				if(trackHighlight == DECREASE_HIGHLIGHT)        {
+					paintDecreaseHighlight(g);
+				}
+				else if(trackHighlight == INCREASE_HIGHLIGHT)           {
+					paintIncreaseHighlight(g);
+				}
+			}
+			@Override
+			protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds)
+			{
+				
+				if(thumbBounds.isEmpty() || !scrollbar.isEnabled())     {
+					return;
+				}
+				
+				int w = thumbBounds.width;
+				int h = thumbBounds.height;
+				
+				g.translate(thumbBounds.x, thumbBounds.y);
+				
+				//antialiasing
+				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+				Color color;
+				Color shadowColor;
+				if(isDragging) {
+				  color = new Color(75,75,75);
+				  shadowColor = new Color(45,45,45);
+				}else if(isThumbRollover()) {
+				  color = new Color(120,120,120);
+				  shadowColor = new Color(70,70,70);
+				}else {
+				  color = new Color(100,100,100);
+				  shadowColor = new Color(70,70,70);
+				}
+
+				//thumb shadow
+				g.setColor(shadowColor);
+				g.drawRoundRect(0, 0, w-1, h-1, 7, 7);
+				//thumb color
+				g.setColor(color);
+				g.fillRoundRect(0, 0, w-1, h-1, 7, 7);			
+
+				g.translate(-thumbBounds.x, -thumbBounds.y);
+					
+			}
+	
+			
+			
+		});
+				     
         String text = getInputText();
         
         //return if input is empty
@@ -1443,7 +1528,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		textAreaConversation.setText(doc.outerHtml());
 	}
 	  
-    //is called when we want to add something to the outgoing text like emoticons, paste stuff, or disconnect message
+    //is called when we want to add something to the outgoing text like emoticons, paste stuff
     public void updateInputText(String t, boolean append){
         String html = textAreaInput.getText();
 		Document doc = Jsoup.parse(html);
@@ -1466,7 +1551,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		Element textDiv = doc.select("body#text").first();
 		if(textDiv == null){
 			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
-		}
+		}		
 		return textDiv.html();
     }
     
@@ -1476,23 +1561,65 @@ public class ChatFrame extends javax.swing.JFrame {
 	
 	//do this when mouse enters a 'button'
 	private void buttonMouseEntered(JLabel label){
-		label.setBackground(colorLabelHovered);
+		if(label == labelSend){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-hover.png")));
+		}
+		else if(label == labelClear){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-hover.png")));
+		}
+		else if(label == labelPrevEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-hover.png")));
+		}
+		else if(label == labelNextEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-hover.png")));
+		}
 	}
 	
 	//do this when mouse exits a 'button'
 	private void buttonMouseExitted(JLabel label){
-		label.setBackground(colorLabelNormal);
-		//if mouse left while being held down
-		buttonMouseUP(label);
+		if(label == labelSend){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-normal.png")));
+		}
+		else if(label == labelClear){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-normal.png")));
+		}	
+		else if(label == labelPrevEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-normal.png")));
+		}
+		else if(label == labelNextEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-normal.png")));
+		}
 	}
 	
 	private void buttonMouseDown(JLabel label){
-		label.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+		if(label == labelSend){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-pressed.png")));
+		}
+		else if(label == labelClear){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-pressed.png")));
+		}	
+		else if(label == labelPrevEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-pressed.png")));
+		}
+		else if(label == labelNextEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-pressed.png")));
+		}
 	}
 	
 	private void buttonMouseUP(JLabel label){
-		label.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-	}
+		if(label == labelSend){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-normal.png")));
+		}
+		else if(label == labelClear){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-normal.png")));
+		}	
+		else if(label == labelPrevEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-normal.png")));
+		}
+		else if(label == labelNextEmojiPage){
+			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-normal.png")));
+		}
+	}//TODO: time style should be red for unsent, white for sent, and grey when hidden 
 	 
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
@@ -1587,6 +1714,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelStatus;
     private javax.swing.JLabel labelStatusBackground;
     private javax.swing.JLabel labelStatusLabl;
+    private javax.swing.JLabel labelTableBg;
     private javax.swing.JMenuItem menuAbortLocalShutdown;
     private javax.swing.JMenuItem menuAbortRemoteShutdown;
     private javax.swing.JMenuItem menuAbout;

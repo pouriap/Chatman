@@ -37,8 +37,8 @@ public class CMMessage {
 	private boolean isOurMessage = false;
 	private boolean isSaved = false;
 	
-	private final String COLOR_SENT= "#d8d8d8";
-	private final String COLOR_FAILED = "#f73900";
+	public static final String COLOR_NORMALTEXT= "#e0e0e0";
+	public static final String COLOR_FAILED = "#f73900";
 
 	public static final int TYPE_BADMESSAGE = 0;
 	public static final int TYPE_TEXT = 1;
@@ -149,7 +149,7 @@ public class CMMessage {
 		Date d = new Date(time);
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         String timeTxt = dateFormat.format(d);
-	
+		
 		if(this.type == TYPE_TEXT){
 			//parse web links 
 			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'><u>$1</u></a> ");
@@ -177,12 +177,26 @@ public class CMMessage {
 			//other message types don't have a display
 			return "";
 		}
-		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : COLOR_SENT;
-		String senderName = (isOurMessage)? "You" : sender;
+
+		boolean isFarsi = false;	
+		char[] charArray = content.toCharArray();
+		for(char c: charArray){
+			if(Character.UnicodeBlock.of(c) != Character.UnicodeBlock.BASIC_LATIN) {
+				isFarsi=true;
+				break;
+			}
+		}
+		
+		String textAlign = (isFarsi)? "right" : "left";
+		String you = (isFarsi)? "شما" : "You";
+		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : COLOR_NORMALTEXT;
+		String senderName = (isOurMessage)? you : sender;
 		
 		//each message is a div
-		t = "<div style='padding:5px;'><span class='time'>["+timeTxt+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + t + "</div>";
+		t = "<div style='text-align:"+textAlign+";padding:5px;'><span class='time'>["+timeTxt+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + t + "</div>";
+		
         return t;
+		
 	}
 	
 	public String getSender(){

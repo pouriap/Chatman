@@ -59,11 +59,11 @@ public class PopupDialog extends JDialog{
 			
 			//linux sucks so...
 			if(os == CMHelper.getInstance().OS_WIN){
-				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification2.wav"));
+				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification-bat.wav"));
 				clip = AudioSystem.getClip();
 			}
 			else{
-				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/notification2.wav")); 
+				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/notification-bat.wav")); 
 				audioStream = AudioSystem.getAudioInputStream(srcStream);
 				AudioFormat format = audioStream.getFormat();
 				DataLine.Info info = new DataLine.Info(Clip.class, format);
