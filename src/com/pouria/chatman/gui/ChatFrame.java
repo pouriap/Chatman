@@ -82,12 +82,13 @@ public class ChatFrame extends javax.swing.JFrame {
 	private AdjustmentListener scrollListenerAlwaysDown;
 	PopupDialog newMessagePopup;
 	
-	private final Color colorLabelHovered = new Color(81, 81, 81);
-	private final Color colorLabelNormal = new Color(51, 51, 51);
+	private String labelsTheme = "dark";
+	private String backgroundsTheme = "dark";
+	private static final String textColorDark = "#2b2b2b";
+	private static final String textColorLight = "#e0e0e0";
+	public static String textColor = textColorLight;
 	
 
-	
-	
 
     private ChatFrame(){
         initComponents();
@@ -418,20 +419,20 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(tableEmojis);
         tableEmojis.setBounds(300, 328, 175, 150);
 
-        labelConvoBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg-top-dark.png"))); // NOI18N
+        labelConvoBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-top-dark-normal.png"))); // NOI18N
         getContentPane().add(labelConvoBg);
         labelConvoBg.setBounds(20, 10, 460, 230);
 
-        labelInputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg-bottom-dark.png"))); // NOI18N
+        labelInputBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-bottom-dark-normal.png"))); // NOI18N
         getContentPane().add(labelInputBg);
         labelInputBg.setBounds(20, 310, 280, 180);
 
-        labelTableBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bt-table-dark.png"))); // NOI18N
+        labelTableBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-table-dark-normal.png"))); // NOI18N
         getContentPane().add(labelTableBg);
         labelTableBg.setBounds(292, 317, 200, 170);
 
         labelNextEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelNextEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-next-dark-normal.png"))); // NOI18N
+        labelNextEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-next-dark-normal.png"))); // NOI18N
         labelNextEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelNextEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -451,7 +452,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelNextEmojiPage.setBounds(390, 490, 30, 25);
 
         labelPrevEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelPrevEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-prev-dark-normal.png"))); // NOI18N
+        labelPrevEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-prev-dark-normal.png"))); // NOI18N
         labelPrevEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelPrevEmojiPage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -471,7 +472,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelPrevEmojiPage.setBounds(350, 490, 30, 25);
 
         labelSend.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelSend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-send-dark-normal.png"))); // NOI18N
+        labelSend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-send-dark-normal.png"))); // NOI18N
         labelSend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelSend.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -491,7 +492,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelSend.setBounds(35, 490, 120, 40);
 
         labelClear.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelClear.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/button-clear-dark-normal.png"))); // NOI18N
+        labelClear.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-clear-dark-normal.png"))); // NOI18N
         labelClear.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelClear.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -522,7 +523,7 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelStatus);
         labelStatus.setBounds(170, 560, 300, 30);
 
-        labelLoading.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/loading.gif"))); // NOI18N
+        labelLoading.setIcon(new javax.swing.ImageIcon("C:\\Users\\Pouria\\Desktop\\disconnected.png")); // NOI18N
         getContentPane().add(labelLoading);
         labelLoading.setBounds(310, 557, 40, 40);
 
@@ -706,7 +707,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_panelPopupNormalMouseReleased
 
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
-		buttonMouseUP((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "normal");
 		clearInputText();
     }//GEN-LAST:event_labelClearMouseReleased
 
@@ -808,12 +809,12 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuWakeOnLanActionPerformed
 
     private void labelNextEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseReleased
-        buttonMouseUP((JLabel)evt.getComponent());
+        changeLabelIcon((JLabel)evt.getComponent(), "normal");
 		nextEmojiPage();
     }//GEN-LAST:event_labelNextEmojiPageMouseReleased
 
     private void labelPrevEmojiPageMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseReleased
-		buttonMouseUP((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "normal");
 		prevEmojiPage();
     }//GEN-LAST:event_labelPrevEmojiPageMouseReleased
 
@@ -851,7 +852,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuChangeBgMouseReleased
 
     private void labelSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMousePressed
-		buttonMouseDown((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "pressed");
     }//GEN-LAST:event_labelSendMousePressed
 
     private void textAreaInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaInputKeyPressed
@@ -904,52 +905,52 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_scrollPaneConversationMouseEntered
 
     private void labelSendMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseEntered
-		buttonMouseEntered((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "hover");
     }//GEN-LAST:event_labelSendMouseEntered
 
     private void labelSendMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseExited
-		buttonMouseExitted((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "normal");
     }//GEN-LAST:event_labelSendMouseExited
 
     private void labelClearMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseEntered
-		buttonMouseEntered((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "hover");
     }//GEN-LAST:event_labelClearMouseEntered
 
     private void labelClearMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseExited
-		buttonMouseExitted((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "normal");
     }//GEN-LAST:event_labelClearMouseExited
 
     private void labelPrevEmojiPageMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseEntered
-		buttonMouseEntered((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "hover");
     }//GEN-LAST:event_labelPrevEmojiPageMouseEntered
 
     private void labelPrevEmojiPageMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMouseExited
-        buttonMouseExitted((JLabel)evt.getComponent());
+        changeLabelIcon((JLabel)evt.getComponent(), "normal");
     }//GEN-LAST:event_labelPrevEmojiPageMouseExited
 
     private void labelNextEmojiPageMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseEntered
-		buttonMouseEntered((JLabel)evt.getComponent());
+		changeLabelIcon((JLabel)evt.getComponent(), "hover");
     }//GEN-LAST:event_labelNextEmojiPageMouseEntered
 
     private void labelNextEmojiPageMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMouseExited
-        buttonMouseExitted((JLabel)evt.getComponent());
+        changeLabelIcon((JLabel)evt.getComponent(), "normal");
     }//GEN-LAST:event_labelNextEmojiPageMouseExited
 
     private void labelSendMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMouseReleased
-        buttonMouseUP((JLabel)evt.getComponent());
+        changeLabelIcon((JLabel)evt.getComponent(), "normal");
 		sendInputText();
     }//GEN-LAST:event_labelSendMouseReleased
 
     private void labelPrevEmojiPageMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPrevEmojiPageMousePressed
-        buttonMouseDown((JLabel)evt.getComponent());
+        changeLabelIcon((JLabel)evt.getComponent(), "pressed");
     }//GEN-LAST:event_labelPrevEmojiPageMousePressed
 
     private void labelNextEmojiPageMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelNextEmojiPageMousePressed
-        buttonMouseDown((JLabel)evt.getComponent());
+        changeLabelIcon((JLabel)evt.getComponent(), "pressed");
     }//GEN-LAST:event_labelNextEmojiPageMousePressed
 
     private void labelClearMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMousePressed
-        buttonMouseDown((JLabel)evt.getComponent());
+        changeLabelIcon((JLabel)evt.getComponent(), "pressed");
     }//GEN-LAST:event_labelClearMousePressed
 
     /**
@@ -1191,7 +1192,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		scrollbar.setOpaque(false);
 		int defaultHeight = scrollbar.getPreferredSize().height;
 		scrollbar.setPreferredSize(new Dimension(10, defaultHeight));
-		scrollbar.setUI(new CMScrollbar());
+		scrollbar.setUI(new CMScrollbarUI());
 		
 		
         //Icons
@@ -1230,6 +1231,16 @@ public class ChatFrame extends javax.swing.JFrame {
 		}catch(Exception e){
 			//font will revert to Tahoma
 		}
+		
+		
+		//set label icons
+		changeLabelIcon(labelConvoBg, "");
+		changeLabelIcon(labelInputBg, "");
+		changeLabelIcon(labelTableBg, "");
+		changeLabelIcon(labelSend, "");
+		changeLabelIcon(labelClear, "");
+		changeLabelIcon(labelPrevEmojiPage, "");
+		changeLabelIcon(labelNextEmojiPage, "");
 		
 		updateUserName();
 
@@ -1333,6 +1344,44 @@ public class ChatFrame extends javax.swing.JFrame {
         menuAbout.setText(CMHelper.getInstance().getStr("about"));
         menuExit.setText(CMHelper.getInstance().getStr("exit"));
     }
+	
+	public void changeLabelIcon(JLabel label, String state){
+		
+		if(state == null){
+			state = "normal";
+		}
+		else if(state.isEmpty()){
+			state = "normal";
+		}
+		String template = "/resources/label-*name*-*theme*-*state*.png";
+		String path = "";
+		
+		if(label == labelSend){
+			path = template.replace("*name*", "send").replace("*theme*", labelsTheme).replace("*state*", state);
+		}
+		else if(label == labelClear){
+			path = template.replace("*name*", "clear").replace("*theme*", labelsTheme).replace("*state*", state);
+		}
+		else if(label == labelPrevEmojiPage){
+			path = template.replace("*name*", "prev").replace("*theme*", labelsTheme).replace("*state*", state);
+		}
+		else if(label == labelNextEmojiPage){
+			path = template.replace("*name*", "next").replace("*theme*", labelsTheme).replace("*state*", state);
+		}
+		else if(label == labelConvoBg){
+			path = template.replace("*name*", "top").replace("*theme*", backgroundsTheme).replace("*state*", state);
+		}
+		else if(label == labelInputBg){
+			path = template.replace("*name*", "bottom").replace("*theme*", backgroundsTheme).replace("*state*", state);
+		}
+		else if(label == labelTableBg){
+			path = template.replace("*name*", "table").replace("*theme*", backgroundsTheme).replace("*state*", state);
+		}
+		
+		ImageIcon icon = (new ImageIcon(getClass().getResource(path)));
+		label.setIcon(icon);
+		
+	}
 	
 	//populates a table with emoticons and returns the table model
 	public AbstractTableModel getEmoticonTable(String[][] emoticonsArray){
@@ -1481,67 +1530,8 @@ public class ChatFrame extends javax.swing.JFrame {
         updateInputText("", false);
     }
 	
-	//do this when mouse enters a 'button'
-	private void buttonMouseEntered(JLabel label){
-		if(label == labelSend){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-hover.png")));
-		}
-		else if(label == labelClear){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-hover.png")));
-		}
-		else if(label == labelPrevEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-hover.png")));
-		}
-		else if(label == labelNextEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-hover.png")));
-		}
-	}
-	
-	//do this when mouse exits a 'button'
-	private void buttonMouseExitted(JLabel label){
-		if(label == labelSend){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-normal.png")));
-		}
-		else if(label == labelClear){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-normal.png")));
-		}	
-		else if(label == labelPrevEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-normal.png")));
-		}
-		else if(label == labelNextEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-normal.png")));
-		}
-	}
-	
-	private void buttonMouseDown(JLabel label){
-		if(label == labelSend){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-pressed.png")));
-		}
-		else if(label == labelClear){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-pressed.png")));
-		}	
-		else if(label == labelPrevEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-pressed.png")));
-		}
-		else if(label == labelNextEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-pressed.png")));
-		}
-	}
-	
-	private void buttonMouseUP(JLabel label){
-		if(label == labelSend){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-send-dark-normal.png")));
-		}
-		else if(label == labelClear){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-clear-dark-normal.png")));
-		}	
-		else if(label == labelPrevEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-prev-dark-normal.png")));
-		}
-		else if(label == labelNextEmojiPage){
-			label.setIcon(new ImageIcon(getClass().getResource("/resources/button-next-dark-normal.png")));
-		}
-	}//TODO: time style should be red for unsent, white for sent, and grey when hidden 
+
+//TODO: time style should be red for unsent, white for sent, and grey when hidden 
 	 
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));

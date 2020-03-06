@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman;
 
+import com.pouria.chatman.gui.ChatFrame;
 import io.undertow.server.handlers.form.FormData;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -37,7 +38,7 @@ public class CMMessage {
 	private boolean isOurMessage = false;
 	private boolean isSaved = false;
 	
-	public static final String COLOR_NORMALTEXT= "#e0e0e0";
+	public static final String COLOR_NORMALTEXT= ChatFrame.textColor;
 	public static final String COLOR_FAILED = "#f73900";
 
 	public static final int TYPE_BADMESSAGE = 0;

@@ -29,7 +29,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
  *
  * @author pouriap
  */
-public class CMScrollbar extends BasicScrollBarUI{
+public class CMScrollbarUI extends BasicScrollBarUI{
 	
 	@Override
 	protected JButton createIncreaseButton(int orientation){
@@ -95,7 +95,7 @@ public class CMScrollbar extends BasicScrollBarUI{
 		  color = new Color(120,120,120);
 		  shadowColor = new Color(70,70,70);
 		}else {
-		  color = new Color(100,100,100);
+		  color = new Color(90,90,90);
 		  shadowColor = new Color(70,70,70);
 		}
 
