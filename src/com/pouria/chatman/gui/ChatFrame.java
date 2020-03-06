@@ -138,7 +138,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelClear = new javax.swing.JLabel();
         labelStatusLabl = new javax.swing.JLabel();
         labelStatus = new javax.swing.JLabel();
-        labelLoading = new javax.swing.JLabel();
+        labelStatusIcon = new javax.swing.JLabel();
         labelStatusBackground = new javax.swing.JLabel();
         labelFrameBg = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -512,20 +512,23 @@ public class ChatFrame extends javax.swing.JFrame {
         labelClear.setBounds(160, 490, 120, 40);
 
         labelStatusLabl.setBackground(new java.awt.Color(51, 51, 51));
+        labelStatusLabl.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         labelStatusLabl.setForeground(new java.awt.Color(51, 51, 51));
-        labelStatusLabl.setText("Status:");
+        labelStatusLabl.setText(":وضعیت");
         getContentPane().add(labelStatusLabl);
         labelStatusLabl.setBounds(20, 560, 150, 30);
 
         labelStatus.setBackground(new java.awt.Color(51, 51, 51));
+        labelStatus.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         labelStatus.setForeground(new java.awt.Color(51, 51, 51));
-        labelStatus.setText("در حال جستجوی شبکه");
+        labelStatus.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        labelStatus.setText("ارتباط قطع است");
         getContentPane().add(labelStatus);
         labelStatus.setBounds(170, 560, 300, 30);
 
-        labelLoading.setIcon(new javax.swing.ImageIcon("C:\\Users\\Pouria\\Desktop\\disconnected.png")); // NOI18N
-        getContentPane().add(labelLoading);
-        labelLoading.setBounds(310, 557, 40, 40);
+        labelStatusIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/disconnected.png"))); // NOI18N
+        getContentPane().add(labelStatusIcon);
+        labelStatusIcon.setBounds(360, 555, 40, 40);
 
         labelStatusBackground.setBackground(new java.awt.Color(239, 239, 239));
         labelStatusBackground.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1228,6 +1231,8 @@ public class ChatFrame extends javax.swing.JFrame {
 			menuAbortLocalShutdown.setFont(iranSans);
 			menuAbout.setFont(iranSans);
 			menuExit.setFont(iranSans);
+			labelStatus.setFont(iranSans);
+			labelStatusLabl.setFont(iranSans);
 		}catch(Exception e){
 			//font will revert to Tahoma
 		}
@@ -1577,8 +1582,8 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
 	
 	//shows loading gif
-	public void setLoadingVisible(boolean visible){
-		labelLoading.setVisible(visible);
+	public void changeStatusIcon(String iconName){
+		labelStatusIcon.setIcon((new ImageIcon(getClass().getResource("/resources/"+iconName))));
 	}
 	  
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
@@ -1617,7 +1622,6 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelConvoBg;
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelInputBg;
-    private javax.swing.JLabel labelLoading;
     private javax.swing.JLabel labelMessageIcon;
     private javax.swing.JLabel labelNewMessage;
     private javax.swing.JLabel labelNextEmojiPage;
@@ -1625,6 +1629,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelSend;
     private javax.swing.JLabel labelStatus;
     private javax.swing.JLabel labelStatusBackground;
+    private javax.swing.JLabel labelStatusIcon;
     private javax.swing.JLabel labelStatusLabl;
     private javax.swing.JLabel labelTableBg;
     private javax.swing.JMenuItem menuAbortLocalShutdown;

@@ -22,7 +22,7 @@ import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdSetLabelStatus;
 import com.pouria.chatman.CMConfig;
-import com.pouria.chatman.classes.CmdShowLoading;
+import com.pouria.chatman.classes.CmdChangeStatusIcon;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -194,7 +194,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 		removeServer();
 
 		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("searching_network")))).execute();
-		(new CmdInvokeLater(new CmdShowLoading(true))).execute();
+		(new CmdInvokeLater(new CmdChangeStatusIcon("connecting.gif"))).execute();
 		
         int serverPort = Integer.valueOf(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
 		String[] ipsToScan = getIpsToScan();
@@ -212,7 +212,6 @@ public class HttpClient extends Observable implements ChatmanClient{
 		}
 		
 		connectInProgress = false;
-		(new CmdInvokeLater(new CmdShowLoading(false))).execute();
 		
 		return success;
 		
@@ -247,6 +246,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 		else{
 			this.serverIP = (String) server;
 			(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + this.serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
+			(new CmdInvokeLater(new CmdChangeStatusIcon("connected.png"))).execute();
 			setChanged();
 			notifyObservers();
 		}
@@ -255,6 +255,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 	private synchronized void removeServer(){
 		this.serverIP = null;
 		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("server_not_found")))).execute();
+		(new CmdInvokeLater(new CmdChangeStatusIcon("disconnected.png"))).execute();
 	}
 
 	@Override

@@ -22,17 +22,17 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CmdShowLoading implements Command{
+public class CmdChangeStatusIcon implements Command{
 
-	boolean visible;
+	String iconName;
 	
-	public CmdShowLoading(boolean visible){
-		this.visible = visible;
+	public CmdChangeStatusIcon(String iconName){
+		this.iconName = iconName;
 	}
 	
 	@Override
 	public void execute() {
-		ChatFrame.getInstance().setLoadingVisible(visible);
+		ChatFrame.getInstance().changeStatusIcon(iconName);
 	}
 	
 }
