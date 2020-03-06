@@ -16,10 +16,97 @@
  */
 package com.pouria.chatman.gui;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+
 /**
  *
  * @author pouriap
  */
-public class CMScrollbar {
+public class CMScrollbar extends BasicScrollBarUI{
 	
+	@Override
+	protected JButton createIncreaseButton(int orientation){
+		JButton button = new JButton();
+		button.setOpaque(false);
+		button.setContentAreaFilled(false);
+		button.setBorderPainted(false);		
+		//hidden button hehe
+		//button.setIcon(new ImageIcon("C:\\Users\\Pouria\\Desktop\\down.png"));
+		return button;
+	}
+	
+	@Override
+	protected JButton createDecreaseButton(int orientation){
+		JButton button = new JButton();
+		button.setOpaque(false);
+		button.setContentAreaFilled(false);
+		button.setBorderPainted(false);
+		//hidden button hehe
+		//button.setIcon(new ImageIcon("C:\\Users\\Pouria\\Desktop\\up.png"));
+		return button;
+	}
+	
+	@Override
+	protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds)
+	{
+		//no track hehe
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setColor(new Color(45, 45, 45));
+		//g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
+		g.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 7, 7);
+
+		if(trackHighlight == DECREASE_HIGHLIGHT)        {
+			paintDecreaseHighlight(g);
+		}
+		else if(trackHighlight == INCREASE_HIGHLIGHT)           {
+			paintIncreaseHighlight(g);
+		}
+	}
+	
+	@Override
+	protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds)
+	{
+
+		if(thumbBounds.isEmpty() || !scrollbar.isEnabled())     {
+			return;
+		}
+
+		int w = thumbBounds.width;
+		int h = thumbBounds.height;
+
+		g.translate(thumbBounds.x, thumbBounds.y);
+
+		//antialiasing
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		Color color;
+		Color shadowColor;
+		if(isDragging) {
+		  color = new Color(75,75,75);
+		  shadowColor = new Color(45,45,45);
+		}else if(isThumbRollover()) {
+		  color = new Color(120,120,120);
+		  shadowColor = new Color(70,70,70);
+		}else {
+		  color = new Color(100,100,100);
+		  shadowColor = new Color(70,70,70);
+		}
+
+		//thumb shadow
+		g.setColor(shadowColor);
+		g.drawRoundRect(0, 0, w-1, h-1, 7, 7);
+		//thumb color
+		g.setColor(color);
+		g.fillRoundRect(0, 0, w-1, h-1, 7, 7);			
+
+		g.translate(-thumbBounds.x, -thumbBounds.y);
+	}
+
 }

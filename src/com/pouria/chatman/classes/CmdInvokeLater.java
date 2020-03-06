@@ -28,7 +28,10 @@ import javax.swing.SwingUtilities;
  * get one or more Command objects and runs their Execute() method in a thread-safe manner
  */
 public class CmdInvokeLater implements Command{
-	//TODO: should all calls be invokeAndWait?
+	
+	//if we do invokeAndWait GUI elements freeze. vaghti message ha gif haye ziad
+	//dare hamashoon freeze mishan ta message ferestade beshe
+	
     private final Command[] innerCommands;
 	private final boolean sync;
     
@@ -56,7 +59,7 @@ public class CmdInvokeLater implements Command{
 				command.execute();
 			}
 		}
-		
+
 		if(sync){
 			try{
 				SwingUtilities.invokeAndWait(() -> {

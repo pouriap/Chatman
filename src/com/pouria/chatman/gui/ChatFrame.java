@@ -19,13 +19,9 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -49,15 +45,12 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
-import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
@@ -1185,6 +1178,21 @@ public class ChatFrame extends javax.swing.JFrame {
 			}
 		};	
 		
+		//TODO: farsi send doesn't work
+		//TODO: yebar chatmane khodam baz bood hezarta message ferestadam bad ke oon yeki ro baz kardam
+		//hici barash nayoomad harchi ham ke bahash mifrestadam baraye khodam miomad
+		//ellat: ehtemalan inke IP khodesh ro peida karde boode pas ping nayomade ke hezarta message man
+		//ferestade beshe va  harchi ham mifrestadim ba khodesh be khodesh mirafte
+		//TODO: vaghti minimize hastim double-click rooye tray maximize nemikone
+		
+		
+		//customized scrollbar
+		JScrollBar scrollbar = scrollPaneConversation.getVerticalScrollBar();
+		scrollbar.setOpaque(false);
+		int defaultHeight = scrollbar.getPreferredSize().height;
+		scrollbar.setPreferredSize(new Dimension(10, defaultHeight));
+		scrollbar.setUI(new CMScrollbar());
+		
 		
         //Icons
         //main frame
@@ -1198,8 +1206,8 @@ public class ChatFrame extends javax.swing.JFrame {
         url = getClass().getResource("/resources/history.png");
         img = kit.createImage(url);
         dialogHistory.setIconImage(img);
-        //TODO: emojis flash when there's a lot of emojis after sending 
 
+		
         //Center
         this.setLocationRelativeTo(null);
 		
@@ -1394,93 +1402,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		if(listenersCount == 0){
 			scrollPaneConversation.getVerticalScrollBar().addAdjustmentListener(scrollListenerAlwaysDown);
 		}
-		
-		JScrollBar scrollbar = scrollPaneConversation.getVerticalScrollBar();
-		scrollbar.setOpaque(false);
-		int defaultHeight = scrollbar.getPreferredSize().height;
-		scrollbar.setPreferredSize(new Dimension(10, defaultHeight));
-
-		scrollbar.setUI(new BasicScrollBarUI() {
-			@Override
-			protected JButton createIncreaseButton(int orientation){
-				JButton button = new JButton();
-				button.setOpaque(false);
-				button.setContentAreaFilled(false);
-				button.setBorderPainted(false);		
-				//hidden button hehe
-				//button.setIcon(new ImageIcon("C:\\Users\\Pouria\\Desktop\\down.png"));
-				return button;
-			}
-			@Override
-			protected JButton createDecreaseButton(int orientation){
-				JButton button = new JButton();
-				button.setOpaque(false);
-				button.setContentAreaFilled(false);
-				button.setBorderPainted(false);
-				//hidden button hehe
-				//button.setIcon(new ImageIcon("C:\\Users\\Pouria\\Desktop\\up.png"));
-				return button;
-			}
-			@Override
-			protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds)
-			{
-				//no track hehe
-				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				g.setColor(new Color(45, 45, 45));
-				//g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
-				g.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 7, 7);
-
-				if(trackHighlight == DECREASE_HIGHLIGHT)        {
-					paintDecreaseHighlight(g);
-				}
-				else if(trackHighlight == INCREASE_HIGHLIGHT)           {
-					paintIncreaseHighlight(g);
-				}
-			}
-			@Override
-			protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds)
-			{
-				
-				if(thumbBounds.isEmpty() || !scrollbar.isEnabled())     {
-					return;
-				}
-				
-				int w = thumbBounds.width;
-				int h = thumbBounds.height;
-				
-				g.translate(thumbBounds.x, thumbBounds.y);
-				
-				//antialiasing
-				((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-				Color color;
-				Color shadowColor;
-				if(isDragging) {
-				  color = new Color(75,75,75);
-				  shadowColor = new Color(45,45,45);
-				}else if(isThumbRollover()) {
-				  color = new Color(120,120,120);
-				  shadowColor = new Color(70,70,70);
-				}else {
-				  color = new Color(100,100,100);
-				  shadowColor = new Color(70,70,70);
-				}
-
-				//thumb shadow
-				g.setColor(shadowColor);
-				g.drawRoundRect(0, 0, w-1, h-1, 7, 7);
-				//thumb color
-				g.setColor(color);
-				g.fillRoundRect(0, 0, w-1, h-1, 7, 7);			
-
-				g.translate(-thumbBounds.x, -thumbBounds.y);
-					
-			}
-	
-			
-			
-		});
-				     
+	     
         String text = getInputText();
         
         //return if input is empty

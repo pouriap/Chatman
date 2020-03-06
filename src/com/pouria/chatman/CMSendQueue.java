@@ -57,7 +57,7 @@ public class CMSendQueue {
 							message.setStatus(CMMessage.STATUS_SENDFAIL);
 							message.setIsOurMessage(true);
 							ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
-							(new CmdInvokeLater(new CmdShowMessage(message), true)).execute();
+							(new CmdInvokeLater(new CmdShowMessage(message))).execute();
 						}
 						return;
 					}
