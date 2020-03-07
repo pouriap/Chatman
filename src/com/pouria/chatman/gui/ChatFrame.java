@@ -80,10 +80,10 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String username;
 	private AdjustmentListener scrollListenerAlwaysDown;
 	private String textColor;
+	private String labelsTheme = "dark";
+	private String backgroundsTheme = "dark";
 	PopupDialog newMessagePopup;
-	
-	private final String labelsTheme = "dark";
-	private final String backgroundsTheme = "dark";
+
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
@@ -140,6 +140,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelStatus = new javax.swing.JLabel();
         labelStatusIcon = new javax.swing.JLabel();
         labelStatusBackground = new javax.swing.JLabel();
+        labelMouseDetector = new javax.swing.JLabel();
         labelFrameBg = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
@@ -212,12 +213,14 @@ public class ChatFrame extends javax.swing.JFrame {
         dialogHistory.setAlwaysOnTop(true);
         dialogHistory.setIconImage(null);
         dialogHistory.setMinimumSize(new java.awt.Dimension(400, 300));
+        dialogHistory.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                dialogHistoryComponentShown(evt);
+            }
+        });
         dialogHistory.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 dialogHistoryWindowClosing(evt);
-            }
-            public void windowOpened(java.awt.event.WindowEvent evt) {
-                dialogHistoryWindowOpened(evt);
             }
         });
 
@@ -538,6 +541,14 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelStatusBackground);
         labelStatusBackground.setBounds(-5, 560, 560, 40);
 
+        labelMouseDetector.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                labelMouseDetectorMouseEntered(evt);
+            }
+        });
+        getContentPane().add(labelMouseDetector);
+        labelMouseDetector.setBounds(30, 250, 430, 40);
+
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
         labelFrameBg.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         labelFrameBg.setIconTextGap(0);
@@ -720,27 +731,6 @@ public class ChatFrame extends javax.swing.JFrame {
             menuRightClick.show(textAreaInput, evt.getX(), evt.getY());
         } 
     }//GEN-LAST:event_textAreaInputMouseReleased
-
-    private void dialogHistoryWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowOpened
-        
-		//is run everytime history dialog opens 
-		
-        historyPagination = new HistoryTablePagination(
-                tableHistory,
-                "history.sqlite",
-                "SELECT date,text FROM chat_sessions ORDER BY date DESC"
-        );
-
-        try{
-            historyPagination.nextPage();
-            buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
-            
-        }catch(SQLException e){
-			CMHelper.getInstance().log("failed to show history window: " + e.getMessage());
-            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
-        }
-
-    }//GEN-LAST:event_dialogHistoryWindowOpened
 
     private void menuShowHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuShowHistoryActionPerformed
         //show history dialog
@@ -956,6 +946,35 @@ public class ChatFrame extends javax.swing.JFrame {
         changeLabelIcon((JLabel)evt.getComponent(), "pressed");
     }//GEN-LAST:event_labelClearMousePressed
 
+    private void dialogHistoryComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_dialogHistoryComponentShown
+		
+		//is run everytime history dialog shows 
+        historyPagination = new HistoryTablePagination(
+                tableHistory,
+                "history.sqlite",
+                "SELECT date,text FROM chat_sessions ORDER BY date DESC"
+        );
+
+        try{
+            historyPagination.nextPage();
+            buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
+            
+        }catch(SQLException e){
+			CMHelper.getInstance().log("failed to show history window: " + e.getMessage());
+            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
+        }
+		
+    }//GEN-LAST:event_dialogHistoryComponentShown
+		
+	//ye labele makhfi ke vaghti mouse az textarea bala biroon miad scrollo dorost kone
+    private void labelMouseDetectorMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelMouseDetectorMouseEntered
+		//fix scroll only if mouse is entering from the top
+		int y = evt.getY();
+		if(y<10){
+			fixConvoScroll();
+		}
+    }//GEN-LAST:event_labelMouseDetectorMouseEntered
+
     /**
      * @param args the command line arguments
      */
@@ -1006,12 +1025,16 @@ public class ChatFrame extends javax.swing.JFrame {
 		}catch(Exception e){
 			(new CmdFatalErrorExit("history database cannot be created", e)).execute();
 		}
-        
+		
         //Locale
 		CMHelper.getInstance().setLocale(CMConfig.getInstance().getLocale());
 		
+		//set up theme
+		labelsTheme = CMConfig.getInstance().get("buttons-theme", CMConfig.DEFAULT_BUTTONSTHEME);
+		backgroundsTheme = CMConfig.getInstance().get("textareas-theme", CMConfig.DEFAULT_TEXTAREASTHEME);
+		
 		//set text color
-		textColor = (backgroundsTheme.equals("light"))? TEXTCOLOR_LIGHT : TEXTCOLOR_DARK;
+		textColor = (backgroundsTheme.equals("dark"))? TEXTCOLOR_LIGHT : TEXTCOLOR_DARK;
 
         //setup GUI elements texts accordig to locale
         setupGUITexts();
@@ -1447,13 +1470,9 @@ public class ChatFrame extends javax.swing.JFrame {
 
     //sends the content of textAreaInput
     private void sendInputText(){
-
-		//fix for scroll
-		int listenersCount = scrollPaneConversation.getVerticalScrollBar().getAdjustmentListeners().length;
-		if(listenersCount == 0){
-			scrollPaneConversation.getVerticalScrollBar().addAdjustmentListener(scrollListenerAlwaysDown);
-		}
-	     
+		
+		fixConvoScroll();
+    
         String text = getInputText();
         
         //return if input is empty
@@ -1531,6 +1550,14 @@ public class ChatFrame extends javax.swing.JFrame {
     public void clearInputText(){
         updateInputText("", false);
     }
+	
+	private void fixConvoScroll(){
+		//fix for scroll
+		int listenersCount = scrollPaneConversation.getVerticalScrollBar().getAdjustmentListeners().length;
+		if(listenersCount == 0){
+			scrollPaneConversation.getVerticalScrollBar().addAdjustmentListener(scrollListenerAlwaysDown);
+		}
+	}
 	
 	 
     public void setBackground(URL url){
@@ -1627,6 +1654,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelInputBg;
     private javax.swing.JLabel labelMessageIcon;
+    private javax.swing.JLabel labelMouseDetector;
     private javax.swing.JLabel labelNewMessage;
     private javax.swing.JLabel labelNextEmojiPage;
     private javax.swing.JLabel labelPrevEmojiPage;

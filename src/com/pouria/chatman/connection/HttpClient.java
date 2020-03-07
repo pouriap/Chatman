@@ -74,6 +74,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 
 	//this function is blocking!
 	//TODO: create sendTextMessage and sendFileMessage and add all this shit to outoginghandler
+	//TODO: add more logs
 	@Override
 	public synchronized boolean send(CMMessage message){
 		

@@ -38,7 +38,6 @@ public class Chatman {
 	private final BgTasksManager bgTasksMngr;
 	
 	private final int HISTORY_SAVE_INTERVAL = 1000 * 100; //100 sec
-	private final int CONFIG_SAVE_INTERVAL = 1000 * 100; //100 sec
 	private final int HEARTBEAT_INTERVAL = 1000 * 60; //60 sec
 	private final long OLD_MSG_TIMEDIFF = 1000*60*60;	//1hour
 	
@@ -126,8 +125,8 @@ public class Chatman {
 			//connect for the first time and send a first ping letting them know we're up
 			Runnable r = () -> {
 				client.connect();
-				CMMessage m = new CMMessage(CMMessage.TYPE_PING, "", "");
-				client.send(m);
+				CMMessage firstPing = new CMMessage(CMMessage.TYPE_PING, "", "");
+				client.send(firstPing);
 			};
 			(new Thread(r, "CM-Initial-Connect")).start();
 			
@@ -137,20 +136,11 @@ public class Chatman {
 				@Override
 				public void run() {
 					saveHistory();
+					CMHelper.getInstance().log("history saved from timer");
 				}
 			};
 			historyTimer.scheduleAtFixedRate(historyTask, HISTORY_SAVE_INTERVAL, HISTORY_SAVE_INTERVAL);
-			
-			//save config
-			Timer configTimer = new Timer("CM-Convifg-Saver");
-			TimerTask configTask = new TimerTask() {
-				@Override
-				public void run() {
-					CMConfig.getInstance().save();
-				}
-			};
-			configTimer.scheduleAtFixedRate(configTask, CONFIG_SAVE_INTERVAL, CONFIG_SAVE_INTERVAL);	
-			
+				
 			//send heartbeat
 			Timer heartBeatTimer = new Timer("CM-Heartbeat-Sender");
 			TimerTask heartBeatTask = new TimerTask() {

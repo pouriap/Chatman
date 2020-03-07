@@ -34,12 +34,23 @@ public class CMConfig {
 	private final File configFile;
 	private final String CONFIG_FILE_NAME = "config.conf";
 	
-	public static final String DEFAULT_BG = "batman_1.jpg";
+	public static final String DEFAULT_BG = "bane_1.jpg";
 	public static final String DEFAULT_SERVER_PORT = "8645";
 	public static final String DEFAULT_SUBNET = "192.168.1.*";
 	public static final String DEFAULT_HOSTS_SCAN = "100";
 	public static final String DEFAULT_FILEDROP_SIZEWARNING = "50";
 	public static final String DEFAULT_LOCALE = "fa_IR";
+	public static final String DEFAULT_BUTTONSTHEME = "dark";
+	public static final String DEFAULT_TEXTAREASTHEME = "dark";
+	
+	private final String comments = "rahnama:\n"
+			+ "subnet-mask: subneti ke bayad donbale server jostojoo shavad. bayad adade akhare an setare (*) bashad\n"
+			+ "num-hosts-to-scan: chand ip scan shavad donbale server\n"
+			+ "file-dorp-size-warning: filehaye az in bozorg tar ra bekhaim befrestim warning midahad\n"
+			+ "buttons-theme: range dokme ha - 'dark' ya 'light'\n"
+			+ "textareas-theme: range poshte neveshte ha - 'dark' ya 'light'"
+			+ "\n"
+			+ "\n";
 	
 	
 	private CMConfig() {
@@ -57,7 +68,7 @@ public class CMConfig {
 				CMHelper.getInstance().log("config file doesn't exist. creating it");
 				setAsDefault();
 				configFile.createNewFile();
-				config.store((new FileOutputStream(configFile)), "Automatically generated config file");
+				save();
 				CMHelper.getInstance().log("default config file created successfully");
 			}
 		//if load/create fails it's a fatal error
@@ -84,6 +95,8 @@ public class CMConfig {
 		config.setProperty("subnet-mask", DEFAULT_SUBNET);
 		config.setProperty("num-hosts-to-scan", DEFAULT_HOSTS_SCAN);
 		config.setProperty("file-drop-size-warning", DEFAULT_FILEDROP_SIZEWARNING);		
+		config.setProperty("buttons-theme", DEFAULT_BUTTONSTHEME);
+		config.setProperty("textareas-theme", DEFAULT_TEXTAREASTHEME);
 	}
 	
 	public String get(String key, String defaultValue){
@@ -94,9 +107,9 @@ public class CMConfig {
 		config.setProperty(key, value);
 	}
 	
-	public void save(){
+	public final void save(){
 		try{
-			config.store((new FileOutputStream(configFile)), "config saved");
+			config.store((new FileOutputStream(configFile)), comments);
 		}catch(Exception e){
 			CMHelper.getInstance().log("failed to save config file");
 		}

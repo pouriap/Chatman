@@ -70,6 +70,7 @@ public class Background {
         int nextIndex = backgrounds.indexOf(current) + 1;
         current = (nextIndex < backgrounds.size())? backgrounds.get(nextIndex) : backgrounds.get(0);
         CMConfig.getInstance().set("background-image", current);
+		CMConfig.getInstance().save();
     }
 	
 	public void prev(){
@@ -79,6 +80,7 @@ public class Background {
         int prevIndex = backgrounds.indexOf(current) - 1;
         current = (prevIndex < 0)? backgrounds.get(backgrounds.size()-1) : backgrounds.get(prevIndex);
         CMConfig.getInstance().set("background-image", current);
+		CMConfig.getInstance().save();
 	}
 
     //gets the filename of the current background
