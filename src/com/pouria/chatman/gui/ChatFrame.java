@@ -1217,7 +1217,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//Hide wake on lan menu
 		menuWakeOnLan.setVisible(false);
-		
+		//TODO: click rooye link haye kharab exception mindazad 
 		//Iransans font for everything
 		try{
 			InputStream is = getClass().getResourceAsStream("/resources/iransans.ttf");

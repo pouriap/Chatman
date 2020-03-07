@@ -87,13 +87,14 @@ public class CMMessage {
 			//if file upload
 			else if(postData.contains("data")){
 				FormData.FormValue formFile = postData.get("data").getFirst();
+				FormData.FormValue formFileName = postData.get("cm_filename").getFirst();
 				if(formFile.isFileItem()){
-					String filePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
-					String fileName = formFile.getFileName();
+					String tmpFilePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
+					String fileName = formFileName.getValue();
 					//we store filename in 'sender' field hehe
 					this.type = TYPE_FILE;
 					//we have to store file name somewhere
-					this.content = filePath + "**" + fileName;
+					this.content = tmpFilePath + "**" + fileName;
 					this.sender = CMHelper.getInstance().getStr("file_recieved");
 					this.time = CMHelper.getInstance().getTime();
 				}
@@ -179,17 +180,19 @@ public class CMMessage {
 			return "";
 		}
 
-		boolean isFarsi = false;	
-		char[] charArray = content.toCharArray();
-		for(char c: charArray){
-			if(Character.UnicodeBlock.of(c) != Character.UnicodeBlock.BASIC_LATIN) {
-				isFarsi=true;
-				break;
-			}
-		}
+//		boolean isFarsi = false;	
+//		char[] charArray = content.toCharArray();
+//		for(char c: charArray){
+//			if(Character.UnicodeBlock.of(c) != Character.UnicodeBlock.BASIC_LATIN) {
+//				isFarsi=true;
+//				break;
+//			}
+//		}
 		
-		String textAlign = (isFarsi)? "right" : "left";
-		String you = (isFarsi)? "شما" : "You";
+//		String textAlign = (isFarsi)? "right" : "left";
+//		String you = (isFarsi)? "شما" : "You";
+		String textAlign = "left";
+		String you = "You";
 		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : COLOR_NORMALTEXT;
 		String senderName = (isOurMessage)? you : sender;
 		

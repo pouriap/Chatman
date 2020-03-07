@@ -24,6 +24,7 @@ import com.pouria.chatman.classes.CmdSetLabelStatus;
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.classes.CmdChangeStatusIcon;
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -36,6 +37,7 @@ import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -107,10 +109,11 @@ public class HttpClient extends Observable implements ChatmanClient{
 			urlParameters.add(new BasicNameValuePair("message", messageText));
 			
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-			UrlEncodedFormEntity data = new UrlEncodedFormEntity(urlParameters);
+			HttpEntity data = new UrlEncodedFormEntity(urlParameters, Charset.forName("UTF-8"));
 			HttpPost post = new HttpPost(remoteAddress);
 			post.setConfig(configTimeoutText);
 			post.setEntity(data);
+			
 			CloseableHttpResponse response = httpClient.execute(post);
 			int code = response.getCode();
 			EntityUtils.consume(response.getEntity());
@@ -152,12 +155,21 @@ public class HttpClient extends Observable implements ChatmanClient{
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			String filePath = message.getContent();
 			File file = new File(filePath);
-
-			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-			HttpEntity requestEntity = MultipartEntityBuilder.create().addBinaryBody("data", file).build();
+			String fileName = file.getName();
+			
+			//bayad filename ro joda ezafe konim chon baadan ehtiaj darim hamchenin apache tokhme khar
+			//mikhorad va orze nadarad filename UTF-8 befrestad pas bayad khodeman joda befrestim
+            HttpEntity data = MultipartEntityBuilder.create()
+					.addBinaryBody("data", file, ContentType.APPLICATION_OCTET_STREAM.withCharset("UTF-8"), fileName)
+					.addTextBody("cm_filename", fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"))
+					.setCharset(Charset.forName("UTF-8"))
+                    .build();
+			
 			HttpPost post = new HttpPost(remoteAddress);
 			post.setConfig(configTimeoutFile);
-			post.setEntity(requestEntity);
+			post.setEntity(data);
+
+			CloseableHttpClient httpClient = HttpClientBuilder.create().build();			
 			CloseableHttpResponse response = httpClient.execute(post);
 			int code = response.getCode();
 			EntityUtils.consume(response.getEntity());
