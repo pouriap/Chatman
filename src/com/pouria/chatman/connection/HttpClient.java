@@ -53,20 +53,22 @@ public class HttpClient extends Observable implements ChatmanClient{
 	private boolean connectInProgress = false;
 	private final RequestConfig configTimeoutText;
 	private final RequestConfig configTimeoutFile;
-	private final int timeoutMillis = 300;	//millis
-	private final int timeoutMillisFile = 5;	//mins
+	private final int connectTimeout = 300;	//millis
+	private final int responseTimeout = 500; //millis
+	private final int responeTimeoutFile = 5;	//mins
 
 	
 	public HttpClient(){
 		configTimeoutText = RequestConfig.custom()
-			.setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
-			.setResponseTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
-			.setConnectionRequestTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+			.setConnectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+			.setConnectionRequestTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+			.setResponseTimeout(responseTimeout, TimeUnit.MILLISECONDS)
 			.build();
 		//file sending takes much longer so maximum is 5 minutes
-		configTimeoutFile = RequestConfig.custom().setConnectTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
-			.setResponseTimeout(timeoutMillisFile, TimeUnit.MINUTES)
-			.setConnectionRequestTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+		configTimeoutFile = RequestConfig.custom()
+			.setConnectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+			.setConnectionRequestTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+			.setResponseTimeout(responeTimeoutFile, TimeUnit.MINUTES)
 			.build();
 	}
 

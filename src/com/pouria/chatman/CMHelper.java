@@ -26,6 +26,7 @@ import java.net.NetworkInterface;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.logging.FileHandler;
@@ -107,12 +108,14 @@ public class CMHelper {
 	public long getTime(){
 		return System.currentTimeMillis();
 	}
-	
-	public String getLocalIp(){
-        //find local ip address
-		String subnet = CMConfig.getInstance().get("subnet-mask", CMConfig.DEFAULT_SUBNET);
-        String sub = subnet.replace(".*","");
-        String localIp = "";
+	        
+	/**
+	 * Finds local ip addresses
+	 * @return list of all ip addressed assigned to this machine
+	 */
+	public ArrayList<String> getLocalIps(){
+		
+        final ArrayList<String> localIps = new ArrayList<String>();
 
 		try{
 			Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();
@@ -123,19 +126,17 @@ public class CMHelper {
 				while(a.hasMoreElements())
 				{
 					InetAddress addr = a.nextElement();
-					if(addr.getHostAddress().contains(sub)){
-						localIp = addr.getHostAddress();
-						break;
-					}
+					String ip = addr.getHostAddress();
+					localIps.add(ip);
 				}
 			}
 		}catch(Exception e){
 			final Exception ex = e;
-			String error = "Could not get local IP";
+			String error = "Could not get local IPs";
 			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
 		}
 		
-		return localIp;
+		return localIps;
 	}
 	
 	public void checkDatabaseFile() throws Exception{

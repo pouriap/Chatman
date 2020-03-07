@@ -37,7 +37,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
@@ -80,13 +79,14 @@ public class ChatFrame extends javax.swing.JFrame {
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
 	private AdjustmentListener scrollListenerAlwaysDown;
+	private String textColor;
 	PopupDialog newMessagePopup;
 	
-	private String labelsTheme = "dark";
-	private String backgroundsTheme = "dark";
-	private static final String textColorDark = "#2b2b2b";
-	private static final String textColorLight = "#e0e0e0";
-	public static String textColor = textColorLight;
+	private final String labelsTheme = "dark";
+	private final String backgroundsTheme = "dark";
+	private final String TEXTCOLOR_DARK = "#2b2b2b";
+	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
+
 	
 
 
@@ -693,10 +693,10 @@ public class ChatFrame extends javax.swing.JFrame {
             }catch(IOException e){
                 message(CMHelper.getInstance().getStr("url_open_fail") + e.getMessage());
 				CMHelper.getInstance().log("failed to open url: " + e.getMessage());
-            }catch(URISyntaxException e){
+            }catch(Exception e){
                 message(CMHelper.getInstance().getStr("bad_url") + e.getMessage());
 				CMHelper.getInstance().log("failed to open url: " + e.getMessage());
-            }
+			}
         }
 		
     }//GEN-LAST:event_textAreaConversationHyperlinkUpdate
@@ -1009,6 +1009,9 @@ public class ChatFrame extends javax.swing.JFrame {
         
         //Locale
 		CMHelper.getInstance().setLocale(CMConfig.getInstance().getLocale());
+		
+		//set text color
+		textColor = (backgroundsTheme.equals("light"))? TEXTCOLOR_LIGHT : TEXTCOLOR_DARK;
 
         //setup GUI elements texts accordig to locale
         setupGUITexts();
@@ -1110,8 +1113,10 @@ public class ChatFrame extends javax.swing.JFrame {
         ((HTMLEditorKit)textAreaInput.getEditorKit()).setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
         
         
-        //TextArea focus
+        //Input focus
         textAreaInput.requestFocus();
+		//Input caret color according to text color
+		textAreaInput.setCaretColor(Color.getColor(textColor));
         
         
         //Table BG transparent
@@ -1160,7 +1165,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		
         //Empty HTML Texts
-        defaultTextAreaHtml = "<html><head><style type='text/css'>#text { color: "+CMMessage.COLOR_NORMALTEXT+"; font-family: Tahoma; font-size: 12px; }</style></head><body id='text'></body></html>";
+        defaultTextAreaHtml = "<html><head><style type='text/css'>#text { color: "+ textColor +"; font-family: Tahoma; font-size: 12px; }</style></head><body id='text'></body></html>";
 		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
 		textAreaConversation.setEditorKit(tkit);		
@@ -1181,13 +1186,6 @@ public class ChatFrame extends javax.swing.JFrame {
 				e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
 			}
 		};	
-		
-		//TODO: farsi send doesn't work
-		//TODO: yebar chatmane khodam baz bood hezarta message ferestadam bad ke oon yeki ro baz kardam
-		//hici barash nayoomad harchi ham ke bahash mifrestadam baraye khodam miomad
-		//ellat: ehtemalan inke IP khodesh ro peida karde boode pas ping nayomade ke hezarta message man
-		//ferestade beshe va  harchi ham mifrestadim ba khodesh be khodesh mirafte
-		//TODO: vaghti minimize hastim double-click rooye tray maximize nemikone
 		
 		
 		//customized scrollbar
@@ -1217,7 +1215,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//Hide wake on lan menu
 		menuWakeOnLan.setVisible(false);
-		//TODO: click rooye link haye kharab exception mindazad 
+
 		//Iransans font for everything
 		try{
 			InputStream is = getClass().getResourceAsStream("/resources/iransans.ttf");
@@ -1236,7 +1234,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		}catch(Exception e){
 			//font will revert to Tahoma
 		}
-		
 		
 		//set label icons
 		changeLabelIcon(labelConvoBg, "");
@@ -1535,8 +1532,6 @@ public class ChatFrame extends javax.swing.JFrame {
         updateInputText("", false);
     }
 	
-
-//TODO: time style should be red for unsent, white for sent, and grey when hidden 
 	 
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
@@ -1585,6 +1580,10 @@ public class ChatFrame extends javax.swing.JFrame {
 	public void changeStatusIcon(String iconName){
 		labelStatusIcon.setIcon((new ImageIcon(getClass().getResource("/resources/"+iconName))));
 	}
+	
+	public String getTextColor(){
+		return this.textColor;
+	}
 	  
     //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
     public boolean isHidden(){
@@ -1593,12 +1592,17 @@ public class ChatFrame extends javax.swing.JFrame {
 	
 	//hides the chatman windows
 	public void hideWindow(){
-		this.setVisible(false);
+		//this.setVisible(false);
+		//apparently it's better to use dispose because it releases all resources
+		this.dispose();
 	}
 	
 	//shows the chatman window
 	public void showWindow(){
 		this.setVisible(true);
+		if(this.getExtendedState() == ICONIFIED){
+			this.setExtendedState(NORMAL);
+		}
 	}
 	
 	

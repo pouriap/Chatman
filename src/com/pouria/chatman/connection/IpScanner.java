@@ -54,12 +54,12 @@ public class IpScanner {
 		
 			int numHosts = ipsToScan.length;
             Thread[] scanners = new Thread[numHosts];
-			String localIp = CMHelper.getInstance().getLocalIp();
+			ArrayList<String> localIps = CMHelper.getInstance().getLocalIps();
 			
             for(int i=0; i<numHosts; i++){
                 String addr = ipsToScan[i];
-                //don't scan local ip
-                if(addr.equals(localIp))
+                //don't scan local ips
+                if(localIps.contains(addr))
                     continue;
                 scanners[i] = new Thread(new portScanner(addr, port), "CM-Port-Scanner-"+String.valueOf(i));
                 scanners[i].start();

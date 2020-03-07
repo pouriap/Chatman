@@ -38,7 +38,6 @@ public class CMMessage {
 	private boolean isOurMessage = false;
 	private boolean isSaved = false;
 	
-	public static final String COLOR_NORMALTEXT= ChatFrame.textColor;
 	public static final String COLOR_FAILED = "#f73900";
 
 	public static final int TYPE_BADMESSAGE = 0;
@@ -193,7 +192,7 @@ public class CMMessage {
 //		String you = (isFarsi)? "شما" : "You";
 		String textAlign = "left";
 		String you = "You";
-		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : COLOR_NORMALTEXT;
+		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : ChatFrame.getInstance().getTextColor();
 		String senderName = (isOurMessage)? you : sender;
 		
 		//each message is a div
