@@ -167,7 +167,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 			FileBodyWithProgress fileBody = new FileBodyWithProgress(file, ContentType.APPLICATION_OCTET_STREAM.withCharset("UTF-8"));
 			fileBody.setProgressCallback((int percent) -> {
 				(new CmdInvokeLater(new CmdUpdateProgressbar(percent))).execute();
-			}, 400);
+			}, 200);
 			StringBody stringBody = new StringBody(fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"));
             HttpEntity postData = MultipartEntityBuilder.create()
 					.addPart("data", fileBody)
@@ -262,16 +262,25 @@ public class HttpClient extends Observable implements ChatmanClient{
 
 	@Override
 	public synchronized void setServer(Object server) {
+		
 		if(server == null){
 			removeServer();
+			return;
 		}
-		else{
-			this.serverIP = (String) server;
-			(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + this.serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
-			(new CmdInvokeLater(new CmdChangeStatusIcon("connected.png"))).execute();
-			setChanged();
-			notifyObservers();
+		
+		String ip = (String) server;
+		//if there is a server-ip set in the config don't let any other server to be set (useful when ping sets server)
+		if(CMConfig.getInstance().isSet("server-ip") && !ip.equals(CMConfig.getInstance().get("server-ip", ""))){
+			removeServer();
+			return;
 		}
+
+		this.serverIP = ip;
+		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + this.serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
+		(new CmdInvokeLater(new CmdChangeStatusIcon("connected.png"))).execute();
+		setChanged();
+		notifyObservers();
+
 	}
 	
 	private synchronized void removeServer(){

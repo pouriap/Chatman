@@ -38,7 +38,7 @@ public class CMConfig {
 	public static final String DEFAULT_SERVER_PORT = "8645";
 	public static final String DEFAULT_SUBNET = "192.168.1.*";
 	public static final String DEFAULT_HOSTS_SCAN = "100";
-	public static final String DEFAULT_FILEDROP_SIZEWARNING = "50";
+	public static final String DEFAULT_FILEDROP_SIZEWARNING = "200";
 	public static final String DEFAULT_LOCALE = "fa_IR";
 	public static final String DEFAULT_BUTTONSTHEME = "dark";
 	public static final String DEFAULT_TEXTAREASTHEME = "dark";
