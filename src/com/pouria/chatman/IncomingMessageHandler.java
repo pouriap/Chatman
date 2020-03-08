@@ -102,7 +102,6 @@ public class IncomingMessageHandler {
 			CMHelper.getInstance().log("file copied");
 			//set file path (=content) to the one saved in Chatman Downloads
 			message.setContent(dstFile.getAbsolutePath());
-			
 		}catch(IOException e){
 			CMHelper.getInstance().log("copying file from tmp folder to download direcoty failed");
 			String content = CMHelper.getInstance().getStr("file-receive-failed");

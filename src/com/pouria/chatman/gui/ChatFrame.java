@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -132,6 +133,8 @@ public class ChatFrame extends javax.swing.JFrame {
         labelConvoBg = new javax.swing.JLabel();
         labelInputBg = new javax.swing.JLabel();
         labelTableBg = new javax.swing.JLabel();
+        labelMouseDetector = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
         labelNextEmojiPage = new javax.swing.JLabel();
         labelPrevEmojiPage = new javax.swing.JLabel();
         labelSend = new javax.swing.JLabel();
@@ -140,7 +143,6 @@ public class ChatFrame extends javax.swing.JFrame {
         labelStatus = new javax.swing.JLabel();
         labelStatusIcon = new javax.swing.JLabel();
         labelStatusBackground = new javax.swing.JLabel();
-        labelMouseDetector = new javax.swing.JLabel();
         labelFrameBg = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
@@ -434,6 +436,16 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelTableBg);
         labelTableBg.setBounds(292, 317, 200, 170);
 
+        labelMouseDetector.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                labelMouseDetectorMouseEntered(evt);
+            }
+        });
+        getContentPane().add(labelMouseDetector);
+        labelMouseDetector.setBounds(30, 250, 430, 40);
+        getContentPane().add(progressBar);
+        progressBar.setBounds(30, 240, 435, 14);
+
         labelNextEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelNextEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-next-dark-normal.png"))); // NOI18N
         labelNextEmojiPage.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -540,14 +552,6 @@ public class ChatFrame extends javax.swing.JFrame {
         labelStatusBackground.setOpaque(true);
         getContentPane().add(labelStatusBackground);
         labelStatusBackground.setBounds(-5, 560, 560, 40);
-
-        labelMouseDetector.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                labelMouseDetectorMouseEntered(evt);
-            }
-        });
-        getContentPane().add(labelMouseDetector);
-        labelMouseDetector.setBounds(30, 250, 430, 40);
 
         labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
         labelFrameBg.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -1203,7 +1207,7 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneConversation.getViewport().setOpaque(false);
 		
 		
-		//Fix the scroll
+		// To fix the scrolls
 		scrollListenerAlwaysDown = new AdjustmentListener() {  
 			public void adjustmentValueChanged(AdjustmentEvent e) {  
 				e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
@@ -1211,7 +1215,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		};	
 		
 		
-		//customized scrollbar
+		// Customized scrollbar
 		JScrollBar scrollbar = scrollPaneConversation.getVerticalScrollBar();
 		scrollbar.setOpaque(false);
 		int defaultHeight = scrollbar.getPreferredSize().height;
@@ -1221,16 +1225,21 @@ public class ChatFrame extends javax.swing.JFrame {
 		
         //Icons
         //main frame
-        java.net.URL url = getClass().getResource("/resources/icon.png");
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        Image img = kit.createImage(url);
-        this.setIconImage(img);
-
+        Toolkit toolkit = Toolkit.getDefaultToolkit();	
+		ArrayList<Image> icons = new ArrayList<Image>();
+		Image icon48 = toolkit.createImage(getClass().getResource("/resources/icon48.png"));
+		Image icon32 = toolkit.createImage(getClass().getResource("/resources/icon32.png"));
+		Image icon24 = toolkit.createImage(getClass().getResource("/resources/icon24.png"));
+		icons.add(icon48);
+		icons.add(icon32);
+		icons.add(icon24);
+		this.setIconImages(icons);
+		
 		
         //history dialog
-        url = getClass().getResource("/resources/history.png");
-        img = kit.createImage(url);
-        dialogHistory.setIconImage(img);
+        URL url = getClass().getResource("/resources/icon_history.png");
+        Image historyIcon = toolkit.createImage(url);
+        dialogHistory.setIconImage(historyIcon);
 
 		
         //Center
@@ -1268,6 +1277,8 @@ public class ChatFrame extends javax.swing.JFrame {
 		changeLabelIcon(labelNextEmojiPage, "");
 		
 		updateUserName();
+		
+		progressBar.setVisible(false);
 
     } 
     
@@ -1310,19 +1321,19 @@ public class ChatFrame extends javax.swing.JFrame {
 			CMHelper.getInstance().log("System tray not supported");
             return;
         }
-		
-		ImageIcon ticon = new ImageIcon(getClass().getResource("/resources/trayicon.png"));
-        final TrayIcon trayIcon = new TrayIcon(ticon.getImage());
-		final SystemTray tray = SystemTray.getSystemTray();
-		final PopupMenu popup = new PopupMenu();
-
+				
+		ImageIcon iconImage = new ImageIcon(getClass().getResource("/resources/icon16.png"));
+        final TrayIcon trayIcon = new TrayIcon(iconImage.getImage());
+		final SystemTray systemTray = SystemTray.getSystemTray();
+		final PopupMenu rclickMenu = new PopupMenu();
+		trayIcon.setImageAutoSize(false);
 		
         // create a right-click menu 
         MenuItem openItem = new MenuItem("Open");
         MenuItem exitItem = new MenuItem("Exit");
-        popup.add(openItem);
-        popup.add(exitItem);
-        trayIcon.setPopupMenu(popup);
+        rclickMenu.add(openItem);
+        rclickMenu.add(exitItem);
+        trayIcon.setPopupMenu(rclickMenu);
 		
 		//create actions
 		ActionListener actionOpen = new ActionListener() {
@@ -1344,10 +1355,11 @@ public class ChatFrame extends javax.swing.JFrame {
 		exitItem.addActionListener(actionExit);
 		
         try {
-            tray.add(trayIcon);
+            systemTray.add(trayIcon);
         } catch (AWTException e) {
 			CMHelper.getInstance().log("Tray icon could not be added");
         }
+		
 	}
 	
     public void setupGUITexts(){
@@ -1559,6 +1571,15 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 	}
 	
+	public void updateProgressBar(int progress){
+		if(progress == 100){
+			progressBar.setVisible(false);
+		}
+		else{
+			progressBar.setVisible(true);
+			progressBar.setValue(progress);
+		}
+	}
 	 
     public void setBackground(URL url){
         labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
@@ -1677,6 +1698,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuWakeOnLan;
     private javax.swing.JPanel panelPopupNormal;
+    private javax.swing.JProgressBar progressBar;
     private javax.swing.JScrollPane scrollPaneConversation;
     private javax.swing.JScrollPane scrollPaneHistory;
     private javax.swing.JScrollPane scrollPaneInput;

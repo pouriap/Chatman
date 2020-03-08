@@ -23,6 +23,7 @@ import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdSetLabelStatus;
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.classes.CmdChangeStatusIcon;
+import com.pouria.chatman.classes.CmdUpdateProgressbar;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.StringBody;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -108,14 +110,14 @@ public class HttpClient extends Observable implements ChatmanClient{
 		try{
 			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
-			List<NameValuePair> urlParameters = new ArrayList<>();
-			urlParameters.add(new BasicNameValuePair("message", messageText));
+			List<NameValuePair> postParams = new ArrayList<>();
+			postParams.add(new BasicNameValuePair("message", messageText));
 			
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-			HttpEntity data = new UrlEncodedFormEntity(urlParameters, Charset.forName("UTF-8"));
+			HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
 			HttpPost post = new HttpPost(remoteAddress);
 			post.setConfig(configTimeoutText);
-			post.setEntity(data);
+			post.setEntity(postData);
 			
 			CloseableHttpResponse response = httpClient.execute(post);
 			int code = response.getCode();
@@ -160,17 +162,22 @@ public class HttpClient extends Observable implements ChatmanClient{
 			File file = new File(filePath);
 			String fileName = file.getName();
 			
-			//bayad filename ro joda ezafe konim chon baadan ehtiaj darim hamchenin apache tokhme khar
-			//mikhorad va orze nadarad filename UTF-8 befrestad pas bayad khodeman joda befrestim
-            HttpEntity data = MultipartEntityBuilder.create()
-					.addBinaryBody("data", file, ContentType.APPLICATION_OCTET_STREAM.withCharset("UTF-8"), fileName)
-					.addTextBody("cm_filename", fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"))
+			//bayad filename ro joda ezafe konim chon apache httpclient ashghal ast
+			//va orze nadarad filename UTF-8 befrestad pas bayad khodeman joda befrestim
+			FileBodyWithProgress fileBody = new FileBodyWithProgress(file, ContentType.APPLICATION_OCTET_STREAM.withCharset("UTF-8"));
+			fileBody.setProgressCallback((int percent) -> {
+				(new CmdInvokeLater(new CmdUpdateProgressbar(percent))).execute();
+			}, 400);
+			StringBody stringBody = new StringBody(fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"));
+            HttpEntity postData = MultipartEntityBuilder.create()
+					.addPart("data", fileBody)
+					.addPart("cm_filename", stringBody)
 					.setCharset(Charset.forName("UTF-8"))
                     .build();
 			
 			HttpPost post = new HttpPost(remoteAddress);
 			post.setConfig(configTimeoutFile);
-			post.setEntity(data);
+			post.setEntity(postData);
 
 			CloseableHttpClient httpClient = HttpClientBuilder.create().build();			
 			CloseableHttpResponse response = httpClient.execute(post);
