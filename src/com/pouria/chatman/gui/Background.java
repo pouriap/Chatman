@@ -33,7 +33,7 @@ import java.util.Arrays;
  * it's a singleton
  */
 public class Background {
-    
+    //TODO: new backgrounds aren't added until we restart the app
     ArrayList<String> backgrounds = new ArrayList<String>();
     private String current;
     private final String bgFolder = "backgrounds";

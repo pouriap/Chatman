@@ -89,6 +89,8 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
+	private final String version = "2.0.2";
+	private final String appTitle = "Chatman Rises";
 	
 
 
@@ -781,7 +783,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
-        JOptionPane.showMessageDialog(null, CMHelper.getInstance().getStr("license"), CMHelper.getInstance().getStr("about"), JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, CMHelper.getInstance().getStr("license"), CMHelper.getInstance().getStr("about") + "v"+version, JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_menuAboutActionPerformed
 
     private void menuRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRemoteShutdownActionPerformed
@@ -1021,6 +1023,8 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void initialize(){
+		
+		this.setTitle(appTitle);
 		
 		createTrayIcon();
 		
@@ -1326,6 +1330,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		final SystemTray systemTray = SystemTray.getSystemTray();
 		final PopupMenu rclickMenu = new PopupMenu();
 		trayIcon.setImageAutoSize(false);
+		trayIcon.setToolTip(appTitle);
 		
         // create a right-click menu 
         MenuItem openItem = new MenuItem("Open");
