@@ -57,11 +57,8 @@ public class Chatman {
 		return this.client;
 	}
 	
-	public void startServer() throws Exception{
+	public void start() throws Exception{
 		server.start();
-	}
-	
-	public void start(){
 		client.addServerFoundListener(bgTasksMngr);
 		bgTasksMngr.start();
 	}
@@ -83,14 +80,6 @@ public class Chatman {
 		}
 	}
 
-	public long getLastMessageTime(){
-		if(allConversationMessages.isEmpty()){
-			return System.currentTimeMillis();
-		}
-		CMMessage lastMessage = allConversationMessages.get(allConversationMessages.size()-1);
-		return lastMessage.getTime();
-	}
-	
 	public synchronized CMMessage[] getAllMessages(){
 		CMMessage[] messages = new CMMessage[allConversationMessages.size()];
 		allConversationMessages.toArray(messages);
@@ -141,7 +130,6 @@ public class Chatman {
 				@Override
 				public void run() {
 					saveHistory();
-					CMHelper.getInstance().log("history saved from timer");
 				}
 			};
 			historyTimer.scheduleAtFixedRate(historyTask, HISTORY_SAVE_INTERVAL, HISTORY_SAVE_INTERVAL);

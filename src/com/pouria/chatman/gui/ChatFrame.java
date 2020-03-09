@@ -89,7 +89,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.2";
+	private final String version = "2.0.3";
 	private final String appTitle = "Chatman Rises";
 	
 
@@ -783,7 +783,9 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
-        JOptionPane.showMessageDialog(null, CMHelper.getInstance().getStr("license"), CMHelper.getInstance().getStr("about") + "v"+version, JOptionPane.INFORMATION_MESSAGE);
+        String aboutTitle = appTitle + " v" + version;
+		String aboutContent  = CMHelper.getInstance().getStr("license");
+		JOptionPane.showMessageDialog(null, aboutContent, aboutTitle, JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_menuAboutActionPerformed
 
     private void menuRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuRemoteShutdownActionPerformed
@@ -1292,7 +1294,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		try{
 			
 			chatman = new Chatman();
-			chatman.startServer();
 			chatman.start();
 			
 		//if we get a bind exception it means either there's a problem or chatman is already running
