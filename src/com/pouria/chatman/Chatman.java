@@ -50,7 +50,6 @@ public class Chatman {
 		server = new HttpServer();
 		sendQueue = new CMSendQueue();
 		bgTasksMngr = new BgTasksManager();
-		client.addServerFoundListener(bgTasksMngr);
 		history = new CMHistory();
 	}
 	
@@ -63,6 +62,7 @@ public class Chatman {
 	}
 	
 	public void start(){
+		client.addServerFoundListener(bgTasksMngr);
 		bgTasksMngr.start();
 	}
 		

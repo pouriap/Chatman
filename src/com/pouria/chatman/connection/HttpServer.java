@@ -20,6 +20,7 @@ import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.CMConfig;
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.DisplayableMsgHandler;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -66,10 +67,9 @@ public class HttpServer implements ChatmanServer{
 			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.DIR_IN);
 			handler.handle(message);
 			//set server everytime we recieve a message to avoid unnecessary searches
-			String ourIP = exchange.getDestinationAddress().getAddress().getHostAddress();
 			String peerIP = exchange.getSourceAddress().getAddress().getHostAddress();
-			//to avoid setting server as our own IP when we sendMessage showGUI messages from our own PC
-			if(!peerIP.equals(ourIP) && !peerIP.equals("127.0.0.1")){
+			//don't set our own ip as server			
+			if(!CMHelper.getInstance().getLocalIps().contains(peerIP)){
 				notifyServerIsUp(peerIP);
 			}
 		}

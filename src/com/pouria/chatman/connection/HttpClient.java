@@ -218,10 +218,11 @@ public class HttpClient extends Observable implements ChatmanClient{
 			removeServer();
 			return;
 		}
-		
+					
 		String ip = (String) server;
+
 		//if there is a server-ip set in the config don't let any other server to be set (useful when ping sets server)
-		if(CMConfig.getInstance().isSet("server-ip") && !ip.equals(CMConfig.getInstance().get("server-ip", ""))){
+		if(CMConfig.getInstance().isSet("server-ip") && !ip.equals(CMConfig.getInstance().get("server-ip", "")) && !ip.equals("127.0.0.1")){
 			removeServer();
 			return;
 		}
