@@ -241,7 +241,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 	}
 
 	@Override
-	public void addListener(Observer o){
+	public void addServerFoundListener(Observer o){
 		addObserver(o);
 	}
 	

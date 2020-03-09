@@ -63,6 +63,6 @@ public interface ChatmanClient{
 	public void setServer(Object server);
 	
 	
-	public void addListener(Observer o);
+	public void addServerFoundListener(Observer o);
 	
 }

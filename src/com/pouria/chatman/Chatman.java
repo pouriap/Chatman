@@ -43,14 +43,26 @@ public class Chatman {
 	
 	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>older messages<br>________________________________________________________________<br></div>";;
 	private final ArrayList<CMMessage> allConversationMessages = new ArrayList<CMMessage>();
-	private final CMSendQueue sendQueue = new CMSendQueue();
+	private final CMSendQueue sendQueue;
 	
 	public Chatman(){
-		server = new HttpServer();
 		client = new HttpClient();
-		history = new CMHistory();
+		server = new HttpServer();
+		sendQueue = new CMSendQueue();
 		bgTasksMngr = new BgTasksManager();
-		client.addListener(bgTasksMngr);
+		client.addServerFoundListener(bgTasksMngr);
+		history = new CMHistory();
+	}
+	
+	public ChatmanClient getClient(){
+		return this.client;
+	}
+	
+	public void startServer() throws Exception{
+		server.start();
+	}
+	
+	public void start(){
 		bgTasksMngr.start();
 	}
 		
@@ -70,15 +82,7 @@ public class Chatman {
 			allConversationMessages.add(message);
 		}
 	}
-	
-	public ChatmanServer getServer(){
-		return server;
-	}
-	
-	public ChatmanClient getClient(){
-		return client;
-	}
-	
+
 	public long getLastMessageTime(){
 		if(allConversationMessages.isEmpty()){
 			return System.currentTimeMillis();

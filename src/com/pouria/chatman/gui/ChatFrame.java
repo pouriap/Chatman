@@ -1285,12 +1285,11 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //start Chatman as client/server
     public void startChatman(){
-		
-		chatman = new Chatman();
-		
 		try{
 			
-			chatman.getServer().start();
+			chatman = new Chatman();
+			chatman.startServer();
+			chatman.start();
 			
 		//if we get a bind exception it means either there's a problem or chatman is already running
 		}catch(Exception e){
