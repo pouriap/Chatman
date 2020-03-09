@@ -18,25 +18,65 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.gui.ChatFrame;
+import java.io.File;
 
 /**
  *
  * @author pouriap
  */
-public class OutgoingMessageHandler {
+public class OutgoingMsgHandler {
 	
 	private final CMMessage message;
 	private final ChatmanClient client = ChatFrame.getInstance().getChatmanInstance().getClient();
 	
-	public OutgoingMessageHandler(CMMessage message){
+	public OutgoingMsgHandler(CMMessage message){
 		this.message = message;
 	}
 	
 	public void handle(){
-		boolean success = client.send(message);
+		
+		boolean success;
+		int messageType = message.getType();
+		
+		switch(messageType){
+			
+			case CMMessage.TYPE_FILE:
+				success = sendFileMessage();
+				break;
+				
+			case CMMessage.TYPE_SHOWGUI:
+				success = sendShowGUIMessage();
+				break;
+				
+			default:
+				success = sendTextMessage();
+				break;
+				
+		}
+
 		message.setIsOurMessage(true);
 		int status = (success)? CMMessage.STATUS_SENT : CMMessage.STATUS_SENDFAIL;
 		message.setStatus(status);
+		
 	}
+
+	
+	private boolean sendFileMessage(){
+		String filePath = message.getContent();
+		File file = new File(filePath);
+		return client.sendFile(file);
+	}
+	
+	private boolean sendTextMessage(){
+		String text = message.getAsJsonString();
+		return client.sendText(text);
+	}
+	
+	private boolean sendShowGUIMessage(){
+		client.setServer("127.0.0.1");
+		String text = message.getAsJsonString();
+		return client.sendText(text);
+	}
+
 	
 }

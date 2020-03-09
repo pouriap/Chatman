@@ -39,7 +39,7 @@ public class CMSendQueue {
 			while(!queue.isEmpty()){
 				//avvalin message ra befrest
 				CMMessage firstMessage = queue.peek();
-				MessageHandler sender = new MessageHandler(CMMessage.DIR_OUT);
+				DisplayableMsgHandler sender = new DisplayableMsgHandler(CMMessage.DIR_OUT);
 				sender.handle(firstMessage);
 				//agar ferestade shod az saf dar biar va boro baadi
 				if(firstMessage.getStatus() == CMMessage.STATUS_SENT){

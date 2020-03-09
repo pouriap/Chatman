@@ -20,7 +20,7 @@ import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.CMConfig;
-import com.pouria.chatman.MessageHandler;
+import com.pouria.chatman.DisplayableMsgHandler;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -63,7 +63,7 @@ public class HttpServer implements ChatmanServer{
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			CMMessage message = new CMMessage(formData);
-			MessageHandler handler = new MessageHandler(CMMessage.DIR_IN);
+			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.DIR_IN);
 			handler.handle(message);
 			//set server everytime we recieve a message to avoid unnecessary searches
 			String ourIP = exchange.getDestinationAddress().getAddress().getHostAddress();

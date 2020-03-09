@@ -24,32 +24,31 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class MessageHandler {
+public class DisplayableMsgHandler {
 	
 	private final int direction;
 	
-	public MessageHandler(int direction) {
+	public DisplayableMsgHandler(int direction) {
 		this.direction = direction;
 	}
 	
 	public void handle(CMMessage message){
 		
 		if(direction == CMMessage.DIR_IN){
-			IncomingMessageHandler handler = new IncomingMessageHandler(message);
+			IncomingMsgHandler handler = new IncomingMsgHandler(message);
 			handler.handle();
 		}
 		else{
-			OutgoingMessageHandler handler = new OutgoingMessageHandler(message);
+			OutgoingMsgHandler handler = new OutgoingMsgHandler(message);
 			handler.handle();
 		}
 		
-		//add to all messages
-		if(
-				message.getType() != CMMessage.TYPE_PING
-				&& message.getType() != CMMessage.TYPE_SHOWGUI
-		){
-			ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
+		if(message.getDisplayableContent().isEmpty()){
+			return;
 		}
+		
+		//add to all messages
+		ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
 		
 		//add to gui
 		(new CmdInvokeLater(new CmdShowMessage(message))).execute();

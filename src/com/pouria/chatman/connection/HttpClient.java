@@ -16,7 +16,6 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.CmdInvokeLater;
@@ -74,52 +73,61 @@ public class HttpClient extends Observable implements ChatmanClient{
 			.build();
 	}
 
-	//this function is blocking!
-	//TODO: create sendTextMessage and sendFileMessage and add all this shit to outoginghandler
-	//TODO: add more logs
+
 	@Override
-	public synchronized boolean send(CMMessage message){
+	public boolean sendText(String text){
 		
+		List<NameValuePair> postParams = new ArrayList<>();
+		postParams.add(new BasicNameValuePair("message", text));
+		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
+
+		return sendPOSTRequest(postData, configTimeoutText);
+
+	}
+	
+	@Override
+	public boolean sendFile(File file){
+		
+		String fileName = file.getName();
+		//bayad filename ro joda ezafe konim chon apache httpclient ashghal ast
+		//va orze nadarad filename UTF-8 befrestad pas bayad khodeman joda befrestim
+		FileBodyWithProgress fileBody = new FileBodyWithProgress(file, ContentType.APPLICATION_OCTET_STREAM.withCharset("UTF-8"));
+		fileBody.setProgressCallback((int percent) -> {
+			(new CmdInvokeLater(new CmdUpdateProgressbar(percent))).execute();
+		}, 200);
+		StringBody stringBody = new StringBody(fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"));
+		
+		HttpEntity postData = MultipartEntityBuilder.create()
+				.addPart("data", fileBody)
+				.addPart("cm_filename", stringBody)
+				.setCharset(Charset.forName("UTF-8"))
+				.build();
+		
+		return sendPOSTRequest(postData, configTimeoutFile);
+		
+	}
+	
+	private boolean sendPOSTRequest(HttpEntity postData, RequestConfig config){
+
 		if(serverIP == null){
 			return false;
 		}
 
-		boolean success;
-
-		if(message.getType() == CMMessage.TYPE_FILE){
-			success = sendFileMessage(message);
-		}
-		else{
-			success = sendTextMessage(message);
-		}
-
-		if(!success){
-			removeServer();
-		}
-		
-		return success;
-
-	}
-	
-	private boolean sendTextMessage(CMMessage message){
-
 		boolean success = false;
 		String reason = "";
-		String messageText = message.getAsJsonString();
 				
 		try{
+			
 			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
-			List<NameValuePair> postParams = new ArrayList<>();
-			postParams.add(new BasicNameValuePair("message", messageText));
 			
-			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-			HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
 			HttpPost post = new HttpPost(remoteAddress);
-			post.setConfig(configTimeoutText);
+			post.setConfig(config);
 			post.setEntity(postData);
-			
+
+			CloseableHttpClient httpClient = HttpClientBuilder.create().build();			
 			CloseableHttpResponse response = httpClient.execute(post);
+			
 			int code = response.getCode();
 			EntityUtils.consume(response.getEntity());
 			response.close();
@@ -131,74 +139,17 @@ public class HttpClient extends Observable implements ChatmanClient{
 			else{
 				reason = "http request returned code: " + code;
 				success = false;
-				//don'g log the pings
-				if(message.getType() != CMMessage.TYPE_PING){
-					CMHelper.getInstance().log("sending text message failed. reason: " + reason);
-				}
+				CMHelper.getInstance().log("send failed. reason: " + reason);
 			}
 			
 		}catch(Exception e){
 			reason = "http request could not be sent: " + e.getMessage();
 			success = false;
-			//don't log the pings
-			if(message.getType() != CMMessage.TYPE_PING){
-				CMHelper.getInstance().log("sending text message failed. reason: " + reason);
-			}
+			CMHelper.getInstance().log("send failed. reason: " + reason);
 		}
 		
-		return success;
-
-	}
-	
-	private boolean sendFileMessage(CMMessage message){
-
-		boolean success = false;
-		String reason = "";
-		
-		try{
-			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
-			String remoteAddress = "http://" + serverIP + ":" + remotePort;
-			String filePath = message.getContent();
-			File file = new File(filePath);
-			String fileName = file.getName();
-			
-			//bayad filename ro joda ezafe konim chon apache httpclient ashghal ast
-			//va orze nadarad filename UTF-8 befrestad pas bayad khodeman joda befrestim
-			FileBodyWithProgress fileBody = new FileBodyWithProgress(file, ContentType.APPLICATION_OCTET_STREAM.withCharset("UTF-8"));
-			fileBody.setProgressCallback((int percent) -> {
-				(new CmdInvokeLater(new CmdUpdateProgressbar(percent))).execute();
-			}, 200);
-			StringBody stringBody = new StringBody(fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"));
-            HttpEntity postData = MultipartEntityBuilder.create()
-					.addPart("data", fileBody)
-					.addPart("cm_filename", stringBody)
-					.setCharset(Charset.forName("UTF-8"))
-                    .build();
-			
-			HttpPost post = new HttpPost(remoteAddress);
-			post.setConfig(configTimeoutFile);
-			post.setEntity(postData);
-
-			CloseableHttpClient httpClient = HttpClientBuilder.create().build();			
-			CloseableHttpResponse response = httpClient.execute(post);
-			int code = response.getCode();
-			EntityUtils.consume(response.getEntity());
-			response.close();
-			httpClient.close();
-			
-			if(code == 200){
-				success = true;
-			}
-			else{
-				reason = "http request returned code: " + code;
-				success = false;
-				CMHelper.getInstance().log("sending file message failed. reason: " + reason);
-			}
-
-		}catch(Exception e){
-			reason = "request could not be sent: " + e.getMessage();
-			success = false;
-			CMHelper.getInstance().log("sending file message failed. reason: " + reason);
+		if(!success){
+			removeServer();
 		}
 		
 		return success;

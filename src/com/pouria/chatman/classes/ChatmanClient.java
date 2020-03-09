@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman.classes;
 
-import com.pouria.chatman.CMMessage;
+import java.io.File;
 import java.util.Observer;
 
 /**
@@ -27,12 +27,20 @@ import java.util.Observer;
 public interface ChatmanClient{
 
 	/**
-	 * sends a CMMessage to the other person we are talking to<br>
+	 * sends a String to the server we're connected to<br>
 	 * this function should be blocking!
-	 * @param message 
+	 * @param text text to send
 	 * @return  the result of send operation
 	 */	
-	public boolean send(CMMessage message);
+	public boolean sendText(String text);
+
+	/**
+	 * sends a File to the server we're connected to<br>
+	 * this function should be blocking!
+	 * @param file file to send
+	 * @return  the result of send operation
+	 */	
+	public boolean sendFile(File file);
 	
 	/**
 	 * connects to the person we want to talk to if their IP is specified <br>

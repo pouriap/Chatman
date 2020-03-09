@@ -126,7 +126,8 @@ public class Chatman {
 			Runnable r = () -> {
 				client.connect();
 				CMMessage firstPing = new CMMessage(CMMessage.TYPE_PING, "", "");
-				client.send(firstPing);
+				OutgoingMsgHandler handler = new OutgoingMsgHandler(firstPing);
+				handler.handle();
 			};
 			(new Thread(r, "CM-Initial-Connect")).start();
 			
@@ -146,8 +147,10 @@ public class Chatman {
 			TimerTask heartBeatTask = new TimerTask() {
 				@Override
 				public void run() {
-					CMMessage m = new CMMessage(CMMessage.TYPE_PING, "", "");
-					boolean connected = client.send(m);
+					CMMessage pingMessage = new CMMessage(CMMessage.TYPE_PING, "", "");
+					OutgoingMsgHandler handler = new OutgoingMsgHandler(pingMessage);
+					handler.handle();
+					boolean connected = (pingMessage.getStatus() == CMMessage.STATUS_SENT);
 					if(!connected && !sendQueue.isEmpty()){
 						client.connect();
 					}

@@ -31,11 +31,11 @@ import javax.swing.JFileChooser;
  *
  * @author pouriap
  */
-public class IncomingMessageHandler {
+public class IncomingMsgHandler {
 	
 	private final CMMessage message;
 	
-	public IncomingMessageHandler(CMMessage message){
+	public IncomingMsgHandler(CMMessage message){
 		this.message = message;
 	}
 	

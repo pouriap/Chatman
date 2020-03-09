@@ -9,6 +9,7 @@ import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.OutgoingMsgHandler;
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdShowError;
@@ -1296,11 +1297,10 @@ public class ChatFrame extends javax.swing.JFrame {
 			final String msg = e.getMessage();
 			//send a showgui message to localhost (showgui messages always go to localhost)
 			CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "");
-			chatman.getClient().setServer("127.0.0.1");
-			//this is a very special case where we don't even have gui so we directly access the send() method
-			boolean success = chatman.getClient().send(showGuiMessage);
+			OutgoingMsgHandler handler = new OutgoingMsgHandler(showGuiMessage);
+			handler.handle();
 			//if localhost responds we exit
-			if(success){
+			if(showGuiMessage.getStatus() == CMMessage.STATUS_SENT){
 				System.exit(0);
 			}
 			//if localhost doesn't repond it means there's a problem
