@@ -89,7 +89,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.3";
+	private final String version = "2.0.4";
 	private final String appTitle = "Chatman Rises";
 	
 
@@ -1025,11 +1025,14 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void initialize(){
-		
+					
 		this.setTitle(appTitle);
 		
-		createTrayIcon();
-		
+		//show tray if config says yes
+		if(CMConfig.getInstance().get("show-tray-icon", CMConfig.DEFAULT_SHOWTRAY).equals("yes")){
+			createTrayIcon();
+		}
+
 		//checks if history.sqlite exists and if not tries to create it
 		try{
 			CMHelper.getInstance().checkDatabaseFile();
@@ -1320,7 +1323,7 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //Called from myInits()
 	public void createTrayIcon(){
-		
+
         if (!SystemTray.isSupported()) {
 			CMHelper.getInstance().log("System tray not supported");
             return;

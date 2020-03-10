@@ -41,7 +41,7 @@ public class Chatman {
 	private final int HEARTBEAT_INTERVAL = 1000 * 60; //60 sec
 	private final long OLD_MSG_TIMEDIFF = 1000*60*60;	//1hour
 	
-	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>older messages<br>________________________________________________________________<br></div>";;
+	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";;
 	private final ArrayList<CMMessage> allConversationMessages = new ArrayList<CMMessage>();
 	private final CMSendQueue sendQueue;
 	

@@ -49,6 +49,11 @@ public class HttpServer implements ChatmanServer{
 				public void handleRequest(HttpServerExchange exchange) throws Exception {
 					//parses POST form data and passes it to a handler
 					FormDataParser parser = FormParserFactory.builder().build().createParser(exchange);
+					//send Bad Request if there is no post data
+					if(parser == null){
+						exchange.setStatusCode(400);
+						return;
+					}
 					parser.parse(handler);
 				}
 			}).build();
@@ -61,16 +66,23 @@ public class HttpServer implements ChatmanServer{
 	private class ChatmanHandler implements HttpHandler{
 		@Override
 		public void handleRequest(HttpServerExchange exchange) throws Exception {
+			String localIp = exchange.getDestinationAddress().getAddress().getHostAddress();
+			String peerIp = exchange.getSourceAddress().getAddress().getHostAddress();
+			//this is for added security, we don't want to receive our own messages unless it's a showGUI
+			if(peerIp.equals(localIp) && !peerIp.equals("127.0.0.1")){
+				CMHelper.getInstance().log("rejecting client-to-client connection with IP: " + peerIp);
+				exchange.setStatusCode(400);
+				return;
+			}
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			CMMessage message = new CMMessage(formData);
 			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.DIR_IN);
 			handler.handle(message);
 			//set server everytime we recieve a message to avoid unnecessary searches
-			String peerIP = exchange.getSourceAddress().getAddress().getHostAddress();
-			//don't set our own ip as server			
-			if(!CMHelper.getInstance().getLocalIps().contains(peerIP)){
-				notifyServerIsUp(peerIP);
+			//but don't set our own ip as server
+			if(!CMHelper.getInstance().getLocalIps().contains(peerIp)){
+				notifyServerIsUp(peerIp);
 			}
 		}
 		//we do this in a thread because if we block request takes too long and times out
