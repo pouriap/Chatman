@@ -18,11 +18,9 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
+import com.puria.PoConfig;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.Locale;
-import java.util.Properties;
 
 /**
  *
@@ -30,9 +28,9 @@ import java.util.Properties;
  */
 public class CMConfig {
 	
-	private final Properties config;
+	private final PoConfig config;
 	private final File configFile;
-	private final String CONFIG_FILE_NAME = "config.conf";
+	private final String CONFIG_FILE_PATH = "config.conf";
 	
 	public static final String DEFAULT_BG = "bane_1.jpg";
 	public static final String DEFAULT_SERVER_PORT = "8645";
@@ -42,32 +40,24 @@ public class CMConfig {
 	public static final String DEFAULT_LOCALE = "fa_IR";
 	public static final String DEFAULT_BUTTONSTHEME = "dark";
 	public static final String DEFAULT_TEXTAREASTHEME = "dark";
-	
-	private final String comments = "rahnama:\n"
-			+ "subnet-mask: subneti ke bayad donbale server jostojoo shavad. bayad adade akhare an setare (*) bashad\n"
-			+ "num-hosts-to-scan: chand ip scan shavad donbale server\n"
-			+ "file-dorp-size-warning: filehaye az in bozorg tar ra bekhaim befrestim warning midahad\n"
-			+ "buttons-theme: range dokme ha - 'dark' ya 'light'\n"
-			+ "textareas-theme: range poshte neveshte ha - 'dark' ya 'light'"
-			+ "\n"
-			+ "\n";
+	public static final String DEFAULT_SHOWTRAY = "yes";
 	
 	
 	private CMConfig() {
 		
-		config = new Properties();
-		configFile = new File(CONFIG_FILE_NAME);
+		configFile = new File(CONFIG_FILE_PATH);
+		config = new PoConfig(configFile);
 		
 		try{
 			//if there is a config file try to load it
 			if(configFile.isFile()){
-				config.load(new FileInputStream(configFile));
+				config.load();
 			}
 			//if there isn't a config file try to create it
 			else{
+				//TODO: add default config file with comments to jar
 				CMHelper.getInstance().log("config file doesn't exist. creating it");
 				setAsDefault();
-				configFile.createNewFile();
 				save();
 				CMHelper.getInstance().log("default config file created successfully");
 			}
@@ -90,33 +80,34 @@ public class CMConfig {
 	}
 	
 	private void setAsDefault(){
-		config.setProperty("background-image", DEFAULT_BG);
-		config.setProperty("server-port", DEFAULT_SERVER_PORT);
-		config.setProperty("subnet-mask", DEFAULT_SUBNET);
-		config.setProperty("num-hosts-to-scan", DEFAULT_HOSTS_SCAN);
-		config.setProperty("file-drop-size-warning", DEFAULT_FILEDROP_SIZEWARNING);		
-		config.setProperty("buttons-theme", DEFAULT_BUTTONSTHEME);
-		config.setProperty("textareas-theme", DEFAULT_TEXTAREASTHEME);
+		config.set("background-image", DEFAULT_BG);
+		config.set("server-port", DEFAULT_SERVER_PORT);
+		config.set("subnet-mask", DEFAULT_SUBNET);
+		config.set("num-hosts-to-scan", DEFAULT_HOSTS_SCAN);
+		config.set("file-drop-size-warning", DEFAULT_FILEDROP_SIZEWARNING);		
+		config.set("buttons-theme", DEFAULT_BUTTONSTHEME);
+		config.set("textareas-theme", DEFAULT_TEXTAREASTHEME);
 	}
 	
 	public String get(String key, String defaultValue){
-		return config.getProperty(key, defaultValue);
+		return config.getString(key, defaultValue);
 	}
 	
 	public void set(String key, String value){
-		config.setProperty(key, value);
+		config.set(key, value);
 	}
 	
 	public final void save(){
 		try{
-			config.store((new FileOutputStream(configFile)), comments);
+			config.save();
 		}catch(Exception e){
+			e.printStackTrace();
 			CMHelper.getInstance().log("failed to save config file");
 		}
 	}
 	
 	public boolean isSet(String key){
-		return config.stringPropertyNames().contains(key);
+		return config.isSet(key);
 	}
 	
 	public Locale getLocale(){
