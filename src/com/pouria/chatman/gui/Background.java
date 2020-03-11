@@ -17,7 +17,6 @@
 package com.pouria.chatman.gui;
 
 import com.pouria.chatman.CMConfig;
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
@@ -126,7 +125,11 @@ public class Background {
         
         @Override
         public boolean accept(File dir, String fileName){
-            String ext = Files.getFileExtension(fileName);
+			if(!fileName.contains(".")){
+				return false;
+			}
+            String[] parts = fileName.split("\\.");
+			String ext = parts[parts.length-1];
             if(ext.equals("jpg") || ext.equals("png"))
                 return true;
             

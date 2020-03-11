@@ -52,6 +52,14 @@ public class PopupDialog extends JDialog{
     //plays the bleep
     public void playSound(){
 		
+		String notification;
+		if(mode == MODE_BAT){
+			notification = "notification-bat.wav";
+		}
+		else{
+			notification = "notification-normal.wav";
+		}
+		
         try{ 
 			
 			AudioInputStream audioStream;
@@ -59,11 +67,11 @@ public class PopupDialog extends JDialog{
 			
 			//linux sucks so...
 			if(os == CMHelper.getInstance().OS_WIN){
-				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification-bat.wav"));
+				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/"+notification));
 				clip = AudioSystem.getClip();
 			}
 			else{
-				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/notification-bat.wav")); 
+				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/"+notification)); 
 				audioStream = AudioSystem.getAudioInputStream(srcStream);
 				AudioFormat format = audioStream.getFormat();
 				DataLine.Info info = new DataLine.Info(Clip.class, format);

@@ -90,7 +90,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.5";
+	private final String version = "2.0.6";
 	private final String appTitle = "Chatman Rises";
 	
 
@@ -1059,8 +1059,15 @@ public class ChatFrame extends javax.swing.JFrame {
         setupGUITexts();
 		
 		//set popup type
-		newMessagePopup = dialogPopupBat;
-		newMessagePopup.setMode(PopupDialog.MODE_BAT);
+		String popupMode = CMConfig.getInstance().get("new-message-popup-mode", "bat");
+		if(popupMode.equals("bat")){
+			newMessagePopup = dialogPopupBat;
+			newMessagePopup.setMode(PopupDialog.MODE_BAT);
+		}
+		else{
+			newMessagePopup = dialogPopupNormal;
+			newMessagePopup.setMode(PopupDialog.MODE_NORMAL);
+		}
 		
         //TextArea Dorp
         textAreaInput.setDropTarget(new DropTarget() {
@@ -1278,6 +1285,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			menuExit.setFont(iranSans);
 			labelStatus.setFont(iranSans);
 			labelStatusLabl.setFont(iranSans);
+			labelNewMessage.setFont(font.deriveFont(20f));
 		}catch(Exception e){
 			//font will revert to Tahoma
 		}

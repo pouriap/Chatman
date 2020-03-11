@@ -16,7 +16,6 @@
  */
 package com.pouria.chatman;
 
-import com.google.common.io.Files;
 import com.pouria.chatman.classes.Command;
 import com.pouria.chatman.classes.CmdConfirmDialog;
 import com.pouria.chatman.classes.CmdInvokeLater;
@@ -24,6 +23,8 @@ import com.pouria.chatman.classes.CmdShowError;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import javax.swing.JFileChooser;
 
 
@@ -98,7 +99,7 @@ public class IncomingMsgHandler {
 				CMHelper.getInstance().log("download dir created successfully");
 			}
 			CMHelper.getInstance().log("copying received file from " + srcFile.getAbsolutePath() + " to " + dstFile.getAbsolutePath());
-			Files.copy(srcFile, dstFile);
+			Files.copy(srcFile.toPath(), dstFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			CMHelper.getInstance().log("file copied");
 			//set file path (=content) to the one saved in Chatman Downloads
 			message.setContent(dstFile.getAbsolutePath());
