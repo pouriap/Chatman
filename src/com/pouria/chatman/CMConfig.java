@@ -20,6 +20,10 @@ import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.puria.PoConfig;
 import java.io.File;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -55,11 +59,13 @@ public class CMConfig {
 			}
 			//if there isn't a config file try to create it
 			else{
-				//TODO: add default config file with comments to jar
 				CMHelper.getInstance().log("config file doesn't exist. creating it");
-				setAsDefault();
-				save();
+				URL url = getClass().getResource("/resources/default_config.conf");
+				File file = new File(url.toURI());
+				List<String> lines = Files.readAllLines(file.toPath(), Charset.forName("UTF-8"));
+				Files.write(configFile.toPath(), lines, Charset.forName("UTF-8"));
 				CMHelper.getInstance().log("default config file created successfully");
+				config.load();
 			}
 		//if load/create fails it's a fatal error
 		}catch(Exception e){

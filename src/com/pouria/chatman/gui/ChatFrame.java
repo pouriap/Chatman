@@ -84,12 +84,13 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String textColor;
 	private String labelsTheme = "dark";
 	private String backgroundsTheme = "dark";
+	private TrayIcon trayIconApp, trayIconNewMessage;
 	PopupDialog newMessagePopup;
 
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.4";
+	private final String version = "2.0.5";
 	private final String appTitle = "Chatman Rises";
 	
 
@@ -556,7 +557,7 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelStatusBackground);
         labelStatusBackground.setBounds(-5, 560, 560, 40);
 
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/batman.jpg"))); // NOI18N
+        labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/default.jpg"))); // NOI18N
         labelFrameBg.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         labelFrameBg.setIconTextGap(0);
         labelFrameBg.setMaximumSize(new java.awt.Dimension(500, 600));
@@ -1025,14 +1026,7 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void initialize(){
-					
-		this.setTitle(appTitle);
 		
-		//show tray if config says yes
-		if(CMConfig.getInstance().get("show-tray-icon", CMConfig.DEFAULT_SHOWTRAY).equals("yes")){
-			createTrayIcon();
-		}
-
 		//checks if history.sqlite exists and if not tries to create it
 		try{
 			CMHelper.getInstance().checkDatabaseFile();
@@ -1042,6 +1036,17 @@ public class ChatFrame extends javax.swing.JFrame {
 		
         //Locale
 		CMHelper.getInstance().setLocale(CMConfig.getInstance().getLocale());
+		
+		//DO NOT MOVE THE ABOVE CODE BELOW THEY HAVE TO BE RUN FIRST
+		
+		this.setTitle(appTitle);
+		
+		createTrayIcons();
+		
+		//show tray if config says yes
+		if(CMConfig.getInstance().get("show-tray-icon", CMConfig.DEFAULT_SHOWTRAY).equals("yes")){
+			setTrayIconVisible(trayIconApp, true);
+		}
 		
 		//set up theme
 		labelsTheme = CMConfig.getInstance().get("buttons-theme", CMConfig.DEFAULT_BUTTONSTHEME);
@@ -1322,26 +1327,30 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     //Called from myInits()
-	public void createTrayIcon(){
+	public void createTrayIcons(){
 
         if (!SystemTray.isSupported()) {
 			CMHelper.getInstance().log("System tray not supported");
             return;
         }
 				
-		ImageIcon iconImage = new ImageIcon(getClass().getResource("/resources/icon16.png"));
-        final TrayIcon trayIcon = new TrayIcon(iconImage.getImage());
-		final SystemTray systemTray = SystemTray.getSystemTray();
-		final PopupMenu rclickMenu = new PopupMenu();
-		trayIcon.setImageAutoSize(false);
-		trayIcon.setToolTip(appTitle);
+		ImageIcon appIcon = new ImageIcon(getClass().getResource("/resources/icon16.png"));
+		ImageIcon newMessageIcon = new ImageIcon(getClass().getResource("/resources/new-message16.png"));
+        trayIconApp = new TrayIcon(appIcon.getImage());
+		trayIconNewMessage = new TrayIcon(newMessageIcon.getImage());
+		
+		trayIconApp.setImageAutoSize(false);
+		trayIconApp.setToolTip(appTitle);
+		trayIconNewMessage.setImageAutoSize(false);
+		trayIconNewMessage.setToolTip(CMHelper.getInstance().getStr("new_message"));
 		
         // create a right-click menu 
+		PopupMenu rclickMenu = new PopupMenu();
         MenuItem openItem = new MenuItem("Open");
         MenuItem exitItem = new MenuItem("Exit");
         rclickMenu.add(openItem);
         rclickMenu.add(exitItem);
-        trayIcon.setPopupMenu(rclickMenu);
+        trayIconApp.setPopupMenu(rclickMenu);
 		
 		//create actions
 		ActionListener actionOpen = new ActionListener() {
@@ -1358,16 +1367,25 @@ public class ChatFrame extends javax.swing.JFrame {
 		};
 		
 		//add actions to items and double-click
-		trayIcon.addActionListener(actionOpen);
+		trayIconApp.addActionListener(actionOpen);
 		openItem.addActionListener(actionOpen);
 		exitItem.addActionListener(actionExit);
+		trayIconNewMessage.addActionListener(actionOpen);
 		
+	}
+	
+	public void setTrayIconVisible(TrayIcon trayIcon, boolean visible){
         try {
-            systemTray.add(trayIcon);
+			SystemTray systemTray = SystemTray.getSystemTray();
+			if(visible){
+				systemTray.add(trayIcon);
+			}
+			else{
+				systemTray.remove(trayIcon);
+			}
         } catch (AWTException e) {
 			CMHelper.getInstance().log("Tray icon could not be added");
         }
-		
 	}
 	
     public void setupGUITexts(){
@@ -1619,6 +1637,9 @@ public class ChatFrame extends javax.swing.JFrame {
 			//Focus
 			textAreaInput.requestFocus();
 		}
+		else{
+			setTrayIconVisible(trayIconNewMessage, true);
+		}
 	}
 
     //sets the status label at the bottom
@@ -1656,9 +1677,12 @@ public class ChatFrame extends javax.swing.JFrame {
 	//shows the chatman window
 	public void showWindow(){
 		this.setVisible(true);
+		//maximize
 		if(this.getExtendedState() == ICONIFIED){
 			this.setExtendedState(NORMAL);
 		}
+		//remove new message tray icon
+		setTrayIconVisible(trayIconNewMessage, false);
 	}
 	
 	

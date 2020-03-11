@@ -37,7 +37,7 @@ public class Background {
     ArrayList<String> backgrounds = new ArrayList<String>();
     private String current;
     private final String bgFolder = "backgrounds";
-    private final String defaultBg = "batman.jpg";
+    private final String defaultBg = "default.jpg";
     
     private Background(){
         File bgsPath;

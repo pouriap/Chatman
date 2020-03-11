@@ -137,7 +137,7 @@ public class CMHelper {
 			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
 		}
 
-		if(!localIps.contains("192.168.1.20") && CMConfig.getInstance().isSet("special-puria-debug")){
+		if(!localIps.contains("192.168.1.20") && CMConfig.getInstance().isSet("puria-debug")){
 			String ips = "";
 			for(String ip: localIps){
 				ips += ip+"\n";
