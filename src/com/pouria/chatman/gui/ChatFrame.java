@@ -99,7 +99,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.8";
+	private final String version = "2.0.9";
 	private final String appTitle = "Chatman Rises";
 	
 	
@@ -227,7 +227,7 @@ public class ChatFrame extends javax.swing.JFrame {
         dialogHistory.setTitle("تاریخچه");
         dialogHistory.setAlwaysOnTop(true);
         dialogHistory.setIconImage(null);
-        dialogHistory.setMinimumSize(new java.awt.Dimension(400, 300));
+        dialogHistory.setMinimumSize(new java.awt.Dimension(300, 300));
         dialogHistory.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 dialogHistoryComponentShown(evt);
@@ -264,7 +264,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         tableHistory.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        tableHistory.setRowHeight(20);
+        tableHistory.setRowHeight(30);
         tableHistory.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 tableHistoryMouseReleased(evt);
@@ -301,14 +301,14 @@ public class ChatFrame extends javax.swing.JFrame {
                         .addComponent(buttonPrevHistoryPage)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(buttonNextHistoryPage))
-                    .addComponent(scrollPaneHistory, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
+                    .addComponent(scrollPaneHistory, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE))
                 .addContainerGap())
         );
         dialogHistoryLayout.setVerticalGroup(
             dialogHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(dialogHistoryLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(scrollPaneHistory, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                .addComponent(scrollPaneHistory, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(dialogHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonNextHistoryPage)
@@ -751,7 +751,12 @@ public class ChatFrame extends javax.swing.JFrame {
 
     private void menuShowHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuShowHistoryActionPerformed
         //show history dialog
-        dialogHistory.setLocationRelativeTo(null);
+		int x = this.getLocationOnScreen().x - dialogHistory.getSize().width;
+		if(x < 0){
+			x = this.getLocationOnScreen().x + this.getSize().width;
+		}
+		int y = this.getLocationOnScreen().y;
+		dialogHistory.setLocation(x, y);
         dialogHistory.setVisible(true);
     }//GEN-LAST:event_menuShowHistoryActionPerformed
 
@@ -998,7 +1003,7 @@ public class ChatFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-
+		
 		do_pregui_check();
 
         /* Set the look and feel */
@@ -1035,6 +1040,8 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
     }
+	
+	//TODO: right click on history clears history
 	
 	private static void do_pregui_check(){
 		//send a showgui message to localhost, if localhost responds we exit
@@ -1293,6 +1300,10 @@ public class ChatFrame extends javax.swing.JFrame {
         URL url = getClass().getResource("/resources/icon_history.png");
         Image historyIcon = toolkit.createImage(url);
         dialogHistory.setIconImage(historyIcon);
+		
+		
+		//hide text column in history table
+		tableHistory.removeColumn(tableHistory.getColumnModel().getColumn(1));
 
 		
         //Center
@@ -1317,6 +1328,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			labelStatus.setFont(iranSans);
 			labelStatusLabl.setFont(iranSans);
 			labelNewMessage.setFont(font.deriveFont(20f));
+			tableHistory.setFont(iranSans);
 		}catch(Exception e){
 			//font will revert to Tahoma
 		}

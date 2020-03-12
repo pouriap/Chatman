@@ -18,6 +18,7 @@ package com.pouria.chatman.classes;
 
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.gui.ChatFrame;
+import com.puria.ShamsiDate;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -55,8 +56,10 @@ public class HistoryTablePagination extends AbstractPagination{
         ((DefaultTableModel)this.table.getModel()).setRowCount(0);
         try {
             while (rs.next()) {
+				
                 Date d = new Date(rs.getLong("date"));
-                String text = rs.getString("text");
+                String textCol = rs.getString("text");
+				String dateCol = "";
 
                 //u = day of week
                 dateFormat = new SimpleDateFormat("u");
@@ -74,7 +77,7 @@ public class HistoryTablePagination extends AbstractPagination{
                 long distance =  now.getTime() - d.getTime();
                 //because we only want it to be applied to last week
                 //it doesn't work on new years first week but whatever! ;)
-                if(distance < (7 * oneDay)){
+                if(distance < (4 * oneDay)){
                     switch(todayNumber - dayNumber){
                         case 0:
                             format = "'" + CMHelper.getInstance().getStr("today") + " '";
@@ -93,12 +96,16 @@ public class HistoryTablePagination extends AbstractPagination{
                             break;
                         default:
                             break;
-                            
                     }
+					dateFormat = new SimpleDateFormat(format);
+					dateCol = dateFormat.format(d);
                 }
-   
-                dateFormat = new SimpleDateFormat(format);
-                ((DefaultTableModel)this.table.getModel()).addRow(new Object[]{dateFormat.format(d), text});
+				else{
+					ShamsiDate shamsiDate = new ShamsiDate(d.getTime());
+					dateCol = " " + shamsiDate.getStandardShamsi();
+				}
+				   
+                ((DefaultTableModel)this.table.getModel()).addRow(new Object[]{dateCol, textCol});
                 
                 resultCount++;
             }//while
