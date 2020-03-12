@@ -99,7 +99,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.9";
+	private final String version = "2.0.10";
 	private final String appTitle = "Chatman Rises";
 	
 	
@@ -906,9 +906,10 @@ public class ChatFrame extends javax.swing.JFrame {
 			kit.setStyleSheet(cssHideTime);
 		}
 		
+		String previousText = getConversationTextAll();
 		textAreaConversation.setEditorKit(kit);
 		textAreaConversation.setText(defaultTextAreaHtml);
-		updateTextAreaConversation(chatman.getAllMessagesText());
+		updateTextAreaConversation(previousText);
 
 		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
     }//GEN-LAST:event_textAreaConversationMouseClicked
@@ -1041,7 +1042,6 @@ public class ChatFrame extends javax.swing.JFrame {
         });
     }
 	
-	//TODO: right click on history clears history
 	
 	private static void do_pregui_check(){
 		//send a showgui message to localhost, if localhost responds we exit
@@ -1611,6 +1611,16 @@ public class ChatFrame extends javax.swing.JFrame {
     
     public String getInputText(){
         String html = textAreaInput.getText();
+		Document doc = Jsoup.parse(html);
+		Element textDiv = doc.select("body#text").first();
+		if(textDiv == null){
+			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+		}		
+		return textDiv.html();
+    }
+	
+    public String getConversationTextAll(){
+        String html = textAreaConversation.getText();
 		Document doc = Jsoup.parse(html);
 		Element textDiv = doc.select("body#text").first();
 		if(textDiv == null){
