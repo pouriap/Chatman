@@ -9,7 +9,6 @@ import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.OutgoingMsgHandler;
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdShowError;
@@ -39,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +57,15 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -90,11 +99,11 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.7";
+	private final String version = "2.0.8";
 	private final String appTitle = "Chatman Rises";
 	
-
-
+	
+	
     private ChatFrame(){
         initComponents();
     }
@@ -989,7 +998,10 @@ public class ChatFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
+
+		do_pregui_check();
+
+        /* Set the look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -1023,6 +1035,25 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
     }
+	
+	private static void do_pregui_check(){
+		//send a showgui message to localhost, if localhost responds we exit
+		CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "");
+		List<NameValuePair> postParams = new ArrayList<>();
+		postParams.add(new BasicNameValuePair("message", showGuiMessage.getAsJsonString()));
+		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
+		String port = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
+		HttpPost post = new HttpPost("http://127.0.0.1:"+port);
+		post.setEntity(postData);
+		try (CloseableHttpClient httpClient = HttpClientBuilder.create().build(); CloseableHttpResponse response = httpClient.execute(post)) {
+			int code = response.getCode();
+			EntityUtils.consume(response.getEntity());
+			//if localhost responds we exit
+			if(code == 200){
+				System.exit(0);
+			}
+		}catch(Exception e){}
+	}
      
 
     public void initialize(){
@@ -1305,33 +1336,16 @@ public class ChatFrame extends javax.swing.JFrame {
 
     } 
     
-    //start Chatman as client/server
-    public void startChatman(){
+    //start Chatman
+    public void startChatman(){	
 		try{
-			
 			chatman = new Chatman();
 			chatman.start();
-			
-		//if we get a bind exception it means either there's a problem or chatman is already running
 		}catch(Exception e){
-			final String msg = e.getMessage();
-			//send a showgui message to localhost (showgui messages always go to localhost)
-			CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "");
-			OutgoingMsgHandler handler = new OutgoingMsgHandler(showGuiMessage);
-			handler.handle();
-			//if localhost responds we exit
-			if(showGuiMessage.getStatus() == CMMessage.STATUS_SENT){
-				System.exit(0);
-			}
-			//if localhost doesn't repond it means there's a problem
-			else{
-				final Exception ex = e;
-				String error = "Could not start server: " + msg;
-				(new CmdFatalErrorExit(error, ex)).execute();
-			}
-
+			final Exception ex = e;
+			String error = "Could not start server: " + e.getMessage();
+			(new CmdFatalErrorExit(error, ex)).execute();
 		}
-				
     }
     
     //Called from myInits()
