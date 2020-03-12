@@ -90,7 +90,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.6";
+	private final String version = "2.0.7";
 	private final String appTitle = "Chatman Rises";
 	
 

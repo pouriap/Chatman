@@ -54,9 +54,9 @@ public class HttpClient extends Observable implements ChatmanClient{
 	private boolean connectInProgress = false;
 	private final RequestConfig configTimeoutText;
 	private final RequestConfig configTimeoutFile;
-	private final int connectTimeout = 300;	//millis
-	private final int responseTimeout = 500; //millis
-	private final int responeTimeoutFile = 5;	//mins
+	private final int connectTimeout = 100;	//millis  - this is for socket connection
+	private final int responseTimeout = 500; //millis - in moddatye ke handler dar server tool mikeshe return kone
+	private final int responeTimeoutFile = 5;	//mins - baraye file handler bayad sabr kone ta file biad va baad copy ham bokone pas bishtare
 
 	
 	public HttpClient(){

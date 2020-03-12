@@ -25,6 +25,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -37,9 +38,9 @@ public class Chatman {
 	private final CMHistory history;
 	private final BgTasksManager bgTasksMngr;
 	
-	private final int HISTORY_SAVE_INTERVAL = 1000 * 100; //100 sec
-	private final int HEARTBEAT_INTERVAL = 1000 * 60; //60 sec
-	private final long OLD_MSG_TIMEDIFF = 1000*60*60;	//1hour
+	private final long HISTORY_SAVE_INTERVAL = TimeUnit.MINUTES.toMillis(5);
+	private final long HEARTBEAT_INTERVAL = TimeUnit.MINUTES.toMillis(5);
+	private final long OLD_MSG_TIMEDIFF = TimeUnit.HOURS.toMillis(1);
 	
 	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";;
 	private final ArrayList<CMMessage> allConversationMessages = new ArrayList<CMMessage>();

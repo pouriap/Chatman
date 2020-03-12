@@ -23,12 +23,15 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  * @author pouriap
  * 
- * is only used when we are client
  * takes a subnet mask and scans that subnet
  * num-hosts-to-scan in the config file determines how many hosts in the subnet should we scan
  * when scanning is finished we decide what to do based on number of servers found
@@ -48,62 +51,69 @@ public class IpScanner {
 
 	//start scanning the network
 	//we will spawn threads that each one will try to connect to an ip
-	//when a live server is detected we call ChatmanClient.setServer() and break operation
 	//this method is blocking!
     public ArrayList<String> scan() {
 		
 			int numHosts = ipsToScan.length;
-            Thread[] scanners = new Thread[numHosts];
 			ArrayList<String> localIps = CMHelper.getInstance().getLocalIps();
 			
-            for(int i=0; i<numHosts; i++){
+			//create a pool of 10 threads
+			ExecutorService executor = Executors.newFixedThreadPool(10, new ThreadFactory() {
+				//this shit is only for giving the threads a name hehehe
+				private final AtomicInteger counter = new AtomicInteger(0);
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread th = new Thread(r, "IP-Scanner-" + counter.incrementAndGet());
+					return th;
+				}
+			});
+
+			//add PortScanner jobs to the executor
+			for(int i=0; i<numHosts; i++){
                 String addr = ipsToScan[i];
                 //don't scan local ips
                 if(localIps.contains(addr))
                     continue;
-                scanners[i] = new Thread(new portScanner(addr, port), "CM-Port-Scanner-"+String.valueOf(i));
-                scanners[i].start();
+				Runnable scanner = new PortScanner(addr, port);
+				executor.execute(scanner);
             }
-            
-            //wait until the scanning is finished
-            boolean c;
-            do{
-                c = false;
-				
-                try{
-                    Thread.sleep(100);
-                }catch(InterruptedException e){
-					final Exception ex = e;
-					String error = CMHelper.getInstance().getStr("thread_sleep_fail");
-                    (new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
-                }
-				
-                //break if all threads are finished
-                for(Thread scanner: scanners){
-                    if(scanner != null){
-						//ooni ke IP local bood va continue dade budim null ast
-						c = c || scanner.isAlive();
-					}
-                }
-				
-				//break if server is found
-				if(!foundIps.isEmpty()){
-					c = false;
+			
+			executor.shutdown();
+			//keep waiting until either all hosts are scanned or a server is found
+			while(!executor.isTerminated() && foundIps.isEmpty()){
+				try{
+					Thread.sleep(100);
+				}catch(InterruptedException e){
+						final Exception ex = e;
+						String error = CMHelper.getInstance().getStr("thread_sleep_fail");
+						(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
 				}
-				
-            }while(c);  
+			}
+			//forced shutdown in for when loop stops because ip was found
+			executor.shutdownNow();
             
 			return foundIps;
     }
 	
-	private class portScanner implements Runnable{
+	private synchronized void addToFoundIps(String ip){
+		foundIps.add(ip);
+	}
+	
+	
+	
+	private class PortScanner implements Runnable{
 
 		private final String ip;
 		private final int port;
 
-		public portScanner(String host, int port){
+		public PortScanner(String host, int port){
 			this.port = port;
 			this.ip = host;
+		}
+		
+		@Override
+		public String toString(){
+			return ip;
 		}
 
 		@Override
@@ -111,9 +121,9 @@ public class IpScanner {
 			//connect to a specific ip
 			try{
 				Socket socket = new Socket();
-				socket.connect(new InetSocketAddress(ip, port), 2000);
+				socket.connect(new InetSocketAddress(ip, port), 100);
 				socket.close();
-				foundIps.add(ip);
+				addToFoundIps(ip);
 			}catch(IOException ex){
 				//ignore closed ports
 			}
