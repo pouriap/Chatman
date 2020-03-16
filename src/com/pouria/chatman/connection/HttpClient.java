@@ -117,7 +117,8 @@ public class HttpClient extends Observable implements ChatmanClient{
 		String reason = "";
 				
 		try{
-			
+			//TODO: agar ghaat shavim va server null shavad digar hich vaght vasl nemishavim magar inke message beferestim
+			//TODO: bayad vasl shavim vaghti parsa ping midahad, chera parsa ping nemidahad?
 			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			

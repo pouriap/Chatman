@@ -65,6 +65,10 @@ public class IncomingMsgHandler {
 				processAbortShutdown();
 				break;
 				
+			case CMMessage.TYPE_PING:
+				processPing();
+				break;
+				
 			case CMMessage.TYPE_SHOWGUI:
 				processShowGUI();
 				break;
@@ -75,14 +79,14 @@ public class IncomingMsgHandler {
 		
 	}
 	
-	public void processBadMessage(){
+	private void processBadMessage(){
 		CMHelper.getInstance().log("bad message received");
 	}
 	
-	public void processTextMessage(){
+	private void processTextMessage(){
 	}
 	
-	public void processFileMessage(){
+	private void processFileMessage(){
 		CMHelper.getInstance().log("file message received");
 		String tmpFilePath = message.getContent().split("\\*\\*")[0];
 		String fileName = message.getContent().split("\\*\\*")[1];
@@ -110,7 +114,7 @@ public class IncomingMsgHandler {
 		}
 	}
 	
-	public void processShutdown(){
+	private void processShutdown(){
 
 		//start shutdown process
 		try{
@@ -155,7 +159,7 @@ public class IncomingMsgHandler {
 
 	}
 	
-	public void processAbortShutdown(){
+	private void processAbortShutdown(){
 		
 		String msgText;
 		String sender = ChatFrame.getInstance().getUserName();
@@ -174,7 +178,11 @@ public class IncomingMsgHandler {
 		
 	}
 	
-	public void processShowGUI(){
+	private void processPing(){
+		CMHelper.getInstance().log("ping received");
+	}
+	
+	private void processShowGUI(){
 		ChatFrame.getInstance().showWindow();
 	}
 	

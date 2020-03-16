@@ -66,6 +66,7 @@ public class HttpServer implements ChatmanServer{
 	private class ChatmanHandler implements HttpHandler{
 		@Override
 		public void handleRequest(HttpServerExchange exchange) throws Exception {
+			long start = System.currentTimeMillis();
 			String localIp = exchange.getDestinationAddress().getAddress().getHostAddress();
 			String peerIp = exchange.getSourceAddress().getAddress().getHostAddress();
 			//this is for added security, we don't want to receive our own messages unless it's a showGUI
@@ -84,6 +85,8 @@ public class HttpServer implements ChatmanServer{
 			if(!CMHelper.getInstance().getLocalIps().contains(peerIp)){
 				notifyServerIsUp(peerIp);
 			}
+			long time = System.currentTimeMillis() - start;
+			CMHelper.getInstance().log("request handling took: " + time + " millis");
 		}
 		//we do this in a thread because if we block request takes too long and times out
 		private void notifyServerIsUp(String serverIP){

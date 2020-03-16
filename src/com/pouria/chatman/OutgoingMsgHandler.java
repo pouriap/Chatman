@@ -58,6 +58,15 @@ public class OutgoingMsgHandler {
 		int status = (success)? CMMessage.STATUS_SENT : CMMessage.STATUS_SENDFAIL;
 		message.setStatus(status);
 		
+		if(message.getType() == CMMessage.TYPE_PING){
+			if(success){
+				CMHelper.getInstance().log("ping sent successfully");
+			}
+			else{
+				CMHelper.getInstance().log("ping send failed");
+			}
+		}
+		
 	}
 
 	
