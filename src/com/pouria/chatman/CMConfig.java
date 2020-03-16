@@ -37,10 +37,10 @@ public class CMConfig {
 	private final String CONFIG_FILE_PATH = "config.conf";
 	
 	public static final String DEFAULT_BG = "bane_1.jpg";
-	public static final String DEFAULT_SERVER_PORT = "8645";
+	public static final String DEFAULT_SERVER_PORT = "20759";
 	public static final String DEFAULT_SUBNET = "192.168.1.*";
-	public static final String DEFAULT_HOSTS_SCAN = "100";
-	public static final String DEFAULT_FILEDROP_SIZEWARNING = "200";
+	public static final String DEFAULT_HOSTS_SCAN = "50";
+	public static final String DEFAULT_FILEDROP_SIZEWARNING = "300";
 	public static final String DEFAULT_LOCALE = "fa_IR";
 	public static final String DEFAULT_BUTTONSTHEME = "dark";
 	public static final String DEFAULT_TEXTAREASTHEME = "dark";
