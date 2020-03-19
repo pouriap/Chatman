@@ -99,7 +99,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
-	private final String version = "2.0.11";
+	private final String version = "2.0.12";
 	private final String appTitle = "Chatman Rises";
 	
 	
@@ -1689,7 +1689,13 @@ public class ChatFrame extends javax.swing.JFrame {
     //sets the status label at the bottom
     public void setLabelStatus(String s){
         labelStatus.setText(s);
+		setTrayIconText(s);
     }
+	
+	//sets tray icon tooltip text
+	public void setTrayIconText(String s){
+		trayIconApp.setToolTip(s);
+	}
     
     //shows a message
     public void message(String m){
