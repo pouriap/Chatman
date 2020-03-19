@@ -16,12 +16,12 @@
  */
 package com.pouria.chatman.connection;
 
+import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.classes.ChatmanClient;
+import com.pouria.chatman.classes.CmdChangeStatusIcon;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdSetLabelStatus;
-import com.pouria.chatman.CMConfig;
-import com.pouria.chatman.classes.CmdChangeStatusIcon;
 import com.pouria.chatman.classes.CmdUpdateProgressbar;
 import java.io.File;
 import java.nio.charset.Charset;
@@ -117,8 +117,6 @@ public class HttpClient extends Observable implements ChatmanClient{
 		String reason = "";
 				
 		try{
-			//TODO: agar ghaat shavim va server null shavad digar hich vaght vasl nemishavim magar inke message beferestim
-			//TODO: bayad vasl shavim vaghti parsa ping midahad, chera parsa ping nemidahad?
 			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
 			String remoteAddress = "http://" + serverIP + ":" + remotePort;
 			
@@ -160,7 +158,10 @@ public class HttpClient extends Observable implements ChatmanClient{
 	//this is blocking!
 	public synchronized boolean connect(){
 		
+		CMHelper.getInstance().log("trying to connect");
+		
 		if(connectInProgress){
+			CMHelper.getInstance().log("connection already in progress. stopping connect attempt");
 			return false;
 		}
 		
@@ -179,9 +180,11 @@ public class HttpClient extends Observable implements ChatmanClient{
 		
 		if(success){
 			String ip = foundIps.get(0);
+			CMHelper.getInstance().log("connection sucessfully established with " + ip);
 			setServer(ip);
 		}
 		else{
+			CMHelper.getInstance().log("connection failed. no servers found");
 			removeServer();
 		}
 		

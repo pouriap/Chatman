@@ -32,9 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author pouriap
  * 
- * takes a subnet mask and scans that subnet
- * num-hosts-to-scan in the config file determines how many hosts in the subnet should we scan
- * when scanning is finished we decide what to do based on number of servers found
+ * takes a range of IPs and scans them
+ * when scanning is finished we return found IPs
  */
 
 public class IpScanner {
@@ -49,9 +48,12 @@ public class IpScanner {
 		foundIps = new ArrayList<String>();
     }
 
-	//start scanning the network
-	//we will spawn threads that each one will try to connect to an ip
-	//this method is blocking!
+	/**
+	 * scan the provided IPs<br>
+	 * we will spawn threads that each one will try to connect to an IP<br>
+	 * this method should be blocking!!
+	 * @return 
+	 */
     public ArrayList<String> scan() {
 		
 			int numHosts = ipsToScan.length;
@@ -122,8 +124,15 @@ public class IpScanner {
 			try{
 				Socket socket = new Socket();
 				socket.connect(new InetSocketAddress(ip, port), 100);
+				String localIP = socket.getLocalAddress().getHostAddress();
 				socket.close();
-				addToFoundIps(ip);
+				//don't add ourself as server
+				if(!ip.equals(localIP)){
+					addToFoundIps(ip);
+				}
+				else{
+					CMHelper.getInstance().log("rejecting self-found server with IP: " + ip);
+				}
 			}catch(IOException ex){
 				//ignore closed ports
 			}

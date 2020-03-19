@@ -64,38 +64,42 @@ public class HttpServer implements ChatmanServer{
 
 
 	private class ChatmanHandler implements HttpHandler{
+		
 		@Override
 		public void handleRequest(HttpServerExchange exchange) throws Exception {
+			
 			long start = System.currentTimeMillis();
+			
 			String localIp = exchange.getDestinationAddress().getAddress().getHostAddress();
 			String peerIp = exchange.getSourceAddress().getAddress().getHostAddress();
-			//this is for added security, we don't want to receive our own messages unless it's a showGUI
+			//we don't want to receive our own messages unless it's a showGUI
 			if(peerIp.equals(localIp) && !peerIp.equals("127.0.0.1")){
-				CMHelper.getInstance().log("rejecting client-to-client connection with IP: " + peerIp);
+				CMHelper.getInstance().log("rejecting self-to-self message with IP: " + peerIp);
 				exchange.setStatusCode(400);
 				return;
 			}
+			
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			CMMessage message = new CMMessage(formData);
 			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.DIR_IN);
 			handler.handle(message);
+			
 			//set server everytime we recieve a message to avoid unnecessary searches
-			//but don't set our own ip as server
-			if(!CMHelper.getInstance().getLocalIps().contains(peerIp)){
-				notifyServerIsUp(peerIp);
-			}
+			notifyServerIsUp(peerIp);
+			
 			long time = System.currentTimeMillis() - start;
 			CMHelper.getInstance().log("request handling took: " + time + " millis");
 		}
+		
 		//we do this in a thread because if we block request takes too long and times out
 		private void notifyServerIsUp(String serverIP){
-			final String ip = serverIP;
 			Runnable r = () -> {
-				ChatFrame.getInstance().getChatmanInstance().getClient().setServer(ip);
+				ChatFrame.getInstance().getChatmanInstance().getClient().setServer(serverIP);
 			};
 			(new Thread(r, "CM-Server-Notify")).start();
 		}
+		
 	}
 	
 }

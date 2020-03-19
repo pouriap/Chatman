@@ -18,7 +18,6 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
-import com.pouria.chatman.classes.CmdShowError;
 import com.pouria.chatman.classes.ResourceBundleWrapper;
 import java.io.File;
 import java.io.IOException;
@@ -136,19 +135,10 @@ public class CMHelper {
 			String error = "Could not get local IPs";
 			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
 		}
-
-		if(!localIps.contains("192.168.1.20") && CMConfig.getInstance().isSet("puria-debug")){
-			String ips = "";
-			for(String ip: localIps){
-				ips += ip+"\n";
-			}
-			log("local IPs doesn't include 192.168.1.20");
-			log("local IPs: \n" + ips);
-			(new CmdInvokeLater(new CmdShowError("ips doesn't include 1.20"))).execute();
-		}
 		
 		return localIps;
 	}
+	
 	
 	public void checkDatabaseFile() throws Exception{
 		

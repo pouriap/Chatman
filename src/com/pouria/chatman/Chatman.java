@@ -41,12 +41,10 @@ public class Chatman {
 	private final long HISTORY_SAVE_INTERVAL = TimeUnit.MINUTES.toMillis(5);
 	private final long HEARTBEAT_INTERVAL = TimeUnit.MINUTES.toMillis(1);
 	private final long OLD_MSG_TIMEDIFF = TimeUnit.HOURS.toMillis(1);
-	private final long EMPTY_QUEUE_CONNECT_INTERVAL = TimeUnit.MINUTES.toMillis(5);
 	
 	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";;
 	private final ArrayList<CMMessage> allConversationMessages = new ArrayList<CMMessage>();
 	private final CMSendQueue sendQueue;
-	private long lastConnectTime = 0;
 	
 	public Chatman(){
 		client = new HttpClient();
@@ -147,14 +145,7 @@ public class Chatman {
 					handler.handle();
 					boolean connected = (pingMessage.getStatus() == CMMessage.STATUS_SENT);
 					if(!connected){
-						if(!sendQueue.isEmpty()){
-							client.connect();
-							lastConnectTime = System.currentTimeMillis();
-						}
-						else if(System.currentTimeMillis() - lastConnectTime > EMPTY_QUEUE_CONNECT_INTERVAL){
-							client.connect();
-							lastConnectTime = System.currentTimeMillis();
-						}
+						client.connect();
 					}
 				}
 			};
