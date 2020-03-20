@@ -16,7 +16,6 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.Command;
 import com.pouria.chatman.classes.CmdConfirmDialog;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdShowError;
@@ -123,26 +122,23 @@ public class IncomingMsgHandler {
 			CMHelper.getInstance().localShutdown();
 			
 			//show cancell dialog
-			(new CmdInvokeLater(new CmdConfirmDialog(new Command() {
-				@Override
-				public void execute() {
-					try{
-						//if user chooses cancel shutdown
-						CMHelper.getInstance().log("abort shutdown requested by user");
-						CMHelper.getInstance().abortLocalShutdown();
-						//tell the user abort was successfull
-						CMHelper.getInstance().log("shutdown aborted successfully");
-						ChatFrame.getInstance().message(CMHelper.getInstance().getStr("shutdown-abort-success"));	// we don't need invokelater because we're already in invokelater
-						//tell the other computer we have aborted
-						String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-						String sender = ChatFrame.getInstance().getUserName();
-						CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, info, sender);
-						ChatFrame.getInstance().getChatmanInstance().sendMessage(message);
-					}catch(IOException e){
-						CMHelper.getInstance().log("failed to abort local shutdown");
-						//tell the user abort failed. we don't tell the other computer because it's not necessary
-						(new CmdShowError(CMHelper.getInstance().getStr("shutdown-abort-fail"))).execute();  // we don't need invokelater because we're already in invokelater
-					}
+			(new CmdInvokeLater(new CmdConfirmDialog(() -> {
+				try {
+					//if user chooses cancel shutdown
+					CMHelper.getInstance().log("abort shutdown requested by user");
+					CMHelper.getInstance().abortLocalShutdown();
+					//tell the user abort was successfull
+					CMHelper.getInstance().log("shutdown aborted successfully");
+					ChatFrame.getInstance().message(CMHelper.getInstance().getStr("shutdown-abort-success"));	// we don't need invokelater because we're already in invokelater
+					//tell the other computer we have aborted
+					String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
+					String sender = ChatFrame.getInstance().getUserName();
+					CMMessage message1 = new CMMessage(CMMessage.TYPE_TEXT, info, sender);
+					ChatFrame.getInstance().getChatmanInstance().sendMessage(message1);
+				}catch(IOException e){
+					CMHelper.getInstance().log("failed to abort local shutdown");
+					//tell the user abort failed. we don't tell the other computer because it's not necessary
+					(new CmdShowError(CMHelper.getInstance().getStr("shutdown-abort-fail"))).execute();  // we don't need invokelater because we're already in invokelater
 				}
 			}, CMHelper.getInstance().getStr("local_shutdown_message"), CMHelper.getInstance().getStr("local_shutdown_title")))).execute();
 

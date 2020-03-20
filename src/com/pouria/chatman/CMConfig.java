@@ -85,16 +85,6 @@ public class CMConfig {
 		private static final CMConfig INSTANCE = new CMConfig();
 	}
 	
-	private void setAsDefault(){
-		config.set("background-image", DEFAULT_BG);
-		config.set("server-port", DEFAULT_SERVER_PORT);
-		config.set("subnet-mask", DEFAULT_SUBNET);
-		config.set("num-hosts-to-scan", DEFAULT_HOSTS_SCAN);
-		config.set("file-drop-size-warning", DEFAULT_FILEDROP_SIZEWARNING);		
-		config.set("buttons-theme", DEFAULT_BUTTONSTHEME);
-		config.set("textareas-theme", DEFAULT_TEXTAREASTHEME);
-	}
-	
 	public String get(String key, String defaultValue){
 		return config.getString(key, defaultValue);
 	}

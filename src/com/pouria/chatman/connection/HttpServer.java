@@ -44,19 +44,16 @@ public class HttpServer implements ChatmanServer{
 		
 		Undertow server = Undertow.builder()
 			.addHttpListener(serverPort, "0.0.0.0")
-			.setHandler(new HttpHandler() {
-				@Override
-				public void handleRequest(HttpServerExchange exchange) throws Exception {
-					//parses POST form data and passes it to a handler
-					FormDataParser parser = FormParserFactory.builder().build().createParser(exchange);
-					//send Bad Request if there is no post data
-					if(parser == null){
-						exchange.setStatusCode(400);
-						return;
-					}
-					parser.parse(handler);
+			.setHandler((HttpServerExchange exchange) -> {
+				//parses POST form data and passes it to a handler
+				FormDataParser parser = FormParserFactory.builder().build().createParser(exchange);
+				//send Bad Request if there is no post data
+				if(parser == null){
+					exchange.setStatusCode(400);
+					return;
 				}
-			}).build();
+				parser.parse(handler);
+		}).build();
 		
 		server.start();
 
