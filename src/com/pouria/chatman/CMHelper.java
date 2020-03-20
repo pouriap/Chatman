@@ -42,7 +42,7 @@ public class CMHelper {
 	private ResourceBundleWrapper l;
 	private Logger logger;
 	
-	public final int OS_WIN = 0, OS_LIN = 1;
+	public static final int OS_WIN = 0, OS_LIN = 1;
 	
 	private CMHelper() {
 	}

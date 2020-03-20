@@ -94,7 +94,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String labelsTheme = "dark";
 	private String backgroundsTheme = "dark";
 	private TrayIcon trayIconApp, trayIconNewMessage;
-	PopupDialog newMessagePopup;
+	NotificationPopup newMessagePopup;
 
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
@@ -126,18 +126,13 @@ public class ChatFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        dialogPopupNormal = new com.pouria.chatman.gui.PopupDialog();
-        panelPopupNormal = new javax.swing.JPanel();
-        labelNewMessage = new javax.swing.JLabel();
-        labelMessageIcon = new javax.swing.JLabel();
         menuRightClick = new javax.swing.JPopupMenu();
         dialogHistory = new javax.swing.JDialog();
         scrollPaneHistory = new javax.swing.JScrollPane();
         tableHistory = new javax.swing.JTable();
         buttonNextHistoryPage = new javax.swing.JButton();
         buttonPrevHistoryPage = new javax.swing.JButton();
-        dialogPopupBat = new com.pouria.chatman.gui.PopupDialog();
-        labelBat = new javax.swing.JLabel();
+        dialogNotification = new javax.swing.JDialog();
         scrollPaneConversation = new javax.swing.JScrollPane();
         textAreaConversation = new javax.swing.JEditorPane();
         scrollPaneInput = new javax.swing.JScrollPane();
@@ -169,57 +164,6 @@ public class ChatFrame extends javax.swing.JFrame {
         menuSeparator2 = new javax.swing.JPopupMenu.Separator();
         menuAbout = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
-
-        dialogPopupNormal.setAlwaysOnTop(true);
-        dialogPopupNormal.setMinimumSize(new java.awt.Dimension(180, 60));
-        dialogPopupNormal.setResizable(false);
-
-        panelPopupNormal.setBackground(new java.awt.Color(102, 102, 102));
-        panelPopupNormal.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        panelPopupNormal.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        panelPopupNormal.setName(""); // NOI18N
-        panelPopupNormal.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                panelPopupNormalMouseReleased(evt);
-            }
-        });
-
-        labelNewMessage.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        labelNewMessage.setForeground(new java.awt.Color(231, 231, 231));
-        labelNewMessage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelNewMessage.setText("پیام جدید");
-
-        labelMessageIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/new_message_50x50.png"))); // NOI18N
-
-        javax.swing.GroupLayout panelPopupNormalLayout = new javax.swing.GroupLayout(panelPopupNormal);
-        panelPopupNormal.setLayout(panelPopupNormalLayout);
-        panelPopupNormalLayout.setHorizontalGroup(
-            panelPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPopupNormalLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(labelMessageIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(labelNewMessage)
-                .addGap(16, 16, 16))
-        );
-        panelPopupNormalLayout.setVerticalGroup(
-            panelPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(labelMessageIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(panelPopupNormalLayout.createSequentialGroup()
-                .addComponent(labelNewMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout dialogPopupNormalLayout = new javax.swing.GroupLayout(dialogPopupNormal.getContentPane());
-        dialogPopupNormal.getContentPane().setLayout(dialogPopupNormalLayout);
-        dialogPopupNormalLayout.setHorizontalGroup(
-            dialogPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPopupNormal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        dialogPopupNormalLayout.setVerticalGroup(
-            dialogPopupNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPopupNormal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
 
         menuRightClick.setBackground(new java.awt.Color(51, 51, 51));
         menuRightClick.setForeground(new java.awt.Color(255, 255, 255));
@@ -316,31 +260,15 @@ public class ChatFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        dialogPopupBat.setAlwaysOnTop(true);
-        dialogPopupBat.setMinimumSize(new java.awt.Dimension(400, 300));
-        dialogPopupBat.setResizable(false);
-
-        labelBat.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bat.gif"))); // NOI18N
-        labelBat.setText("jLabel1");
-        labelBat.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        labelBat.setMaximumSize(new java.awt.Dimension(400, 300));
-        labelBat.setMinimumSize(new java.awt.Dimension(400, 300));
-        labelBat.setPreferredSize(new java.awt.Dimension(400, 300));
-        labelBat.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                labelBatMouseReleased(evt);
-            }
-        });
-
-        javax.swing.GroupLayout dialogPopupBatLayout = new javax.swing.GroupLayout(dialogPopupBat.getContentPane());
-        dialogPopupBat.getContentPane().setLayout(dialogPopupBatLayout);
-        dialogPopupBatLayout.setHorizontalGroup(
-            dialogPopupBatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(labelBat, javax.swing.GroupLayout.DEFAULT_SIZE, 449, Short.MAX_VALUE)
+        javax.swing.GroupLayout dialogNotificationLayout = new javax.swing.GroupLayout(dialogNotification.getContentPane());
+        dialogNotification.getContentPane().setLayout(dialogNotificationLayout);
+        dialogNotificationLayout.setHorizontalGroup(
+            dialogNotificationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
         );
-        dialogPopupBatLayout.setVerticalGroup(
-            dialogPopupBatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(labelBat, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+        dialogNotificationLayout.setVerticalGroup(
+            dialogNotificationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -733,10 +661,6 @@ public class ChatFrame extends javax.swing.JFrame {
         exit(0);
     }//GEN-LAST:event_menuExitActionPerformed
 
-    private void panelPopupNormalMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelPopupNormalMouseReleased
-		popopClicked(evt.getButton());
-    }//GEN-LAST:event_panelPopupNormalMouseReleased
-
     private void labelClearMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelClearMouseReleased
 		changeLabelIcon((JLabel)evt.getComponent(), "normal");
 		clearInputText();
@@ -886,10 +810,6 @@ public class ChatFrame extends javax.swing.JFrame {
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
-
-    private void labelBatMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelBatMouseReleased
-        popopClicked(evt.getButton());
-    }//GEN-LAST:event_labelBatMouseReleased
 
     private void textAreaConversationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseClicked
 
@@ -1098,14 +1018,14 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//set popup type
 		String popupMode = CMConfig.getInstance().get("new-message-popup-mode", "bat");
+		ImageIcon image;
 		if(popupMode.equals("bat")){
-			newMessagePopup = dialogPopupBat;
-			newMessagePopup.setMode(PopupDialog.MODE_BAT);
+			image = new ImageIcon(getClass().getResource("/resources/bat.gif"));
 		}
 		else{
-			newMessagePopup = dialogPopupNormal;
-			newMessagePopup.setMode(PopupDialog.MODE_NORMAL);
+			image = new ImageIcon(getClass().getResource("/resources/new_message_50x50.png"));
 		}
+		newMessagePopup = new NotificationPopup(image);
 		
         //TextArea Dorp
         textAreaInput.setDropTarget(new DropTarget() {
@@ -1327,7 +1247,6 @@ public class ChatFrame extends javax.swing.JFrame {
 			menuExit.setFont(iranSans);
 			labelStatus.setFont(iranSans);
 			labelStatusLabl.setFont(iranSans);
-			labelNewMessage.setFont(font.deriveFont(20f));
 			tableHistory.setFont(iranSans);
 		}catch(Exception e){
 			//font will revert to Tahoma
@@ -1423,7 +1342,6 @@ public class ChatFrame extends javax.swing.JFrame {
 	}
 	
     public void setupGUITexts(){
-        labelNewMessage.setText(CMHelper.getInstance().getStr("new_message"));
         dialogHistory.setTitle(CMHelper.getInstance().getStr("history"));
         buttonNextHistoryPage.setText(CMHelper.getInstance().getStr("next_page"));
         buttonPrevHistoryPage.setText(CMHelper.getInstance().getStr("prev_page"));
@@ -1569,7 +1487,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
         //popup when first message received
         if(isHidden() && !message.isOurMessage()){
-            newMessagePopup.showPopup();
+            newMessagePopup.show();
             newMessagePopup.playSound();
         }
         //bleep if we received message and was not focused
@@ -1673,7 +1591,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	
 	public void popopClicked(int mouseButton){
         //close the "New Message" popup and show the application window
-        newMessagePopup.hidePopup();
+        newMessagePopup.hide();
 		//if click show windows else just hide popup
 		if(mouseButton == MouseEvent.BUTTON1){
 			//Show
@@ -1748,17 +1666,13 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
     private javax.swing.JDialog dialogHistory;
-    private com.pouria.chatman.gui.PopupDialog dialogPopupBat;
-    private com.pouria.chatman.gui.PopupDialog dialogPopupNormal;
+    private javax.swing.JDialog dialogNotification;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JLabel labelBat;
     private javax.swing.JLabel labelClear;
     private javax.swing.JLabel labelConvoBg;
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelInputBg;
-    private javax.swing.JLabel labelMessageIcon;
     private javax.swing.JLabel labelMouseDetector;
-    private javax.swing.JLabel labelNewMessage;
     private javax.swing.JLabel labelNextEmojiPage;
     private javax.swing.JLabel labelPrevEmojiPage;
     private javax.swing.JLabel labelSend;
@@ -1779,7 +1693,6 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator menuSeparator2;
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuWakeOnLan;
-    private javax.swing.JPanel panelPopupNormal;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JScrollPane scrollPaneConversation;
     private javax.swing.JScrollPane scrollPaneHistory;
