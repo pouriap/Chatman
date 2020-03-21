@@ -17,6 +17,8 @@
 package com.pouria.chatman.gui;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -31,7 +33,7 @@ import org.json.JSONObject;
 public class CMTheme {
 	
 	private final ImageIcon bgImage;
-	private final ImageIcon popupImage;
+	private final CMImageIcon popupImage;
 	private final int popupRightOffset;
 	private final int popupBottomOffset;
 
@@ -60,16 +62,22 @@ public class CMTheme {
 		bgImage = new ImageIcon(bgBuff);
 
 		ZipEntry popupFile = themeFile.getEntry(popupFilename);
-		BufferedImage popupBuff = ImageIO.read(themeFile.getInputStream(popupFile));
-		popupImage = new ImageIcon(popupBuff);	
-
+		InputStream in = themeFile.getInputStream(popupFile);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		int len = 0;
+		byte[] buff = new byte[2048];
+		while((len = in.read(buff)) > 0){
+			out.write(buff, 0, len);
+		}
+		popupImage = new CMImageIcon(out.toByteArray());
+		
 	}
 
 	public ImageIcon getBgImage() {
 		return bgImage;
 	}
 
-	public ImageIcon getPopupImage() {
+	public CMImageIcon getPopupImage() {
 		return popupImage;
 	}
 

@@ -39,9 +39,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -94,7 +97,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String labelsTheme = "dark";
 	private String backgroundsTheme = "dark";
 	private TrayIcon trayIconApp, trayIconNewMessage;
-	NotificationPopup newMessagePopup;
+	private NotificationPopup newMessagePopup;
 
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
@@ -133,6 +136,11 @@ public class ChatFrame extends javax.swing.JFrame {
         buttonNextHistoryPage = new javax.swing.JButton();
         buttonPrevHistoryPage = new javax.swing.JButton();
         dialogNotification = new javax.swing.JDialog();
+        dialogChooseBg = new javax.swing.JDialog();
+        panelChooseBg = new javax.swing.JPanel();
+        labelBgPrev = new javax.swing.JLabel();
+        labelPopupPrev = new javax.swing.JLabel();
+        dropdownBgs = new javax.swing.JComboBox<>();
         scrollPaneConversation = new javax.swing.JScrollPane();
         textAreaConversation = new javax.swing.JEditorPane();
         scrollPaneInput = new javax.swing.JScrollPane();
@@ -152,10 +160,11 @@ public class ChatFrame extends javax.swing.JFrame {
         labelStatusIcon = new javax.swing.JLabel();
         labelStatusBackground = new javax.swing.JLabel();
         labelFrameBg = new javax.swing.JLabel();
-        jMenuBar1 = new javax.swing.JMenuBar();
+        menubarMain = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuChangeBg = new javax.swing.JMenuItem();
         menuShowHistory = new javax.swing.JMenuItem();
+        menuChooseBg = new javax.swing.JMenuItem();
         menuSeparator1 = new javax.swing.JPopupMenu.Separator();
         menuRemoteShutdown = new javax.swing.JMenuItem();
         menuAbortRemoteShutdown = new javax.swing.JMenuItem();
@@ -269,6 +278,74 @@ public class ChatFrame extends javax.swing.JFrame {
         dialogNotificationLayout.setVerticalGroup(
             dialogNotificationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 300, Short.MAX_VALUE)
+        );
+
+        dialogChooseBg.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        dialogChooseBg.setTitle("انتخاب پس زمینه");
+        dialogChooseBg.setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+        dialogChooseBg.setPreferredSize(new java.awt.Dimension(800, 550));
+        dialogChooseBg.setResizable(false);
+        dialogChooseBg.setSize(new java.awt.Dimension(800, 550));
+
+        labelBgPrev.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelBgPrev.setBorder(javax.swing.BorderFactory.createTitledBorder("پس زمینه"));
+        labelBgPrev.setMaximumSize(new java.awt.Dimension(350, 450));
+        labelBgPrev.setMinimumSize(new java.awt.Dimension(350, 450));
+        labelBgPrev.setPreferredSize(new java.awt.Dimension(350, 450));
+
+        labelPopupPrev.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelPopupPrev.setBorder(javax.swing.BorderFactory.createTitledBorder("اعلان"));
+
+        dropdownBgs.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        dropdownBgs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dropdownBgsActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelChooseBgLayout = new javax.swing.GroupLayout(panelChooseBg);
+        panelChooseBg.setLayout(panelChooseBgLayout);
+        panelChooseBgLayout.setHorizontalGroup(
+            panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelChooseBgLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelChooseBgLayout.createSequentialGroup()
+                        .addComponent(dropdownBgs, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(panelChooseBgLayout.createSequentialGroup()
+                        .addComponent(labelBgPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(labelPopupPrev, javax.swing.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        panelChooseBgLayout.setVerticalGroup(
+            panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelChooseBgLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(dropdownBgs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(labelPopupPrev, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(labelBgPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 437, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout dialogChooseBgLayout = new javax.swing.GroupLayout(dialogChooseBg.getContentPane());
+        dialogChooseBg.getContentPane().setLayout(dialogChooseBgLayout);
+        dialogChooseBgLayout.setHorizontalGroup(
+            dialogChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dialogChooseBgLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelChooseBg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        dialogChooseBgLayout.setVerticalGroup(
+            dialogChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dialogChooseBgLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelChooseBg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -503,7 +580,7 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelFrameBg);
         labelFrameBg.setBounds(0, 0, 494, 600);
 
-        jMenuBar1.setBackground(new java.awt.Color(204, 204, 204));
+        menubarMain.setBackground(new java.awt.Color(204, 204, 204));
 
         menuFile.setText("گزینه ها");
         menuFile.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -535,6 +612,14 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         menuFile.add(menuShowHistory);
+
+        menuChooseBg.setText("انتخاب پس زمینه");
+        menuChooseBg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuChooseBgActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuChooseBg);
         menuFile.add(menuSeparator1);
 
         menuRemoteShutdown.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -593,9 +678,9 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuExit);
 
-        jMenuBar1.add(menuFile);
+        menubarMain.add(menuFile);
 
-        setJMenuBar(jMenuBar1);
+        setJMenuBar(menubarMain);
 
         getAccessibleContext().setAccessibleName("");
         getAccessibleContext().setAccessibleDescription("");
@@ -919,6 +1004,47 @@ public class ChatFrame extends javax.swing.JFrame {
 			fixConvoScroll();
 		}
     }//GEN-LAST:event_labelMouseDetectorMouseEntered
+
+    private void menuChooseBgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuChooseBgActionPerformed
+        // TODO add your handling code here:
+		try{
+			
+			File themesDir = new File(CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR));
+			dropdownBgs.removeAllItems();
+			Files.list(themesDir.toPath()).forEach(new Consumer<Path>() {
+				@Override
+				public void accept(Path t) {
+					dropdownBgs.addItem(t.toString());
+				}
+			});
+			dialogChooseBg.setLocationRelativeTo(null);
+			dialogChooseBg.setVisible(true);
+			
+		}catch(Exception e){
+			//todo: this
+			message("cannot open themes");
+			e.printStackTrace();
+		}
+    }//GEN-LAST:event_menuChooseBgActionPerformed
+
+    private void dropdownBgsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dropdownBgsActionPerformed
+        // TODO add your handling code here:		
+		try{
+			String themePath = (String) dropdownBgs.getSelectedItem();
+			if(themePath == null){
+				return;
+			}
+			CMTheme theme = new CMTheme(themePath);
+			Image bg = theme.getBgImage().getImage().getScaledInstance(
+					330, 396, Image.SCALE_SMOOTH);
+			labelBgPrev.setIcon(new ImageIcon(bg));
+			labelPopupPrev.setIcon(theme.getPopupImage());
+		}catch(Exception e ){
+			//todo: handle
+			message("bad theme file");
+			e.printStackTrace();
+		}
+    }//GEN-LAST:event_dropdownBgsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1665,15 +1791,18 @@ public class ChatFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
+    private javax.swing.JDialog dialogChooseBg;
     private javax.swing.JDialog dialogHistory;
     private javax.swing.JDialog dialogNotification;
-    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JComboBox<String> dropdownBgs;
+    private javax.swing.JLabel labelBgPrev;
     private javax.swing.JLabel labelClear;
     private javax.swing.JLabel labelConvoBg;
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelInputBg;
     private javax.swing.JLabel labelMouseDetector;
     private javax.swing.JLabel labelNextEmojiPage;
+    private javax.swing.JLabel labelPopupPrev;
     private javax.swing.JLabel labelPrevEmojiPage;
     private javax.swing.JLabel labelSend;
     private javax.swing.JLabel labelStatus;
@@ -1685,6 +1814,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuAbortRemoteShutdown;
     private javax.swing.JMenuItem menuAbout;
     private javax.swing.JMenuItem menuChangeBg;
+    private javax.swing.JMenuItem menuChooseBg;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenuItem menuRemoteShutdown;
@@ -1693,6 +1823,8 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator menuSeparator2;
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuWakeOnLan;
+    private javax.swing.JMenuBar menubarMain;
+    private javax.swing.JPanel panelChooseBg;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JScrollPane scrollPaneConversation;
     private javax.swing.JScrollPane scrollPaneHistory;

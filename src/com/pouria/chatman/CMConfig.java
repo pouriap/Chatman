@@ -45,6 +45,7 @@ public class CMConfig {
 	public static final String DEFAULT_BUTTONSTHEME = "dark";
 	public static final String DEFAULT_TEXTAREASTHEME = "dark";
 	public static final String DEFAULT_SHOWTRAY = "yes";
+	public static final String DEFAULT_THEMES_DIR = "themes";
 	
 	
 	private CMConfig() {
