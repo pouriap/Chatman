@@ -79,6 +79,13 @@ public class CMNotifPopup{
 		this.os = CMHelper.getInstance().getOS();
 	}
 	
+	public void show(boolean playSound){
+		if(playSound){
+			playSound();
+		}
+		show();
+	}
+	
 	//@Override
 	public void show(){
 		dialog.setVisible(true);

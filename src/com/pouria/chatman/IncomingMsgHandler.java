@@ -19,11 +19,13 @@ package com.pouria.chatman;
 import com.pouria.chatman.classes.CmdConfirmDialog;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdShowError;
+import com.pouria.chatman.gui.CMTheme;
 import com.pouria.chatman.gui.ChatFrame;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
 import javax.swing.JFileChooser;
 
 
@@ -71,7 +73,15 @@ public class IncomingMsgHandler {
 			case CMMessage.TYPE_SHOWGUI:
 				processShowGUI();
 				break;
-					
+			
+			case CMMessage.TYPE_PEER_THEME_FILE:
+				processThemeFile();
+				break;
+				
+			case CMMessage.TYPE_REQUEST_THEME_FILE:
+				processRequestThemeFile();
+				break; 
+				
 			default:
 				break;
 		}
@@ -79,7 +89,7 @@ public class IncomingMsgHandler {
 	}
 	
 	private void processBadMessage(){
-		CMHelper.getInstance().log("bad message received");
+		CMHelper.getInstance().log("bad message received: " + message.getContent());
 	}
 	
 	private void processTextMessage(){
@@ -132,8 +142,7 @@ public class IncomingMsgHandler {
 					ChatFrame.getInstance().message(CMHelper.getInstance().getStr("shutdown-abort-success"));	// we don't need invokelater because we're already in invokelater
 					//tell the other computer we have aborted
 					String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-					String sender = ChatFrame.getInstance().getUserName();
-					CMMessage message1 = new CMMessage(CMMessage.TYPE_TEXT, info, sender);
+					CMMessage message1 = new CMMessage(CMMessage.TYPE_TEXT, info);
 					ChatFrame.getInstance().getChatmanInstance().sendMessage(message1);
 				}catch(IOException e){
 					CMHelper.getInstance().log("failed to abort local shutdown");
@@ -148,8 +157,7 @@ public class IncomingMsgHandler {
 			(new CmdInvokeLater(new CmdShowError(CMHelper.getInstance().getStr("shutdown-fail")))).execute();
 			//tell the other computer our shutdown has failed
 			String error = "[ERROR: SHUTDOWN FAILED]";
-			String sender = ChatFrame.getInstance().getUserName();
-			CMMessage msg = new CMMessage(CMMessage.TYPE_TEXT, error, sender);
+			CMMessage msg = new CMMessage(CMMessage.TYPE_TEXT, error);
 			ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		}
 
@@ -158,7 +166,6 @@ public class IncomingMsgHandler {
 	private void processAbortShutdown(){
 		
 		String msgText;
-		String sender = ChatFrame.getInstance().getUserName();
 		CMHelper.getInstance().log("remote-abort-shutdown received");
 		try{
 			CMHelper.getInstance().abortLocalShutdown();
@@ -169,7 +176,7 @@ public class IncomingMsgHandler {
 			msgText = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
 		}
 		//tell the other computer if abort was successfull
-		CMMessage msg = new CMMessage(CMMessage.TYPE_TEXT, msgText, sender);
+		CMMessage msg = new CMMessage(CMMessage.TYPE_TEXT, msgText);
 		ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		
 	}
@@ -180,6 +187,35 @@ public class IncomingMsgHandler {
 	
 	private void processShowGUI(){
 		ChatFrame.getInstance().showWindow();
+	}
+	
+	private void processThemeFile(){
+		
+		try{
+			String base64ThemeFile = message.getContent();
+			String themeName = message.getSenderTheme();
+			File themeFileToSave = new File(
+				CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR) + "\\" + themeName
+			);
+
+			byte[] themeFileData = Base64.getDecoder().decode(base64ThemeFile);
+			CMHelper.getInstance().createFile(themeFileToSave, themeFileData);
+
+			CMTheme peerTheme = new CMTheme(themeFileToSave.getAbsolutePath());
+			ChatFrame.getInstance().setPeerTheme(peerTheme);
+			ChatFrame.getInstance().showNewMessagePopup();
+			
+		}catch(Exception e){
+			CMHelper.getInstance().log("failed to receive peer theme: " + e.getMessage());
+			ChatFrame.getInstance().setPeerTheme(CMTheme.getDefaultTheme());
+		}
+	}
+	
+	private void processRequestThemeFile(){
+		String themeData = ChatFrame.getInstance().getCurrentTheme().getDataBase64();
+		CMMessage themeMessage = new CMMessage(CMMessage.TYPE_PEER_THEME_FILE, themeData);
+		OutgoingMsgHandler handler = new OutgoingMsgHandler(themeMessage);
+		handler.handle();
 	}
 	
 }

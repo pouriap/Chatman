@@ -45,7 +45,7 @@ public class CmdFatalErrorExit implements Command{
 		exception.printStackTrace(pw);
 		String stackTrace = sw.toString();
 		
-		CMHelper.getInstance().log("Fatal Error: " + message + "\nStack Trace:\n" + stackTrace); 
+		CMHelper.getInstance().log("Fatal Error: " + message + "\r\nStack Trace:\r\n" + stackTrace); 
 		
 		message += "\nThis is a fatal error, exitting application.";
 		message += "\nSee the logs for more info.";

@@ -43,8 +43,13 @@ public class DisplayableMsgHandler {
 			handler.handle();
 		}
 		
+		//make sure only messages with displayable content get displayed
 		if(message.getDisplayableContent().isEmpty()){
 			return;
+		}
+		
+		if(message.getType() == CMMessage.TYPE_FILE){
+			message.setSender(CMHelper.getInstance().getStr("file_sent"));
 		}
 		
 		//add to all messages

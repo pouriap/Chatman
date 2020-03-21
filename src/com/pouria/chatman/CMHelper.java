@@ -19,10 +19,15 @@ package com.pouria.chatman;
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.ResourceBundleWrapper;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -181,6 +186,48 @@ public class CMHelper {
 		}
 		
 		logger.info(msg);
+	}
+	
+	public void createFile(File file) throws Exception{
+		createFile(file, null);
+	}
+	
+	public void createFile(File file, byte[] data) throws Exception{
+		Path parent = file.toPath().getParent();
+		if(parent != null){
+			File parentDir = file.toPath().getParent().toFile();
+			if(!parentDir.isDirectory()){
+				parentDir.mkdirs();
+			}
+		}
+		file.createNewFile();
+		if(data != null){
+			Files.write(file.toPath(), data, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+		}
+	}
+
+	public void copyFromResources(String resourceName, File dstFile) throws Exception{
+		CMHelper.getInstance().log("copying file from jar: " + resourceName);
+		InputStream in = getClass().getResourceAsStream("/resources/" + resourceName);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buff = new byte[1024];
+		int len = 0;
+		while((len = in.read(buff)) > 0){
+			out.write(buff, 0, len);
+		}
+		in.close();
+		createFile(dstFile, out.toByteArray());
+		CMHelper.getInstance().log("file copied successfully ");
+	}
+	
+	public static byte[] readStreamAsByteArray(InputStream in) throws IOException{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		int len = 0;
+		byte[] buff = new byte[2048];
+		while((len = in.read(buff)) > 0){
+			out.write(buff, 0, len);
+		}
+		return out.toByteArray();
 	}
 	
 }

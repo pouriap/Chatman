@@ -82,6 +82,11 @@ public class HttpServer implements ChatmanServer{
 			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.DIR_IN);
 			handler.handle(message);
 			
+			//don't set server for showgui messages
+			if(message.getType() == CMMessage.TYPE_SHOWGUI){
+				return;
+			}
+			
 			//set server everytime we recieve a message to avoid unnecessary searches
 			notifyServerIsUp(peerIp);
 			

@@ -9,6 +9,7 @@ import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.Chatman;
 import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.OutgoingMsgHandler;
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdShowError;
@@ -41,7 +42,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,6 +99,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private CMNotifPopup newMessagePopup;
 	private CMTheme currentTheme;
 	private CMTheme themeChooserSelectedTheme;
+	private String peerThemeName = "";
 	
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
@@ -814,7 +815,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("remote_shutdown_message"), CMHelper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            CMMessage message = new CMMessage(CMMessage.TYPE_SHUTDOWN, "", username);
+            CMMessage message = new CMMessage(CMMessage.TYPE_SHUTDOWN, "");
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
@@ -846,7 +847,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		try{
 			CMHelper.getInstance().abortLocalShutdown();
 			String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-            final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, info, username);
+            final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, info);
 			chatman.sendMessage(message);
 		}catch(IOException e){
 			CMHelper.getInstance().log("failed to abort local shutdown (from menu)");
@@ -868,7 +869,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("abort_remote_shutdown_message"), CMHelper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            final CMMessage message = new CMMessage(CMMessage.TYPE_ABORT_SHUTDOWN, "", username);
+            final CMMessage message = new CMMessage(CMMessage.TYPE_ABORT_SHUTDOWN, "");
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
@@ -1016,8 +1017,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		try{
 			String themeName = (String) dropdownBgs.getSelectedItem();
-			String themePath = CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR) + "\\" + themeName;
-			themeChooserSelectedTheme = new CMTheme(themePath);
+			themeChooserSelectedTheme = CMTheme.getFromDefaultDir(themeName);
 			Image bg = themeChooserSelectedTheme.getBgImage().getImage().getScaledInstance(
 					330, 400, Image.SCALE_SMOOTH);
 			
@@ -1045,7 +1045,7 @@ public class ChatFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-		
+
 		do_pregui_check();
 
         /* Set the look and feel */
@@ -1086,7 +1086,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	
 	private static void do_pregui_check(){
 		//send a showgui message to localhost, if localhost responds we exit
-		CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "");
+		CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "", "");
 		List<NameValuePair> postParams = new ArrayList<>();
 		postParams.add(new BasicNameValuePair("message", showGuiMessage.getAsJsonString()));
 		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
@@ -1105,7 +1105,7 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void initialize(){
-		
+
 		// Checks if history.sqlite exists and if not tries to create it
 		try{
 			CMHelper.getInstance().checkDatabaseFile();
@@ -1146,8 +1146,7 @@ public class ChatFrame extends javax.swing.JFrame {
                         }
                         //send the file
 						String filePath = file.getAbsolutePath();
-						String sender = CMHelper.getInstance().getStr("file_sent");			
-						final CMMessage fileMessage = new CMMessage(CMMessage.TYPE_FILE, filePath, sender);
+						final CMMessage fileMessage = new CMMessage(CMMessage.TYPE_FILE, filePath);
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
 						chatman.sendMessage(fileMessage);
@@ -1256,18 +1255,10 @@ public class ChatFrame extends javax.swing.JFrame {
         // Theme
 		try{
 			String themeName = CMConfig.getInstance().get("theme", CMConfig.DEFAULT_THEME);
-			String themePath = CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR) + "\\" + themeName;
-			currentTheme = new CMTheme(themePath);
+			currentTheme = CMTheme.getFromDefaultDir(themeName);
 		}catch(Exception e){
-			try{
-				CMHelper.getInstance().log("getting theme failed. getting default theme");
-				String themeName = CMConfig.DEFAULT_THEME;
-				String themePath = Paths.get(getClass().getResource("/resources").toURI()).toFile().getAbsolutePath() + "\\" + themeName;
-				currentTheme = new CMTheme(themePath);
-			}catch(Exception ex){
-				String error = "couldn't get the default theme: " + ex.getMessage();
-				(new CmdFatalErrorExit(error, ex)).execute();
-			}
+			CMHelper.getInstance().log("getting theme failed. getting default theme");
+			currentTheme = CMTheme.getDefaultTheme();
 		}
 		applyCurrentTheme();
        
@@ -1560,7 +1551,7 @@ public class ChatFrame extends javax.swing.JFrame {
         if(text.isEmpty())
             return;
 
-		final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, text, username);
+		final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, text);
 		chatman.sendMessage(message);
 
 		clearInputText();
@@ -1576,18 +1567,29 @@ public class ChatFrame extends javax.swing.JFrame {
 			return;
 		}
 		
-        //popup when first message received
-        if(isHidden() && !message.isOurMessage()){
-            newMessagePopup.show();
-            newMessagePopup.playSound();
+		updateTextAreaConversation(chatman.getAllMessagesText());
+		
+		if(!peerThemeName.equals(message.getSenderTheme())){
+			try{
+				CMTheme peerTheme = CMTheme.getFromDefaultDir(message.getSenderTheme());
+				setPeerTheme(peerTheme);
+			}catch(Exception e){
+				CMMessage themeReqMsg = new CMMessage(CMMessage.TYPE_REQUEST_THEME_FILE, "");
+				OutgoingMsgHandler handler = new OutgoingMsgHandler(themeReqMsg);
+				handler.handle();
+				return;
+			}
+		}
+		
+		//popup when first message received
+		if(isHidden() && !message.isOurMessage()){
+            newMessagePopup.show(true);
         }
         //bleep if we received message and was not focused
         else if(!this.isActive() && !message.isOurMessage()){
             newMessagePopup.playSound();
         }
 			
-		updateTextAreaConversation(chatman.getAllMessagesText());
-
     }
 	 
 	private void updateTextAreaConversation(String text){
@@ -1685,6 +1687,10 @@ public class ChatFrame extends javax.swing.JFrame {
 		changeLabelIcon(labelNextEmojiPage, "");
 	}
 	
+	public CMTheme getCurrentTheme(){
+		return currentTheme;
+	}
+	
 	public String getUserName(){
 		return this.username;
 	}
@@ -1707,6 +1713,15 @@ public class ChatFrame extends javax.swing.JFrame {
 		else{
 			setTrayIconVisible(trayIconNewMessage, true);
 		}
+	}
+	
+	public void showNewMessagePopup(){
+		newMessagePopup.show(true);
+	}
+	
+	public void setPeerTheme(CMTheme peerTheme){
+		peerThemeName = peerTheme.getFileName();
+		newMessagePopup = new CMNotifPopup(peerTheme);
 	}
 
     //sets the status label at the bottom

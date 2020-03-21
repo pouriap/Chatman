@@ -119,7 +119,7 @@ public class Chatman {
 			//connect for the first time and send a first ping letting them know we're up
 			Runnable r = () -> {
 				client.connect();
-				CMMessage firstPing = new CMMessage(CMMessage.TYPE_PING, "", "");
+				CMMessage firstPing = new CMMessage(CMMessage.TYPE_PING, "");
 				OutgoingMsgHandler handler = new OutgoingMsgHandler(firstPing);
 				handler.handle();
 			};
@@ -140,7 +140,7 @@ public class Chatman {
 			TimerTask heartBeatTask = new TimerTask() {
 				@Override
 				public void run() {
-					CMMessage pingMessage = new CMMessage(CMMessage.TYPE_PING, "", "");
+					CMMessage pingMessage = new CMMessage(CMMessage.TYPE_PING, "");
 					OutgoingMsgHandler handler = new OutgoingMsgHandler(pingMessage);
 					handler.handle();
 					boolean connected = (pingMessage.getStatus() == CMMessage.STATUS_SENT);

@@ -33,6 +33,7 @@ public class CMMessage {
 	private int type;
 	private String content;
 	private String sender;
+	private String senderTheme;
 	private long time;
 	private int status = STATUS_NOTSENT;
 	private boolean isOurMessage = false;
@@ -47,6 +48,8 @@ public class CMMessage {
 	public static final int TYPE_FILE = 4;
 	public static final int TYPE_SHOWGUI = 5;
 	public static final int TYPE_PING = 6;
+	public static final int TYPE_PEER_THEME_FILE = 7;
+	public static final int TYPE_REQUEST_THEME_FILE = 8;
 	
 	public static final int DIR_IN = 0;
 	public static final int DIR_OUT = 1;
@@ -55,20 +58,24 @@ public class CMMessage {
 	public static final int STATUS_SENT = 1;
 	public static final int STATUS_SENDFAIL = 2;
 	
-	public CMMessage(int type, String content, String sender, long time){
+	//this is for outgoing messsages
+	public CMMessage(int type, String content){
 		this.type = type;
 		this.content = content;
-		this.sender = sender;
-		this.time = time;
+		this.sender = ChatFrame.getInstance().getUserName();
+		this.senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+		this.time = CMHelper.getInstance().getTime();
 	}
-	
-	public CMMessage(int type, String content, String sender){
+	//this is for outgoing messsages
+	public CMMessage(int type, String content, String sender, String senderTheme){
 		this.type = type;
 		this.content = content;
 		this.sender = sender;
+		this.senderTheme = senderTheme;
 		this.time = CMHelper.getInstance().getTime();
 	}
 	
+	//this is for incoming messages
 	public CMMessage(FormData postData){
 		
 		try{
@@ -81,20 +88,25 @@ public class CMMessage {
 				this.type = json.getInt("type");
 				this.content = json.getString("content");
 				this.sender = json.getString("sender");
+				this.senderTheme = json.getString("sender_theme");
 				this.time = json.getLong("time");
 			}
-			//if file upload
+			//if file message
 			else if(postData.contains("data")){
 				FormData.FormValue formFile = postData.get("data").getFirst();
 				FormData.FormValue formFileName = postData.get("cm_filename").getFirst();
+				FormData.FormValue formSenderTheme = postData.get("cm_sender_theme").getFirst();
 				if(formFile.isFileItem()){
 					String tmpFilePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
 					String fileName = formFileName.getValue();
+					String senderTheme = formSenderTheme.getValue();
 					//we store filename in 'sender' field hehe
 					this.type = TYPE_FILE;
 					//we have to store file name somewhere
+					//TODO: store filename in "other" field
 					this.content = tmpFilePath + "**" + fileName;
 					this.sender = CMHelper.getInstance().getStr("file_recieved");
+					this.senderTheme = senderTheme;
 					this.time = CMHelper.getInstance().getTime();
 				}
 				else{
@@ -111,6 +123,7 @@ public class CMMessage {
 			this.type = TYPE_BADMESSAGE;
 			this.content = "bad json syntax";
 			this.sender = "unknown";
+			this.senderTheme = "default";
 			this.time = CMHelper.getInstance().getTime();
 			
 		}catch(Exception e){
@@ -118,6 +131,7 @@ public class CMMessage {
 			this.type = TYPE_BADMESSAGE;
 			this.content = "bad message";
 			this.sender = "unknown";
+			this.senderTheme = "default";
 			this.time = CMHelper.getInstance().getTime();	
 		}
 	}
@@ -127,6 +141,7 @@ public class CMMessage {
 		json.put("type", this.type);
 		json.put("content", this.content);
 		json.put("sender", this.sender);
+		json.put("sender_theme", this.senderTheme);
 		json.put("time", this.time);
 		return json.toString();
 	}
@@ -169,7 +184,7 @@ public class CMMessage {
 			t = "[SHUTDOWN COMMAND]";
 		}
 		else if(this.type == TYPE_BADMESSAGE){
-			t = "BAD MESSAGE";
+			t = "BAD MESSAGE: " + content;
 		}
 		else if(this.type == TYPE_ABORT_SHUTDOWN){
 			t = "[ABORT SHUTDOWN COMMAND]";
@@ -200,6 +215,10 @@ public class CMMessage {
 		
         return t;
 		
+	}
+	
+	public void setSender(String sender){
+		this.sender = sender;
 	}
 	
 	public String getSender(){
@@ -234,5 +253,8 @@ public class CMMessage {
 		this.isSaved = isSaved;
 	}
 
+	public String getSenderTheme() {
+		return senderTheme;
+	}
 	
 }

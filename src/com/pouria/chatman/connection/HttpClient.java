@@ -23,6 +23,7 @@ import com.pouria.chatman.classes.CmdChangeStatusIcon;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdSetLabelStatus;
 import com.pouria.chatman.classes.CmdUpdateProgressbar;
+import com.pouria.chatman.gui.ChatFrame;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -89,17 +90,20 @@ public class HttpClient extends Observable implements ChatmanClient{
 	public boolean sendFile(File file){
 		
 		String fileName = file.getName();
+		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
 		//bayad filename ro joda ezafe konim chon apache httpclient ashghal ast
 		//va orze nadarad filename UTF-8 befrestad pas bayad khodeman joda befrestim
 		FileBodyWithProgress fileBody = new FileBodyWithProgress(file, ContentType.APPLICATION_OCTET_STREAM.withCharset("UTF-8"));
 		fileBody.setProgressCallback((int percent) -> {
 			(new CmdInvokeLater(new CmdUpdateProgressbar(percent))).execute();
 		}, 200);
-		StringBody stringBody = new StringBody(fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"));
+		StringBody stringBodyFileName = new StringBody(fileName, ContentType.TEXT_PLAIN.withCharset("UTF-8"));
+		StringBody stringBodySenderTheme = new StringBody(senderTheme, ContentType.TEXT_PLAIN.withCharset("UTF-8"));
 		
 		HttpEntity postData = MultipartEntityBuilder.create()
 				.addPart("data", fileBody)
-				.addPart("cm_filename", stringBody)
+				.addPart("cm_filename", stringBodyFileName)
+				.addPart("cm_sender_theme", stringBodySenderTheme)
 				.setCharset(Charset.forName("UTF-8"))
 				.build();
 		

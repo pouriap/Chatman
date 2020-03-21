@@ -16,14 +16,16 @@
  */
 package com.pouria.chatman.gui;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import com.pouria.chatman.CMConfig;
+import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.classes.CmdFatalErrorExit;
+import com.pouria.chatman.classes.CmdInvokeLater;
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.util.Base64;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import org.json.JSONObject;
 
@@ -35,13 +37,13 @@ public class CMTheme {
 	
 	private final File file;
 	private final ImageIcon bgImage;
-	private final CMImageIcon popupImage;
+	private final ImageIcon popupImage;
 	private final int popupRightOffset;
 	private final int popupBottomOffset;
 	private final String userName;
 	private final String buttonsTheme;
 	private final String textAreasTheme;
-
+	
 	public CMTheme(String themeFilePath) throws Exception{
 		
 		file = new File(themeFilePath);
@@ -49,15 +51,10 @@ public class CMTheme {
 		//try faghat baraye ine ke zipFile ro bebande age exception shod ya nashod
 		try(ZipFile zipFile = new ZipFile(file)){
 			
-			ZipEntry dataFile = zipFile.getEntry("data.json");
-			InputStreamReader r = new InputStreamReader(zipFile.getInputStream(dataFile));
-			StringBuilder b = new StringBuilder();
-			while(r.ready()){
-				char[] buff = new char[1024];
-				r.read(buff);
-				b.append(buff);
-			}
-			String jsonString = b.toString();
+			ZipEntry jsonFile = zipFile.getEntry("data.json");
+			InputStream jsonIn = zipFile.getInputStream(jsonFile);
+			byte[] jsonData = CMHelper.readStreamAsByteArray(jsonIn);
+			String jsonString = new String(jsonData);
 
 			JSONObject json = new JSONObject(jsonString);
 			String bgFilename = json.getString("bg-image");
@@ -69,18 +66,14 @@ public class CMTheme {
 			textAreasTheme = json.getString("textareas-theme");
 
 			ZipEntry bgFile = zipFile.getEntry(bgFilename);
-			BufferedImage bgBuff = ImageIO.read(zipFile.getInputStream(bgFile));
-			bgImage = new ImageIcon(bgBuff);
+			InputStream bgIn = zipFile.getInputStream(bgFile);
+			byte[] bgData = CMHelper.readStreamAsByteArray(bgIn);
+			bgImage = new ImageIcon(bgData);
 
 			ZipEntry popupFile = zipFile.getEntry(popupFilename);
-			InputStream in = zipFile.getInputStream(popupFile);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			int len = 0;
-			byte[] buff = new byte[2048];
-			while((len = in.read(buff)) > 0){
-				out.write(buff, 0, len);
-			}
-			popupImage = new CMImageIcon(out.toByteArray());
+			InputStream popupIn = zipFile.getInputStream(popupFile);
+			byte[] popupData = CMHelper.readStreamAsByteArray(popupIn);
+			popupImage = new ImageIcon(popupData);
 		}
 		
 	}
@@ -89,7 +82,7 @@ public class CMTheme {
 		return bgImage;
 	}
 
-	public CMImageIcon getPopupImage() {
+	public ImageIcon getPopupImage() {
 		return popupImage;
 	}
 
@@ -116,6 +109,36 @@ public class CMTheme {
 	public String getFileName(){
 		return file.getName();
 	}
+	
+	public String getDataBase64(){
+		try{
+			byte[] data = Files.readAllBytes(file.toPath());
+			return Base64.getEncoder().encodeToString(data);
+		}catch(Exception e){
+			CMHelper.getInstance().log("failed to base64 encode theme: " + file.getName());
+			return "";
+		}
+	}
 
+	public static CMTheme getDefaultTheme(){
+		try{
+			
+			String defaultThemesDir = CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR);
+			File themeFile = new File(defaultThemesDir + "\\" + CMConfig.DEFAULT_THEME);
+			CMHelper.getInstance().copyFromResources("default_theme.cmtheme", themeFile);
+			return new CMTheme(themeFile.getAbsolutePath());
+			
+		}catch(Exception e){
+			String message = "failed to get default theme";
+			(new CmdInvokeLater(new CmdFatalErrorExit(message, e))).execute();
+			return null;
+		}
+	}
+
+	public static CMTheme getFromDefaultDir(String themeName) throws Exception{
+		String defaultThemesDir = CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR);
+		String themePath = defaultThemesDir + "\\" + themeName;
+		return new CMTheme(themePath);
+	}
 	
 }
