@@ -88,7 +88,13 @@ public class CMMessage {
 				this.type = json.getInt("type");
 				this.content = json.getString("content");
 				this.sender = json.getString("sender");
-				this.senderTheme = json.getString("sender_theme");
+				//for backwards compatibility if the message doesn't have a sender_theme
+				//we set our own theme as sender theme 
+				try{
+					this.senderTheme = json.getString("sender_theme");
+				}catch(Exception e){
+					this.senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+				}
 				this.time = json.getLong("time");
 			}
 			//if file message

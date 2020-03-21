@@ -97,9 +97,8 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String textAreasTheme;
 	private TrayIcon trayIconApp, trayIconNewMessage;
 	private CMNotifPopup newMessagePopup;
-	private CMTheme currentTheme;
+	private CMTheme currentTheme, peerTheme;
 	private CMTheme themeChooserSelectedTheme;
-	private String peerThemeName = "";
 	
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
@@ -1568,11 +1567,15 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
 		updateTextAreaConversation(chatman.getAllMessagesText());
+		//TODO: keep receiving bad message (ping probably)
 		
-		if(!peerThemeName.equals(message.getSenderTheme())){
+		//check peer theme
+		if(!message.isOurMessage()){
 			try{
-				CMTheme peerTheme = CMTheme.getFromDefaultDir(message.getSenderTheme());
-				setPeerTheme(peerTheme);
+				if(!peerTheme.getFileName().equals(message.getSenderTheme())){
+					peerTheme = CMTheme.getFromDefaultDir(message.getSenderTheme());
+					setPeerTheme(peerTheme);
+				}
 			}catch(Exception e){
 				CMMessage themeReqMsg = new CMMessage(CMMessage.TYPE_REQUEST_THEME_FILE, "");
 				OutgoingMsgHandler handler = new OutgoingMsgHandler(themeReqMsg);
@@ -1580,15 +1583,10 @@ public class ChatFrame extends javax.swing.JFrame {
 				return;
 			}
 		}
-		
-		//popup when first message received
-		if(isHidden() && !message.isOurMessage()){
-            newMessagePopup.show(true);
-        }
-        //bleep if we received message and was not focused
-        else if(!this.isActive() && !message.isOurMessage()){
-            newMessagePopup.playSound();
-        }
+
+		if(!message.isOurMessage()){
+			showNewMessagePopup();
+		}
 			
     }
 	 
@@ -1686,11 +1684,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		changeLabelIcon(labelPrevEmojiPage, "");
 		changeLabelIcon(labelNextEmojiPage, "");
 	}
-	
-	public CMTheme getCurrentTheme(){
-		return currentTheme;
-	}
-	
+
 	public String getUserName(){
 		return this.username;
 	}
@@ -1716,11 +1710,27 @@ public class ChatFrame extends javax.swing.JFrame {
 	}
 	
 	public void showNewMessagePopup(){
-		newMessagePopup.show(true);
+		//popup and play sound if we're hidden
+		if(!this.isVisible() && !newMessagePopup.isVisible()){
+            newMessagePopup.show();
+			newMessagePopup.playSound();
+        }
+        //bleep only if we received message and was not focused
+        else if(!this.isActive()){
+            newMessagePopup.playSound();
+        }
+	}
+	
+	public CMTheme getCurrentTheme(){
+		return currentTheme;
+	}
+	
+	public CMTheme getPeerTheme(){
+		return peerTheme;
 	}
 	
 	public void setPeerTheme(CMTheme peerTheme){
-		peerThemeName = peerTheme.getFileName();
+		this.peerTheme = peerTheme;
 		newMessagePopup = new CMNotifPopup(peerTheme);
 	}
 
@@ -1749,12 +1759,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	public String getTextColor(){
 		return this.textColor;
 	}
-	  
-    //the mask is for the ones you love. we stay hidden unless it's neccessary to show up
-    public boolean isHidden(){
-        return !this.isVisible() && !newMessagePopup.isVisible();
-    }
-	
+	  	
 	//hides the chatman windows
 	public void hideWindow(){
 		//this.setVisible(false);
