@@ -41,6 +41,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
@@ -94,11 +94,13 @@ public class ChatFrame extends javax.swing.JFrame {
 	private String username;
 	private AdjustmentListener scrollListenerAlwaysDown;
 	private String textColor;
-	private String labelsTheme = "dark";
-	private String backgroundsTheme = "dark";
+	private String labelsTheme;
+	private String textAreasTheme;
 	private TrayIcon trayIconApp, trayIconNewMessage;
-	private NotificationPopup newMessagePopup;
-
+	private CMNotifPopup newMessagePopup;
+	private CMTheme currentTheme;
+	private CMTheme themeChooserSelectedTheme;
+	
 	private final String TEXTCOLOR_DARK = "#2b2b2b";
 	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
 
@@ -135,12 +137,12 @@ public class ChatFrame extends javax.swing.JFrame {
         tableHistory = new javax.swing.JTable();
         buttonNextHistoryPage = new javax.swing.JButton();
         buttonPrevHistoryPage = new javax.swing.JButton();
-        dialogNotification = new javax.swing.JDialog();
         dialogChooseBg = new javax.swing.JDialog();
         panelChooseBg = new javax.swing.JPanel();
         labelBgPrev = new javax.swing.JLabel();
         labelPopupPrev = new javax.swing.JLabel();
         dropdownBgs = new javax.swing.JComboBox<>();
+        buttonSelectBg = new javax.swing.JButton();
         scrollPaneConversation = new javax.swing.JScrollPane();
         textAreaConversation = new javax.swing.JEditorPane();
         scrollPaneInput = new javax.swing.JScrollPane();
@@ -162,9 +164,8 @@ public class ChatFrame extends javax.swing.JFrame {
         labelFrameBg = new javax.swing.JLabel();
         menubarMain = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
-        menuChangeBg = new javax.swing.JMenuItem();
         menuShowHistory = new javax.swing.JMenuItem();
-        menuChooseBg = new javax.swing.JMenuItem();
+        menuChooseTheme = new javax.swing.JMenuItem();
         menuSeparator1 = new javax.swing.JPopupMenu.Separator();
         menuRemoteShutdown = new javax.swing.JMenuItem();
         menuAbortRemoteShutdown = new javax.swing.JMenuItem();
@@ -269,37 +270,37 @@ public class ChatFrame extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        javax.swing.GroupLayout dialogNotificationLayout = new javax.swing.GroupLayout(dialogNotification.getContentPane());
-        dialogNotification.getContentPane().setLayout(dialogNotificationLayout);
-        dialogNotificationLayout.setHorizontalGroup(
-            dialogNotificationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        dialogNotificationLayout.setVerticalGroup(
-            dialogNotificationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-
         dialogChooseBg.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         dialogChooseBg.setTitle("انتخاب پس زمینه");
         dialogChooseBg.setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
-        dialogChooseBg.setPreferredSize(new java.awt.Dimension(800, 550));
         dialogChooseBg.setResizable(false);
         dialogChooseBg.setSize(new java.awt.Dimension(800, 550));
+        dialogChooseBg.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                dialogChooseBgWindowClosing(evt);
+            }
+        });
 
         labelBgPrev.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelBgPrev.setBorder(javax.swing.BorderFactory.createTitledBorder("پس زمینه"));
+        labelBgPrev.setBorder(javax.swing.BorderFactory.createTitledBorder(null, " پس زمنیه ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         labelBgPrev.setMaximumSize(new java.awt.Dimension(350, 450));
         labelBgPrev.setMinimumSize(new java.awt.Dimension(350, 450));
         labelBgPrev.setPreferredSize(new java.awt.Dimension(350, 450));
 
         labelPopupPrev.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelPopupPrev.setBorder(javax.swing.BorderFactory.createTitledBorder("اعلان"));
+        labelPopupPrev.setBorder(javax.swing.BorderFactory.createTitledBorder(null, " اعلان ", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
         dropdownBgs.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         dropdownBgs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dropdownBgsActionPerformed(evt);
+            }
+        });
+
+        buttonSelectBg.setText("انتخاب");
+        buttonSelectBg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonSelectBgActionPerformed(evt);
             }
         });
 
@@ -312,6 +313,8 @@ public class ChatFrame extends javax.swing.JFrame {
                 .addGroup(panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelChooseBgLayout.createSequentialGroup()
                         .addComponent(dropdownBgs, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(buttonSelectBg)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(panelChooseBgLayout.createSequentialGroup()
                         .addComponent(labelBgPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -323,7 +326,9 @@ public class ChatFrame extends javax.swing.JFrame {
             panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelChooseBgLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(dropdownBgs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dropdownBgs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonSelectBg))
                 .addGap(18, 18, 18)
                 .addGroup(panelChooseBgLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(labelPopupPrev, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -571,7 +576,6 @@ public class ChatFrame extends javax.swing.JFrame {
         getContentPane().add(labelStatusBackground);
         labelStatusBackground.setBounds(-5, 560, 560, 40);
 
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/bg/default.jpg"))); // NOI18N
         labelFrameBg.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         labelFrameBg.setIconTextGap(0);
         labelFrameBg.setMaximumSize(new java.awt.Dimension(500, 600));
@@ -594,15 +598,6 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
 
-        menuChangeBg.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        menuChangeBg.setText("تغییر پس زمینه");
-        menuChangeBg.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                menuChangeBgMouseReleased(evt);
-            }
-        });
-        menuFile.add(menuChangeBg);
-
         menuShowHistory.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         menuShowHistory.setText("نمایش تاریخچه");
         menuShowHistory.setToolTipText("");
@@ -613,13 +608,13 @@ public class ChatFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuShowHistory);
 
-        menuChooseBg.setText("انتخاب پس زمینه");
-        menuChooseBg.addActionListener(new java.awt.event.ActionListener() {
+        menuChooseTheme.setText("انتخاب پوسته");
+        menuChooseTheme.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuChooseBgActionPerformed(evt);
+                menuChooseThemeActionPerformed(evt);
             }
         });
-        menuFile.add(menuChooseBg);
+        menuFile.add(menuChooseTheme);
         menuFile.add(menuSeparator1);
 
         menuRemoteShutdown.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -856,27 +851,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
     }//GEN-LAST:event_menuAbortLocalShutdownActionPerformed
 
-    private void menuChangeBgMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuChangeBgMouseReleased
-        
-		boolean isLeftClick = SwingUtilities.isLeftMouseButton(evt);
-		
-		if(isLeftClick){
-			Background.getInstance().next();
-		}
-		else{
-			Background.getInstance().prev();
-		}
-		
-        setBackground(Background.getInstance().getCurrentURL());
-
-        if(chatman != null)
-            updateUserName();
-       
-        //doClick() so user doesn't have to open menu over and over again for changing bg
-        menuFile.doClick();
-		
-    }//GEN-LAST:event_menuChangeBgMouseReleased
-
     private void labelSendMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelSendMousePressed
 		changeLabelIcon((JLabel)evt.getComponent(), "pressed");
     }//GEN-LAST:event_labelSendMousePressed
@@ -1005,46 +979,61 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
     }//GEN-LAST:event_labelMouseDetectorMouseEntered
 
-    private void menuChooseBgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuChooseBgActionPerformed
-        // TODO add your handling code here:
+    private void menuChooseThemeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuChooseThemeActionPerformed
+		
+		//set things to default
+		dropdownBgs.removeAllItems();
+		themeChooserSelectedTheme = null;
+		labelPopupPrev.setIcon(null);
+		labelBgPrev.setIcon(null);
+		
 		try{
-			
 			File themesDir = new File(CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR));
-			dropdownBgs.removeAllItems();
 			Files.list(themesDir.toPath()).forEach(new Consumer<Path>() {
 				@Override
 				public void accept(Path t) {
-					dropdownBgs.addItem(t.toString());
+					dropdownBgs.addItem(t.getFileName().toString());
 				}
 			});
 			dialogChooseBg.setLocationRelativeTo(null);
 			dialogChooseBg.setVisible(true);
 			
 		}catch(Exception e){
-			//todo: this
-			message("cannot open themes");
-			e.printStackTrace();
+			message(CMHelper.getInstance().getStr("themes_folder_open_fail"));
+			CMHelper.getInstance().log("failed to get list of themes: " + e.getMessage());
 		}
-    }//GEN-LAST:event_menuChooseBgActionPerformed
+    }//GEN-LAST:event_menuChooseThemeActionPerformed
 
     private void dropdownBgsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dropdownBgsActionPerformed
-        // TODO add your handling code here:		
+		
+		if(dropdownBgs.getSelectedItem() == null){
+			return;
+		}
+		
 		try{
-			String themePath = (String) dropdownBgs.getSelectedItem();
-			if(themePath == null){
-				return;
-			}
-			CMTheme theme = new CMTheme(themePath);
-			Image bg = theme.getBgImage().getImage().getScaledInstance(
-					330, 396, Image.SCALE_SMOOTH);
+			String themeName = (String) dropdownBgs.getSelectedItem();
+			String themePath = CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR) + "\\" + themeName;
+			themeChooserSelectedTheme = new CMTheme(themePath);
+			Image bg = themeChooserSelectedTheme.getBgImage().getImage().getScaledInstance(
+					330, 400, Image.SCALE_SMOOTH);
 			labelBgPrev.setIcon(new ImageIcon(bg));
-			labelPopupPrev.setIcon(theme.getPopupImage());
+			labelPopupPrev.setIcon(themeChooserSelectedTheme.getPopupImage());
 		}catch(Exception e ){
-			//todo: handle
-			message("bad theme file");
-			e.printStackTrace();
+			message("Bad theme file");
+			CMHelper.getInstance().log("bad theme file selected: " + e.getMessage());
 		}
     }//GEN-LAST:event_dropdownBgsActionPerformed
+
+    private void buttonSelectBgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSelectBgActionPerformed
+        currentTheme = themeChooserSelectedTheme;
+		applyCurrentTheme();
+		CMConfig.getInstance().set("theme", currentTheme.getFileName());
+		CMConfig.getInstance().save();
+    }//GEN-LAST:event_buttonSelectBgActionPerformed
+
+    private void dialogChooseBgWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogChooseBgWindowClosing
+
+    }//GEN-LAST:event_dialogChooseBgWindowClosing
 
     /**
      * @param args the command line arguments
@@ -1111,49 +1100,28 @@ public class ChatFrame extends javax.swing.JFrame {
 
     public void initialize(){
 		
-		//checks if history.sqlite exists and if not tries to create it
+		// Checks if history.sqlite exists and if not tries to create it
 		try{
 			CMHelper.getInstance().checkDatabaseFile();
 		}catch(Exception e){
 			(new CmdFatalErrorExit("history database cannot be created", e)).execute();
 		}
 		
-        //Locale
+        // Locale
 		CMHelper.getInstance().setLocale(CMConfig.getInstance().getLocale());
 		
-		//DO NOT MOVE THE ABOVE CODE BELOW THEY HAVE TO BE RUN FIRST
+		// !!! DO NOT MOVE THE ABOVE CODE BELOW THEY HAVE TO BE RUN FIRST !!!
 		
 		this.setTitle(appTitle);
 		
 		createTrayIcons();
 		
-		//show tray if config says yes
+		// Show tray if config says yes
 		if(CMConfig.getInstance().get("show-tray-icon", CMConfig.DEFAULT_SHOWTRAY).equals("yes")){
 			setTrayIconVisible(trayIconApp, true);
 		}
 		
-		//set up theme
-		labelsTheme = CMConfig.getInstance().get("buttons-theme", CMConfig.DEFAULT_BUTTONSTHEME);
-		backgroundsTheme = CMConfig.getInstance().get("textareas-theme", CMConfig.DEFAULT_TEXTAREASTHEME);
-		
-		//set text color
-		textColor = (backgroundsTheme.equals("dark"))? TEXTCOLOR_LIGHT : TEXTCOLOR_DARK;
-
-        //setup GUI elements texts accordig to locale
-        setupGUITexts();
-		
-		//set popup type
-		String popupMode = CMConfig.getInstance().get("new-message-popup-mode", "bat");
-		ImageIcon image;
-		if(popupMode.equals("bat")){
-			image = new ImageIcon(getClass().getResource("/resources/bat.gif"));
-		}
-		else{
-			image = new ImageIcon(getClass().getResource("/resources/new_message_50x50.png"));
-		}
-		newMessagePopup = new NotificationPopup(image);
-		
-        //TextArea Dorp
+        // TextArea drag-n-drop
         textAreaInput.setDropTarget(new DropTarget() {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
@@ -1183,9 +1151,8 @@ public class ChatFrame extends javax.swing.JFrame {
                 }
             }
         });
-        
 
-        //TextArea right click
+        // TextArea right click
 		
         //create a paste action to replace the default one because the default copoies styles/html too
         Action pasteAction = new AbstractAction(CMHelper.getInstance().getStr("paste")) {
@@ -1241,23 +1208,17 @@ public class ChatFrame extends javax.swing.JFrame {
         menuRightClick.add (copyAction);
         menuRightClick.add (cutAction);
 
-        
-        //TextArea cursor
+        // TextArea cursor
         ((HTMLEditorKit)textAreaInput.getEditorKit()).setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
         
-        
-        //Input focus
+        // Input focus
         textAreaInput.requestFocus();
-		//Input caret color according to text color
-		textAreaInput.setCaretColor(Color.getColor(textColor));
-        
-        
-        //Table BG transparent
+
+        // Table BG transparent
         tableEmojis.setBackground(new Color(0,0,0,0));  
 		tableEmojis.setGridColor(new Color(0,0,0,0));
-
         
-        //Populate Table
+        // Populate Table
         //!!!IMPORTANT: only words in emoticons name 
         //!!!IMPORTANT: emoticons should have .gif extention and be stored in /resources/emoticons folder
         //!!!IMPORTANT: any change made here, or to emoticons names,format,folder,etc. should be also applied to regular expression accross the code
@@ -1286,32 +1247,43 @@ public class ChatFrame extends javax.swing.JFrame {
         };
 		nextEmojiPage();
 		
+        // Theme
+		try{
+			String themeName = CMConfig.getInstance().get("theme", CMConfig.DEFAULT_THEME);
+			String themePath = CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR) + "\\" + themeName;
+			currentTheme = new CMTheme(themePath);
+		}catch(Exception e){
+			try{
+				CMHelper.getInstance().log("getting theme failed. getting default theme");
+				String themeName = CMConfig.getInstance().get("theme", CMConfig.DEFAULT_THEME);
+				String themePath = Paths.get(getClass().getResource("/resources").toURI()).toFile().getAbsolutePath() + "\\" + themeName;
+				currentTheme = new CMTheme(themePath);
+			}catch(Exception ex){
+				String error = "couldn't get the default theme: " + ex.getMessage();
+				(new CmdFatalErrorExit(error, ex)).execute();
+			}
+		}
+		applyCurrentTheme();
        
-        //Frame BG
-        setBackground(Background.getInstance().getCurrentURL());
-       
-		//CSS for conversation pane 
+		// CSS for conversation pane 
 		cssHideTime = new StyleSheet();
 		cssShowTime = new StyleSheet();
 		cssHideTime.addRule(".time{font-size:0px;color:#3a3a3a}");
 		cssShowTime.addRule(".time{font-size:11px}");
 		
-		
-        //Empty HTML Texts
+        // Empty HTML Texts
         defaultTextAreaHtml = "<html><head><style type='text/css'>#text { color: "+ textColor +"; font-family: Tahoma; font-size: 12px; }</style></head><body id='text'></body></html>";
 		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
 		textAreaConversation.setEditorKit(tkit);		
         textAreaInput.setText(defaultTextAreaHtml);
 		textAreaConversation.setText(defaultTextAreaHtml);
-
         
-        //Make ScrollPanes invisible
+        // Make ScrollPanes invisible
         scrollPaneInput.setOpaque(false);
         scrollPaneInput.getViewport().setOpaque(false);
         scrollPaneConversation.setOpaque(false);
         scrollPaneConversation.getViewport().setOpaque(false);
-		
 		
 		// To fix the scrolls
 		scrollListenerAlwaysDown = new AdjustmentListener() {  
@@ -1320,7 +1292,6 @@ public class ChatFrame extends javax.swing.JFrame {
 			}
 		};	
 		
-		
 		// Customized scrollbar
 		JScrollBar scrollbar = scrollPaneConversation.getVerticalScrollBar();
 		scrollbar.setOpaque(false);
@@ -1328,9 +1299,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		scrollbar.setPreferredSize(new Dimension(10, defaultHeight));
 		scrollbar.setUI(new CMScrollbarUI());
 		
-		
-        //Icons
-        //main frame
+        // Application icon
         Toolkit toolkit = Toolkit.getDefaultToolkit();	
 		ArrayList<Image> icons = new ArrayList<Image>();
 		Image icon48 = toolkit.createImage(getClass().getResource("/resources/icon48.png"));
@@ -1341,30 +1310,27 @@ public class ChatFrame extends javax.swing.JFrame {
 		icons.add(icon24);
 		this.setIconImages(icons);
 		
-		
-        //history dialog
+        // History dialog
         URL url = getClass().getResource("/resources/icon_history.png");
         Image historyIcon = toolkit.createImage(url);
         dialogHistory.setIconImage(historyIcon);
 		
-		
-		//hide text column in history table
+		// Hide text column in history table
 		tableHistory.removeColumn(tableHistory.getColumnModel().getColumn(1));
 
-		
-        //Center
+        // Center
         this.setLocationRelativeTo(null);
 		
-		//Hide wake on lan menu
+		// Hide wake on lan menu
 		menuWakeOnLan.setVisible(false);
 
-		//Iransans font for everything
+		// Iransans font for everything
 		try{
 			InputStream is = getClass().getResourceAsStream("/resources/iransans.ttf");
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
 			Font iranSans = font.deriveFont(12f);
 			menuFile.setFont(iranSans);
-			menuChangeBg.setFont(iranSans);
+			menuChooseTheme.setFont(iranSans);
 			menuShowHistory.setFont(iranSans);
 			menuRemoteShutdown.setFont(iranSans);
 			menuAbortRemoteShutdown.setFont(iranSans);
@@ -1378,22 +1344,12 @@ public class ChatFrame extends javax.swing.JFrame {
 			//font will revert to Tahoma
 		}
 		
-		//set label icons
-		changeLabelIcon(labelConvoBg, "");
-		changeLabelIcon(labelInputBg, "");
-		changeLabelIcon(labelTableBg, "");
-		changeLabelIcon(labelSend, "");
-		changeLabelIcon(labelClear, "");
-		changeLabelIcon(labelPrevEmojiPage, "");
-		changeLabelIcon(labelNextEmojiPage, "");
-		
-		updateUserName();
-		
+		// Hide progressbar
 		progressBar.setVisible(false);
-
+		
     } 
     
-    //start Chatman
+    // Start Chatman
     public void startChatman(){	
 		try{
 			chatman = new Chatman();
@@ -1405,7 +1361,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
     }
     
-    //Called from myInits()
+    // Called from myInits()
 	public void createTrayIcons(){
 
         if (!SystemTray.isSupported()) {
@@ -1471,12 +1427,10 @@ public class ChatFrame extends javax.swing.JFrame {
         dialogHistory.setTitle(CMHelper.getInstance().getStr("history"));
         buttonNextHistoryPage.setText(CMHelper.getInstance().getStr("next_page"));
         buttonPrevHistoryPage.setText(CMHelper.getInstance().getStr("prev_page"));
-        //labelSend.setText(CMHelper.getInstance().getStr("send"));
-        //labelClear.setText(CMHelper.getInstance().getStr("clear"));
         labelStatusLabl.setText(CMHelper.getInstance().getStr("status"));
         labelStatus.setText(CMHelper.getInstance().getStr("offline"));
         menuFile.setText(CMHelper.getInstance().getStr("options"));
-        menuChangeBg.setText(CMHelper.getInstance().getStr("change_bg"));
+        menuChooseTheme.setText(CMHelper.getInstance().getStr("choose_theme"));
         menuShowHistory.setText(CMHelper.getInstance().getStr("show_history"));
 		menuRemoteShutdown.setText(CMHelper.getInstance().getStr("remote_shutdown"));
 		menuAbortLocalShutdown.setText(CMHelper.getInstance().getStr("abort_local_shutdown"));
@@ -1510,13 +1464,13 @@ public class ChatFrame extends javax.swing.JFrame {
 			path = template.replace("*name*", "next").replace("*theme*", labelsTheme).replace("*state*", state);
 		}
 		else if(label == labelConvoBg){
-			path = template.replace("*name*", "top").replace("*theme*", backgroundsTheme).replace("*state*", state);
+			path = template.replace("*name*", "top").replace("*theme*", textAreasTheme).replace("*state*", state);
 		}
 		else if(label == labelInputBg){
-			path = template.replace("*name*", "bottom").replace("*theme*", backgroundsTheme).replace("*state*", state);
+			path = template.replace("*name*", "bottom").replace("*theme*", textAreasTheme).replace("*state*", state);
 		}
 		else if(label == labelTableBg){
-			path = template.replace("*name*", "table").replace("*theme*", backgroundsTheme).replace("*state*", state);
+			path = template.replace("*name*", "table").replace("*theme*", textAreasTheme).replace("*state*", state);
 		}
 		
 		ImageIcon icon = (new ImageIcon(getClass().getResource(path)));
@@ -1694,17 +1648,31 @@ public class ChatFrame extends javax.swing.JFrame {
 			progressBar.setValue(progress);
 		}
 	}
-	 
-    public void setBackground(URL url){
-        labelFrameBg.setIcon(new javax.swing.ImageIcon(url));
-    }
     
-    public void updateUserName(){
-        //background names are like batman_1.jpg or batman.png
-        String name = Background.getInstance().getCurrent().split("\\.")[0].split("_")[0];        
-        name = name.substring(0, 1).toUpperCase() + name.substring(1,name.length());
-		username = name;
-    }
+	public void applyCurrentTheme(){
+		
+		labelFrameBg.setIcon(currentTheme.getBgImage());
+		newMessagePopup = new CMNotifPopup(currentTheme);
+		username = currentTheme.getUsername();
+				
+		//set up theme
+		labelsTheme = currentTheme.getButtonsTheme();
+		textAreasTheme = currentTheme.getTextAreasTheme();
+		
+		//set text color
+		textColor = (textAreasTheme.equals("dark"))? TEXTCOLOR_LIGHT : TEXTCOLOR_DARK;
+		//input caret color according to text color
+		textAreaInput.setCaretColor(Color.getColor(textColor));
+
+		//set label icons
+		changeLabelIcon(labelConvoBg, "");
+		changeLabelIcon(labelInputBg, "");
+		changeLabelIcon(labelTableBg, "");
+		changeLabelIcon(labelSend, "");
+		changeLabelIcon(labelClear, "");
+		changeLabelIcon(labelPrevEmojiPage, "");
+		changeLabelIcon(labelNextEmojiPage, "");
+	}
 	
 	public String getUserName(){
 		return this.username;
@@ -1791,9 +1759,9 @@ public class ChatFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
+    private javax.swing.JButton buttonSelectBg;
     private javax.swing.JDialog dialogChooseBg;
     private javax.swing.JDialog dialogHistory;
-    private javax.swing.JDialog dialogNotification;
     private javax.swing.JComboBox<String> dropdownBgs;
     private javax.swing.JLabel labelBgPrev;
     private javax.swing.JLabel labelClear;
@@ -1813,8 +1781,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuAbortLocalShutdown;
     private javax.swing.JMenuItem menuAbortRemoteShutdown;
     private javax.swing.JMenuItem menuAbout;
-    private javax.swing.JMenuItem menuChangeBg;
-    private javax.swing.JMenuItem menuChooseBg;
+    private javax.swing.JMenuItem menuChooseTheme;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenuItem menuRemoteShutdown;

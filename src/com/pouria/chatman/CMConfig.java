@@ -42,9 +42,8 @@ public class CMConfig {
 	public static final String DEFAULT_HOSTS_SCAN = "50";
 	public static final String DEFAULT_FILEDROP_SIZEWARNING = "300";
 	public static final String DEFAULT_LOCALE = "fa_IR";
-	public static final String DEFAULT_BUTTONSTHEME = "dark";
-	public static final String DEFAULT_TEXTAREASTHEME = "dark";
 	public static final String DEFAULT_SHOWTRAY = "yes";
+	public static final String DEFAULT_THEME = "default.cmtheme";
 	public static final String DEFAULT_THEMES_DIR = "themes";
 	
 	

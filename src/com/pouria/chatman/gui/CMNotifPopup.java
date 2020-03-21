@@ -36,15 +36,21 @@ import javax.swing.JLabel;
  *
  * @author Pouria
  */
-public class NotificationPopup{
+public class CMNotifPopup{
 	
 	private final int os;
 	private final JDialog dialog;
 	
-	public NotificationPopup(ImageIcon image) {
+	public CMNotifPopup(CMTheme theme) {
 			
+		ImageIcon popupImage = theme.getPopupImage();
+		int widht = popupImage.getIconWidth();
+		int height = popupImage.getIconHeight();
+		int rightOffset = theme.getPopupRightOffset();
+		int bottomOffset = theme.getPopupBottomOffset();
+		
 		dialog = new JDialog();
-		dialog.setSize(image.getIconWidth(), image.getIconHeight());
+		dialog.setSize(widht, height);
 		dialog.setUndecorated(true);
 		dialog.setAlwaysOnTop(true);
 		dialog.setResizable(false);
@@ -54,12 +60,12 @@ public class NotificationPopup{
         int screenWidth = (int) screenSize.getWidth();
         int screenHeight = (int) screenSize.getHeight();
         dialog.setLocation(
-                screenWidth - dialog.getWidth() - 10, 
-                screenHeight - dialog.getHeight() - 50
+                screenWidth - dialog.getWidth() - rightOffset, 
+                screenHeight - dialog.getHeight() - bottomOffset
         );
 		
 		JLabel label = new JLabel();
-        label.setIcon(image);
+        label.setIcon(popupImage);
         label.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         label.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override

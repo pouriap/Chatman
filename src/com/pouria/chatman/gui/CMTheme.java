@@ -18,6 +18,7 @@ package com.pouria.chatman.gui;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;
@@ -32,47 +33,58 @@ import org.json.JSONObject;
  */
 public class CMTheme {
 	
+	private final File file;
 	private final ImageIcon bgImage;
 	private final CMImageIcon popupImage;
 	private final int popupRightOffset;
 	private final int popupBottomOffset;
+	private final String userName;
+	private final String buttonsTheme;
+	private final String textAreasTheme;
 
-	public CMTheme(String filePath) throws Exception{
+	public CMTheme(String themeFilePath) throws Exception{
+		
+		file = new File(themeFilePath);
+		
+		//try faghat baraye ine ke zipFile ro bebande age exception shod ya nashod
+		try(ZipFile zipFile = new ZipFile(file)){
+			
+			ZipEntry dataFile = zipFile.getEntry("data.json");
+			InputStreamReader r = new InputStreamReader(zipFile.getInputStream(dataFile));
+			StringBuilder b = new StringBuilder();
+			while(r.ready()){
+				char[] buff = new char[1024];
+				r.read(buff);
+				b.append(buff);
+			}
+			String jsonString = b.toString();
 
-		ZipFile themeFile = new ZipFile(filePath);
+			JSONObject json = new JSONObject(jsonString);
+			String bgFilename = json.getString("bg-image");
+			String popupFilename = json.getString("popup-image");
+			popupRightOffset = json.getInt("popup-right-offset");
+			popupBottomOffset = json.getInt("popup-bottom-offset");
+			userName = json.getString("username");
+			buttonsTheme = json.getString("buttons-theme");
+			textAreasTheme = json.getString("textareas-theme");
 
-		ZipEntry dataFile = themeFile.getEntry("data.json");
-		InputStreamReader r = new InputStreamReader(themeFile.getInputStream(dataFile));
-		StringBuilder b = new StringBuilder();
-		while(r.ready()){
-			char[] buff = new char[1024];
-			r.read(buff);
-			b.append(buff);
+			ZipEntry bgFile = zipFile.getEntry(bgFilename);
+			BufferedImage bgBuff = ImageIO.read(zipFile.getInputStream(bgFile));
+			bgImage = new ImageIcon(bgBuff);
+
+			ZipEntry popupFile = zipFile.getEntry(popupFilename);
+			InputStream in = zipFile.getInputStream(popupFile);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			int len = 0;
+			byte[] buff = new byte[2048];
+			while((len = in.read(buff)) > 0){
+				out.write(buff, 0, len);
+			}
+			popupImage = new CMImageIcon(out.toByteArray());
 		}
-		String jsonString = b.toString();
-
-		JSONObject json = new JSONObject(jsonString);
-		String bgFilename = json.getString("background-image");
-		String popupFilename = json.getString("popup-image");
-		popupRightOffset = json.getInt("popup-right-offset");
-		popupBottomOffset = json.getInt("popup-bottom-offset");
-
-		ZipEntry bgFile = themeFile.getEntry(bgFilename);
-		BufferedImage bgBuff = ImageIO.read(themeFile.getInputStream(bgFile));
-		bgImage = new ImageIcon(bgBuff);
-
-		ZipEntry popupFile = themeFile.getEntry(popupFilename);
-		InputStream in = themeFile.getInputStream(popupFile);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		int len = 0;
-		byte[] buff = new byte[2048];
-		while((len = in.read(buff)) > 0){
-			out.write(buff, 0, len);
-		}
-		popupImage = new CMImageIcon(out.toByteArray());
 		
 	}
-
+	
 	public ImageIcon getBgImage() {
 		return bgImage;
 	}
@@ -89,5 +101,21 @@ public class CMTheme {
 		return popupBottomOffset;
 	}
 	
+	public String getUsername(){
+		return userName;
+	}
+
+	public String getButtonsTheme() {
+		return buttonsTheme;
+	}
+
+	public String getTextAreasTheme() {
+		return textAreasTheme;
+	}
+	
+	public String getFileName(){
+		return file.getName();
+	}
+
 	
 }
