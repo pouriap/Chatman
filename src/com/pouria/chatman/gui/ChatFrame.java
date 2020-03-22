@@ -1146,7 +1146,9 @@ public class ChatFrame extends javax.swing.JFrame {
                         }
                         //send the file
 						String filePath = file.getAbsolutePath();
-						final CMMessage fileMessage = new CMMessage(CMMessage.TYPE_FILE, filePath);
+						String fileName = file.getName();
+						final CMMessage fileMessage = new CMMessage(CMMessage.TYPE_FILE, fileName);
+						fileMessage.putMiscData("file_path", filePath);
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
 						chatman.sendMessage(fileMessage);

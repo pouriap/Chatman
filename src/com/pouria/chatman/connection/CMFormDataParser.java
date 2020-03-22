@@ -43,6 +43,7 @@ public class CMFormDataParser {
 		String sender;
 		String senderTheme;
 		long time;
+		String tmpFilePath = "";
 		
 		try{
 			//if normal message
@@ -68,12 +69,12 @@ public class CMFormDataParser {
 				FormData.FormValue formFile = formData.get("file").getFirst();
 				FormData.FormValue formMetadata = formData.get("metadata").getFirst();
 				if(formFile.isFileItem()){
-					String tmpFilePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
+					tmpFilePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
 					String message = formMetadata.getValue();
 					//throws exception if JSON is curropt
 					JSONObject json = new JSONObject(message);
-					String fileName = json.getString("content");
 					type = json.getInt("type");
+					content = json.getString("content");
 					sender = json.getString("sender");
 					//for backwards compatibility if the message doesn't have a sender_theme
 					//we set our own theme as sender theme 
@@ -83,8 +84,6 @@ public class CMFormDataParser {
 						senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
 					}
 					time = json.getLong("time");
-					//we have to store file name somewhere
-					content = tmpFilePath + "**" + fileName;
 				}
 				else{
 					throw new Exception("bad file message");
@@ -113,6 +112,10 @@ public class CMFormDataParser {
 		}
 		
 		CMMessage message = new CMMessage(type, content, sender, senderTheme, time);
+		if(!tmpFilePath.isEmpty()){
+			message.putMiscData("temp_file_path", tmpFilePath);
+		}
+		
 		return message;
 		
 	}

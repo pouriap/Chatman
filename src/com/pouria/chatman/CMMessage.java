@@ -20,6 +20,7 @@ import com.pouria.chatman.gui.ChatFrame;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import org.json.JSONObject;
 
 /**
@@ -28,11 +29,12 @@ import org.json.JSONObject;
  */
 public class CMMessage {
 
-	private int type;
-	private String content;
-	private String sender;
-	private String senderTheme;
-	private long time;
+	private final int type;
+	private final String content;
+	private final String sender;
+	private final String senderTheme;
+	private final long time;
+	private final HashMap<String, String> miscData  = new HashMap<>();
 	private int status = STATUS_NOTSENT;
 	private int direction = DIR_UNKNOWN;
 	private boolean isSaved = false;
@@ -92,10 +94,6 @@ public class CMMessage {
 		return this.content;
 	}
 	
-	public void setContent(String content){
-		this.content = content;
-	}
-	
 	//formats content for being displayed in textAreaIncoming
 	public String getDisplayableContent(){
 		
@@ -112,10 +110,10 @@ public class CMMessage {
 			t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
 		}
 		else if(this.type == TYPE_FILE){
-			File file = new File(t);
+			File file = new File(this.getMiscData("file_path"));
 			String path = file.getAbsolutePath();
 			String name = file.getName();
-			//parse file linke
+			//add file link
 			t = "<a style='color:#dee3e9;font-weight:bold;' href='file://"+path+"'><u>"+name+"</u></a>";
 		}
 		else if(this.type == TYPE_SHUTDOWN){
@@ -134,9 +132,9 @@ public class CMMessage {
 
 		String textAlign = "left";
 		String you = "You";
-		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : ChatFrame.getInstance().getTextColor();
+		String color = (this.status==STATUS_SENDFAIL)? COLOR_FAILED : ChatFrame.getInstance().getTextColor();
 		String senderName = (isOurMessage())? you : sender;
-		if(type == TYPE_FILE){
+		if(this.type == TYPE_FILE){
 			senderName = (isOurMessage())? "File Sent: " : "File Received: ";
 		}
 		
@@ -145,10 +143,6 @@ public class CMMessage {
 		
         return t;
 		
-	}
-	
-	public void setSender(String sender){
-		this.sender = sender;
 	}
 	
 	public String getSender(){
@@ -185,6 +179,15 @@ public class CMMessage {
 
 	public String getSenderTheme() {
 		return senderTheme;
+	}
+	
+	public void putMiscData(String key, String value){
+		miscData.put(key, value);
+	}
+	
+	public String getMiscData(String key){
+		String value = miscData.get(key);
+		return (value != null)? value : "";
 	}
 	
 }

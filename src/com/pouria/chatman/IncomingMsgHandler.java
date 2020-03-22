@@ -98,10 +98,10 @@ public class IncomingMsgHandler {
 	}
 	
 	private void processFileMessage(){
+		
 		CMHelper.getInstance().log("file message received");
-		String tmpFilePath = message.getContent().split("\\*\\*")[0];
-		String fileName = message.getContent().split("\\*\\*")[1];
-		//filename is saved in 'sender' field hehe
+		String fileName = message.getContent();
+		String tmpFilePath = message.getMiscData("temp_file_path");
 		String dlDirectory = (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
 		File srcFile = new File(tmpFilePath);
 		File dstFile = new File(dlDirectory+fileName);
@@ -110,19 +110,20 @@ public class IncomingMsgHandler {
 			File saveDir = new File(dlDirectory);
 			if(!saveDir.isDirectory()){
 				CMHelper.getInstance().log("download dir doesn't exist. creating download dir");
-				saveDir.mkdir();
+				saveDir.mkdirs();
 				CMHelper.getInstance().log("download dir created successfully");
 			}
 			CMHelper.getInstance().log("copying received file from " + srcFile.getAbsolutePath() + " to " + dstFile.getAbsolutePath());
 			Files.copy(srcFile.toPath(), dstFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			CMHelper.getInstance().log("file copied");
 			//set file path (=content) to the one saved in Chatman Downloads
-			message.setContent(dstFile.getAbsolutePath());
+			message.putMiscData("file_path", dstFile.getAbsolutePath());
 		}catch(IOException e){
 			CMHelper.getInstance().log("copying file from tmp folder to download direcoty failed");
-			String content = CMHelper.getInstance().getStr("file-receive-failed");
-			message.setContent("ERROR: " + content);
+			String msg = CMHelper.getInstance().getStr("file-receive-failed");
+			message.putMiscData("file_path", "ERROR: " + msg);
 		}
+		
 	}
 	
 	private void processShutdown(){

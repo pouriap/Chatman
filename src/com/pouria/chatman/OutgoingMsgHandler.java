@@ -75,10 +75,7 @@ public class OutgoingMsgHandler {
 	}
 	
 	private boolean sendFileMessage(){
-		String filePath = message.getContent();
-		File file = new File(filePath);
-		String fileName = file.getName();
-		message.setContent(fileName);
+		File file = new File(message.getMiscData("file_path"));
 		String metadata = message.getAsJsonString();
 		return client.sendFile(file, metadata);
 	}
