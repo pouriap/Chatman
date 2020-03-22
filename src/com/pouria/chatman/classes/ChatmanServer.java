@@ -26,6 +26,7 @@ public interface ChatmanServer {
 	/**
 	 * should start the server and listen for all incoming messages
 	 * incoming messages should be sent to a ChatmanMessageHandler for processing
+	 * @throws java.io.IOException when port bind fails
 	 */
 	public void start() throws IOException;
 }

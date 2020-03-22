@@ -100,24 +100,29 @@ public class IncomingMsgHandler {
 	private void processFileMessage(){
 		
 		CMHelper.getInstance().log("file message received");
+		
 		String fileName = message.getContent();
 		String tmpFilePath = message.getMiscData("temp_file_path");
 		String dlDirectory = (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
 		File srcFile = new File(tmpFilePath);
 		File dstFile = new File(dlDirectory+fileName);
-		//save file
+		
+		//copy temp file to chatman dl directory
 		try{
+			
 			File saveDir = new File(dlDirectory);
 			if(!saveDir.isDirectory()){
 				CMHelper.getInstance().log("download dir doesn't exist. creating download dir");
 				saveDir.mkdirs();
 				CMHelper.getInstance().log("download dir created successfully");
 			}
+			
 			CMHelper.getInstance().log("copying received file from " + srcFile.getAbsolutePath() + " to " + dstFile.getAbsolutePath());
 			Files.copy(srcFile.toPath(), dstFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			CMHelper.getInstance().log("file copied");
-			//set file path (=content) to the one saved in Chatman Downloads
+			
 			message.putMiscData("file_path", dstFile.getAbsolutePath());
+			
 		}catch(IOException e){
 			CMHelper.getInstance().log("copying file from tmp folder to download direcoty failed");
 			String msg = CMHelper.getInstance().getStr("file-receive-failed");
@@ -195,6 +200,7 @@ public class IncomingMsgHandler {
 	private void processThemeFile(){
 		
 		try{
+			
 			String base64ThemeFile = message.getContent();
 			String themeName = message.getSenderTheme();
 			File themeFileToSave = new File(
