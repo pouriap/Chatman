@@ -8,3 +8,4 @@ dist/
 history.sqlite
 history.sqlite-journal
 config.conf
+out/
