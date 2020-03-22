@@ -24,7 +24,7 @@ import javax.swing.JOptionPane;
  * @author pouriap
  */
 public class CmdShowError implements Command{
-    String message;
+    final String message;
     
     public CmdShowError(String message){
         this.message = message;

@@ -1359,9 +1359,8 @@ public class ChatFrame extends javax.swing.JFrame {
 			chatman = new Chatman();
 			chatman.start();
 		}catch(Exception e){
-			final Exception ex = e;
-			String error = "Could not start server: " + e.getMessage();
-			(new CmdFatalErrorExit(error, ex)).execute();
+            String error = "Could not start server: " + e.getMessage();
+			(new CmdFatalErrorExit(error, e)).execute();
 		}
     }
     

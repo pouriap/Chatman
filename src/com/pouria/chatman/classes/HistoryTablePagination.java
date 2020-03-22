@@ -34,8 +34,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class HistoryTablePagination extends AbstractPagination{
     
-    ChatFrame gui;
-    JTable table;
+    final ChatFrame gui;
+    final JTable table;
     
     
     public HistoryTablePagination(JTable table, String dbPath, String query){

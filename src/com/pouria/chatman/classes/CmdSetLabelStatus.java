@@ -23,8 +23,8 @@ import com.pouria.chatman.gui.ChatFrame;
  * @author pouriap
  */
 public class CmdSetLabelStatus implements Command{
-    ChatFrame gui;
-    String text;
+    final ChatFrame gui;
+    final String text;
     
     public CmdSetLabelStatus(String text){
         this.gui = ChatFrame.getInstance();

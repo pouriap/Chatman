@@ -64,9 +64,8 @@ public class CMHelper {
 		try{
 			l = new ResourceBundleWrapper("resources.locale.locale", locale);
 		}catch(Exception e){
-			final Exception ex = e;
 			String error = "Could not get locale";
-			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit(error, e))).execute();
 		}
     }
 	

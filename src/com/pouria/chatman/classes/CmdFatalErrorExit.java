@@ -28,13 +28,11 @@ import javax.swing.JOptionPane;
  */
 public class CmdFatalErrorExit implements Command{
     String message;
-	ChatFrame gui;
-	Exception exception;
+	final Exception exception;
     
     public CmdFatalErrorExit(String message, Exception exception){
         this.message = message;
 		this.exception = exception;
-		this.gui = ChatFrame.getInstance();
     }
     
     @Override

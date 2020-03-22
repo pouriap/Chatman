@@ -33,9 +33,9 @@ public abstract class AbstractPagination {
     protected int limit = 10;
     protected int page = 0;
     protected boolean hasMore = true;
-    protected String[] resultSet;
+    protected final String[] resultSet;
     protected String query;
-    protected String dbPath;
+    protected final String dbPath;
     
     //default limit is 10
     public AbstractPagination(String dbPath, String query){
@@ -87,32 +87,29 @@ public abstract class AbstractPagination {
             stmt.close();
             c.close();
         }catch(ClassNotFoundException e){
-			final Exception ex = e;
             String error = "History pagination fail: " + e.getMessage();
-			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit(error, e))).execute();
         }
 
     }
     
     //loads the next page. the doPopulate method is called during the process
-    public boolean nextPage() throws SQLException{
+    public void nextPage() throws SQLException{
         if(!hasNext())
-            return false;
+            return;
         
         page++;
         loadPage(page);
-        return true;
-       
+
     }
     
     //loads the previous page. the doPopulate method is called during the process
-    public boolean prevPage() throws SQLException{
+    public void prevPage() throws SQLException{
         if(!hasPrev())
-            return false;
+            return;
         
         page--;
         loadPage(page);
-        return true;
     }
     
     public boolean hasNext(){

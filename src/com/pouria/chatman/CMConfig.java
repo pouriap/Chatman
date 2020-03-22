@@ -62,9 +62,8 @@ public class CMConfig {
 			}
 		//if load/create fails it's a fatal error
 		}catch(Exception e){
-			final Exception ex = e;
 			String error = "Failed to read or create config file. " + e.getMessage();
-			(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
+			(new CmdInvokeLater(new CmdFatalErrorExit(error, e))).execute();
 		}
 		
 	}

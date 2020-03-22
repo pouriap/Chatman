@@ -71,14 +71,13 @@ public class IpScanner {
 			});
 
 			//add PortScanner jobs to the executor
-			for(int i=0; i<numHosts; i++){
-                String addr = ipsToScan[i];
-                //don't scan local ips
-                if(localIps.contains(addr))
-                    continue;
-				Runnable scanner = new PortScanner(addr, port);
-				executor.execute(scanner);
-            }
+		    for (String addr : ipsToScan) {
+			    //don't scan local ips
+			    if (localIps.contains(addr))
+				    continue;
+			    Runnable scanner = new PortScanner(addr, port);
+			    executor.execute(scanner);
+		    }
 			
 			executor.shutdown();
 			//keep waiting until either all hosts are scanned or a server is found
@@ -86,9 +85,8 @@ public class IpScanner {
 				try{
 					Thread.sleep(100);
 				}catch(InterruptedException e){
-						final Exception ex = e;
-						String error = CMHelper.getInstance().getStr("thread_sleep_fail");
-						(new CmdInvokeLater(new CmdFatalErrorExit(error, ex))).execute();
+					String error = CMHelper.getInstance().getStr("thread_sleep_fail");
+						(new CmdInvokeLater(new CmdFatalErrorExit(error, e))).execute();
 				}
 			}
 			//forced shutdown in for when loop stops because ip was found

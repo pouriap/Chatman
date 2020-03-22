@@ -42,7 +42,7 @@ public class Chatman {
 	private final long HEARTBEAT_INTERVAL = TimeUnit.MINUTES.toMillis(1);
 	private final long OLD_MSG_TIMEDIFF = TimeUnit.HOURS.toMillis(1);
 	
-	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";;
+	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";
 	private final ArrayList<CMMessage> allConversationMessages = new ArrayList<CMMessage>();
 	private final CMSendQueue sendQueue;
 	
@@ -91,20 +91,20 @@ public class Chatman {
 	public synchronized String getAllMessagesText(){
 		
 		//this takes ~20ms with a shitload of messages
-		String conversationTextAll = "";
+		StringBuilder conversationTextAll = new StringBuilder();
 		long prevMessageTime = System.currentTimeMillis();
 		for(CMMessage message: allConversationMessages){
 			//put a line after older messages
 			long messageTime = message.getTime();
 			if(messageTime - prevMessageTime > OLD_MSG_TIMEDIFF){
-				conversationTextAll += horizontalLineHtml;
+				conversationTextAll.append(horizontalLineHtml);
 			}
 			prevMessageTime = messageTime;
 			
-			conversationTextAll += message.getDisplayableContent();
+			conversationTextAll.append(message.getDisplayableContent());
 		}
 		
-		return conversationTextAll;
+		return conversationTextAll.toString();
 	}
 	
 	

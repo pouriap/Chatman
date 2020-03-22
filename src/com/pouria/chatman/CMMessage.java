@@ -144,11 +144,7 @@ public class CMMessage {
         return t;
 		
 	}
-	
-	public String getSender(){
-		return this.sender;
-	}
-	
+
 	public void setDirection(int dir){
 		this.direction = dir;
 	}

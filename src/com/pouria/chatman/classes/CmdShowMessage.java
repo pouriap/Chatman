@@ -24,8 +24,8 @@ import com.pouria.chatman.gui.ChatFrame;
  * @author pouriap
  */
 public class CmdShowMessage implements Command{
-    ChatFrame gui;
-    CMMessage message;
+    final ChatFrame gui;
+    final CMMessage message;
     
     public CmdShowMessage(CMMessage message){
         this.gui = ChatFrame.getInstance();

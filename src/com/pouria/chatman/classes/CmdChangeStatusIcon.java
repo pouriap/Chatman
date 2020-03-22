@@ -24,7 +24,7 @@ import com.pouria.chatman.gui.ChatFrame;
  */
 public class CmdChangeStatusIcon implements Command{
 
-	String iconName;
+	final String iconName;
 	
 	public CmdChangeStatusIcon(String iconName){
 		this.iconName = iconName;
