@@ -54,7 +54,7 @@ public class OutgoingMsgHandler {
 				
 		}
 
-		message.setIsOurMessage(true);
+		message.setDirection(CMMessage.DIR_OUT);
 		int status = (success)? CMMessage.STATUS_SENT : CMMessage.STATUS_SENDFAIL;
 		message.setStatus(status);
 		
@@ -69,16 +69,18 @@ public class OutgoingMsgHandler {
 		
 	}
 
+	private boolean sendTextMessage(){
+		String text = message.getAsJsonString();
+		return client.sendText(text);
+	}
 	
 	private boolean sendFileMessage(){
 		String filePath = message.getContent();
 		File file = new File(filePath);
-		return client.sendFile(file);
-	}
-	
-	private boolean sendTextMessage(){
-		String text = message.getAsJsonString();
-		return client.sendText(text);
+		String fileName = file.getName();
+		message.setContent(fileName);
+		String metadata = message.getAsJsonString();
+		return client.sendFile(file, metadata);
 	}
 	
 	private boolean sendShowGUIMessage(){

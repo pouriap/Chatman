@@ -38,9 +38,10 @@ public interface ChatmanClient{
 	 * sends a File to the server we're connected to<br>
 	 * this function should be blocking!
 	 * @param file file to send
+	 * @param metadata optional metadata to be sent along with the file
 	 * @return  the result of send operation
 	 */	
-	public boolean sendFile(File file);
+	public boolean sendFile(File file, String metadata);
 	
 	/**
 	 * connects to the person we want to talk to if their IP is specified <br>

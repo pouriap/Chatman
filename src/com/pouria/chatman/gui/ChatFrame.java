@@ -1082,10 +1082,11 @@ public class ChatFrame extends javax.swing.JFrame {
         });
     }
 	
-	
+	//TODO: vaghti barname ii ba file reside associate nashode error mide
+	//bejash folder ro baz konim dar in halat
 	private static void do_pregui_check(){
 		//send a showgui message to localhost, if localhost responds we exit
-		CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "", "");
+		CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "", "", 0);
 		List<NameValuePair> postParams = new ArrayList<>();
 		postParams.add(new BasicNameValuePair("message", showGuiMessage.getAsJsonString()));
 		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
@@ -1567,7 +1568,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
 		updateTextAreaConversation(chatman.getAllMessagesText());
-		//TODO: keep receiving bad message (ping probably)
 		
 		//check peer theme
 		if(!message.isOurMessage()){

@@ -86,6 +86,8 @@ public class IncomingMsgHandler {
 				break;
 		}
 		
+		message.setDirection(CMMessage.DIR_IN);
+		
 	}
 	
 	private void processBadMessage(){

@@ -17,11 +17,9 @@
 package com.pouria.chatman;
 
 import com.pouria.chatman.gui.ChatFrame;
-import io.undertow.server.handlers.form.FormData;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -36,7 +34,7 @@ public class CMMessage {
 	private String senderTheme;
 	private long time;
 	private int status = STATUS_NOTSENT;
-	private boolean isOurMessage = false;
+	private int direction = DIR_UNKNOWN;
 	private boolean isSaved = false;
 	
 	public static final String COLOR_FAILED = "#f73900";
@@ -51,6 +49,7 @@ public class CMMessage {
 	public static final int TYPE_PEER_THEME_FILE = 7;
 	public static final int TYPE_REQUEST_THEME_FILE = 8;
 	
+	public static final int DIR_UNKNOWN = -1;
 	public static final int DIR_IN = 0;
 	public static final int DIR_OUT = 1;
 	
@@ -66,82 +65,15 @@ public class CMMessage {
 		this.senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
 		this.time = CMHelper.getInstance().getTime();
 	}
-	//this is for outgoing messsages
-	public CMMessage(int type, String content, String sender, String senderTheme){
+
+	public CMMessage(int type, String content, String sender, String senderTheme, long time){
 		this.type = type;
 		this.content = content;
 		this.sender = sender;
 		this.senderTheme = senderTheme;
-		this.time = CMHelper.getInstance().getTime();
+		this.time = time;
 	}
-	
-	//this is for incoming messages
-	public CMMessage(FormData postData){
 		
-		try{
-			//if normal message
-			if(postData.contains("message")){
-				FormData.FormValue messageValue = postData.get("message").getFirst();
-				String message = messageValue.getValue();
-				//throws exception if JSON is curropt
-				JSONObject json = new JSONObject(message);
-				this.type = json.getInt("type");
-				this.content = json.getString("content");
-				this.sender = json.getString("sender");
-				//for backwards compatibility if the message doesn't have a sender_theme
-				//we set our own theme as sender theme 
-				try{
-					this.senderTheme = json.getString("sender_theme");
-				}catch(Exception e){
-					this.senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
-				}
-				this.time = json.getLong("time");
-			}
-			//if file message
-			else if(postData.contains("data")){
-				FormData.FormValue formFile = postData.get("data").getFirst();
-				FormData.FormValue formFileName = postData.get("cm_filename").getFirst();
-				FormData.FormValue formSenderTheme = postData.get("cm_sender_theme").getFirst();
-				if(formFile.isFileItem()){
-					String tmpFilePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
-					String fileName = formFileName.getValue();
-					String senderTheme = formSenderTheme.getValue();
-					//we store filename in 'sender' field hehe
-					this.type = TYPE_FILE;
-					//we have to store file name somewhere
-					//TODO: store filename in "other" field
-					this.content = tmpFilePath + "**" + fileName;
-					this.sender = CMHelper.getInstance().getStr("file_recieved");
-					this.senderTheme = senderTheme;
-					this.time = CMHelper.getInstance().getTime();
-				}
-				else{
-					throw new Exception("bad file message");
-				}
-			}
-			//if bad message
-			else{
-				throw new Exception();
-			}
-
-		}catch(JSONException e){
-			//create a 'bad message' instance as our message because the original one is lost
-			this.type = TYPE_BADMESSAGE;
-			this.content = "bad json syntax";
-			this.sender = "unknown";
-			this.senderTheme = "default";
-			this.time = CMHelper.getInstance().getTime();
-			
-		}catch(Exception e){
-			//create a 'bad message' instance as our message because the original one is lost
-			this.type = TYPE_BADMESSAGE;
-			this.content = "bad message";
-			this.sender = "unknown";
-			this.senderTheme = "default";
-			this.time = CMHelper.getInstance().getTime();	
-		}
-	}
-	
 	public String getAsJsonString(){
 		JSONObject json = new JSONObject();
 		json.put("type", this.type);
@@ -200,21 +132,13 @@ public class CMMessage {
 			return "";
 		}
 
-//		boolean isFarsi = false;	
-//		char[] charArray = content.toCharArray();
-//		for(char c: charArray){
-//			if(Character.UnicodeBlock.of(c) != Character.UnicodeBlock.BASIC_LATIN) {
-//				isFarsi=true;
-//				break;
-//			}
-//		}
-		
-//		String textAlign = (isFarsi)? "right" : "left";
-//		String you = (isFarsi)? "شما" : "You";
 		String textAlign = "left";
 		String you = "You";
 		String color = (status==STATUS_SENDFAIL)? COLOR_FAILED : ChatFrame.getInstance().getTextColor();
-		String senderName = (isOurMessage)? you : sender;
+		String senderName = (isOurMessage())? you : sender;
+		if(type == TYPE_FILE){
+			senderName = (isOurMessage())? "File Sent: " : "File Received: ";
+		}
 		
 		//each message is a div
 		t = "<div style='text-align:"+textAlign+";padding:5px;'><span class='time'>["+timeTxt+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + t + "</div>";
@@ -231,12 +155,12 @@ public class CMMessage {
 		return this.sender;
 	}
 	
-	public void setIsOurMessage(boolean b){
-		this.isOurMessage = b;
+	public void setDirection(int dir){
+		this.direction = dir;
 	}
 	
 	public boolean isOurMessage(){
-		return this.isOurMessage;
+		return this.direction == DIR_OUT;
 	}
 	
 	public long getTime(){

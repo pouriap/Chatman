@@ -55,7 +55,7 @@ public class CMSendQueue {
 						for(CMMessage message : queue){
 							//add them to conversation without sending
 							message.setStatus(CMMessage.STATUS_SENDFAIL);
-							message.setIsOurMessage(true);
+							message.setDirection(CMMessage.DIR_OUT);
 							ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
 							(new CmdInvokeLater(new CmdShowMessage(message))).execute();
 						}

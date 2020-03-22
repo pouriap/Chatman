@@ -48,10 +48,6 @@ public class DisplayableMsgHandler {
 			return;
 		}
 		
-		if(message.getType() == CMMessage.TYPE_FILE){
-			message.setSender(CMHelper.getInstance().getStr("file_sent"));
-		}
-		
 		//add to all messages
 		ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
 		

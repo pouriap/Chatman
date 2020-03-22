@@ -78,7 +78,8 @@ public class HttpServer implements ChatmanServer{
 			
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
-			CMMessage message = new CMMessage(formData);
+			CMFormDataParser parser = new CMFormDataParser(formData);
+			CMMessage message = parser.parseAsCMMessage();
 			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.DIR_IN);
 			handler.handle(message);
 			
