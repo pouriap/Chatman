@@ -5,60 +5,13 @@
  */
 package com.pouria.chatman.gui;
 
-import com.pouria.chatman.CMConfig;
-import com.pouria.chatman.Chatman;
-import com.pouria.chatman.CMMessage;
-import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.OutgoingMsgHandler;
+import com.pouria.chatman.*;
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdShowError;
 import com.pouria.chatman.classes.HistoryTablePagination;
-import java.awt.AWTException;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.Toolkit;
-import java.awt.TrayIcon;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollBar;
-import javax.swing.JTextField;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
+import com.pouria.chatman.enums.CMColor;
+import com.pouria.chatman.enums.CMType;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -71,6 +24,30 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -100,12 +77,9 @@ public class ChatFrame extends javax.swing.JFrame {
 	private CMTheme currentTheme, peerTheme;
 	private CMTheme themeChooserSelectedTheme;
 	
-	private final String TEXTCOLOR_DARK = "#2b2b2b";
-	private final String TEXTCOLOR_LIGHT = "#e0e0e0";
-
-	private final String version = "2.0.12";
-	private final String appTitle = "Chatman Rises";
-	
+	private final String version = "3.0.1";
+	private final String appTitle = "Chatman Forever";
+	//todo: I18N
 	
 	
     private ChatFrame(){
@@ -718,23 +692,37 @@ public class ChatFrame extends javax.swing.JFrame {
         //triggered when we click on a link
         if(evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
             try{
+
                 String path = evt.getURL().toString();
                 
                 //open if it was a file
                 if(path.contains("file://")){
-                    path = path.substring(7);
-                    Desktop.getDesktop().open(new File(path));
+                    String filePath = path.substring(7);
+                    try {
+                        File file = new File(filePath);
+                        Desktop.getDesktop().open(file);
+                    } catch (IOException e) {
+                    	//in case the file has no association open the directory
+                        try {
+	                        File chatmanDlDirectory = new File(CMHelper.getInstance().getCMDownloadsDir());
+	                        Desktop.getDesktop().open(chatmanDlDirectory);
+                        }catch (Exception ee){
+							//if directory can't be opened either show error
+	                        message(CMHelper.getInstance().getStr("cannot_open_file"));
+                        }
+                    }
                 }
                 //browse if it was a URL
-                else
-                    Desktop.getDesktop().browse(evt.getURL().toURI());
+                else {
+	                Desktop.getDesktop().browse(evt.getURL().toURI());
+                }
                 
             }catch(IOException e){
-                message(CMHelper.getInstance().getStr("url_open_fail") + e.getMessage());
+                message(CMHelper.getInstance().getStr("url_open_fail"));
 				CMHelper.getInstance().log("failed to open url: " + e.getMessage());
             }catch(Exception e){
-                message(CMHelper.getInstance().getStr("bad_url") + e.getMessage());
-				CMHelper.getInstance().log("failed to open url: " + e.getMessage());
+                message(CMHelper.getInstance().getStr("bad_url"));
+				CMHelper.getInstance().log("bad url: " + e.getMessage());
 			}
         }
 		
@@ -788,7 +776,7 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
 			CMHelper.getInstance().log("history next page failed: " + e.getMessage());
-            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
+            message(CMHelper.getInstance().getStr("history_fail"));
         }
     }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
 
@@ -800,13 +788,13 @@ public class ChatFrame extends javax.swing.JFrame {
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
         }catch(SQLException e){
 			CMHelper.getInstance().log("history prev page failed: " + e.getMessage());
-            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
+            message(CMHelper.getInstance().getStr("history_fail"));
         }
     }//GEN-LAST:event_buttonPrevHistoryPageActionPerformed
 
     private void menuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAboutActionPerformed
         String aboutTitle = appTitle + " v" + version;
-		String aboutContent  = CMHelper.getInstance().getStr("license");
+		String aboutContent  = CMHelper.getInstance().getStr("about_content");
 		JOptionPane.showMessageDialog(null, aboutContent, aboutTitle, JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_menuAboutActionPerformed
 
@@ -814,7 +802,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("remote_shutdown_message"), CMHelper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            CMMessage message = new CMMessage(CMMessage.TYPE_SHUTDOWN, "");
+            CMMessage message = new CMMessage(CMType.SHUTDOWN, "");
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
@@ -846,7 +834,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		try{
 			CMHelper.getInstance().abortLocalShutdown();
 			String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-            final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, info);
+            final CMMessage message = new CMMessage(CMType.TEXT, info);
 			chatman.sendMessage(message);
 		}catch(IOException e){
 			CMHelper.getInstance().log("failed to abort local shutdown (from menu)");
@@ -868,7 +856,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("abort_remote_shutdown_message"), CMHelper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            final CMMessage message = new CMMessage(CMMessage.TYPE_ABORT_SHUTDOWN, "");
+            final CMMessage message = new CMMessage(CMType.ABORT_SHUTDOWN, "");
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
@@ -968,7 +956,7 @@ public class ChatFrame extends javax.swing.JFrame {
             
         }catch(SQLException e){
 			CMHelper.getInstance().log("failed to show history window: " + e.getMessage());
-            message(CMHelper.getInstance().getStr("history_fail") + e.getMessage());
+            message(CMHelper.getInstance().getStr("history_fail"));
         }
 		
     }//GEN-LAST:event_dialogHistoryComponentShown
@@ -1003,7 +991,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			dialogChooseBg.setVisible(true);
 			
 		}catch(Exception e){
-			message(CMHelper.getInstance().getStr("themes_folder_open_fail"));
+			message(CMHelper.getInstance().getStr("themes_listing_failed"));
 			CMHelper.getInstance().log("failed to get list of themes: " + e.getMessage());
 		}
     }//GEN-LAST:event_menuChooseThemeActionPerformed
@@ -1082,11 +1070,10 @@ public class ChatFrame extends javax.swing.JFrame {
         });
     }
 	
-	//TODO: vaghti barname ii ba file reside associate nashode error mide
 	//bejash folder ro baz konim dar in halat
 	private static void do_pregui_check(){
 		//send a showgui message to localhost, if localhost responds we exit
-		CMMessage showGuiMessage = new CMMessage(CMMessage.TYPE_SHOWGUI, "", "", "", 0);
+		CMMessage showGuiMessage = new CMMessage(CMType.SHOWGUI, "", "", "", 0);
 		List<NameValuePair> postParams = new ArrayList<>();
 		postParams.add(new BasicNameValuePair("message", showGuiMessage.getAsJsonString()));
 		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
@@ -1147,7 +1134,7 @@ public class ChatFrame extends javax.swing.JFrame {
                         //send the file
 						String filePath = file.getAbsolutePath();
 						String fileName = file.getName();
-						final CMMessage fileMessage = new CMMessage(CMMessage.TYPE_FILE, fileName);
+						final CMMessage fileMessage = new CMMessage(CMType.FILE, fileName);
 						fileMessage.putMiscData("file_path", filePath);
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
@@ -1155,6 +1142,7 @@ public class ChatFrame extends javax.swing.JFrame {
                     }
                 } catch (Exception ex) {
                     message(CMHelper.getInstance().getStr("open_file_fail"));
+                    CMHelper.getInstance().log("file drag failed: " + ex.getMessage());
                 }
             }
         });
@@ -1552,7 +1540,7 @@ public class ChatFrame extends javax.swing.JFrame {
         if(text.isEmpty())
             return;
 
-		final CMMessage message = new CMMessage(CMMessage.TYPE_TEXT, text);
+		final CMMessage message = new CMMessage(CMType.TEXT, text);
 		chatman.sendMessage(message);
 
 		clearInputText();
@@ -1573,12 +1561,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		//check peer theme
 		if(!message.isOurMessage()){
 			try{
-				if(!peerTheme.getFileName().equals(message.getSenderTheme())){
+				if(peerTheme == null || !peerTheme.getFileName().equals(message.getSenderTheme())){
 					peerTheme = CMTheme.getFromDefaultDir(message.getSenderTheme());
 					setPeerTheme(peerTheme);
 				}
 			}catch(Exception e){
-				CMMessage themeReqMsg = new CMMessage(CMMessage.TYPE_REQUEST_THEME_FILE, "");
+				CMMessage themeReqMsg = new CMMessage(CMType.REQUEST_THEME_FILE, "");
 				OutgoingMsgHandler handler = new OutgoingMsgHandler(themeReqMsg);
 				handler.handle();
 				return;
@@ -1672,7 +1660,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		textAreasTheme = currentTheme.getTextAreasTheme();
 		
 		//set text color
-		textColor = (textAreasTheme.equals("dark"))? TEXTCOLOR_LIGHT : TEXTCOLOR_DARK;
+		textColor = (textAreasTheme.equals("dark"))? CMColor.WHITE.hex : CMColor.BLACK.hex;
 		//input caret color according to text color
 		textAreaInput.setCaretColor(Color.getColor(textColor));
 

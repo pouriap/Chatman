@@ -22,6 +22,7 @@ import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.DisplayableMsgHandler;
+import com.pouria.chatman.enums.CMType;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -80,11 +81,11 @@ public class HttpServer implements ChatmanServer{
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			CMFormDataParser parser = new CMFormDataParser(formData);
 			CMMessage message = parser.parseAsCMMessage();
-			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.DIR_IN);
+			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.Direction.IN);
 			handler.handle(message);
 			
 			//don't set server for showgui messages
-			if(message.getType() == CMMessage.TYPE_SHOWGUI){
+			if(message.getType() == CMType.SHOWGUI){
 				return;
 			}
 			

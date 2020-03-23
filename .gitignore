@@ -8,4 +8,11 @@ dist/
 history.sqlite
 history.sqlite-journal
 config.conf
+
+#idea ignores
 out/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf

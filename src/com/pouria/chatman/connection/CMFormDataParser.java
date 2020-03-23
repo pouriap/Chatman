@@ -16,10 +16,11 @@
  */
 package com.pouria.chatman.connection;
 
+import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.CMMessage;
-import static com.pouria.chatman.CMMessage.TYPE_BADMESSAGE;
 import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.enums.CMType;
 import io.undertow.server.handlers.form.FormData;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +39,7 @@ public class CMFormDataParser {
 	
 	public CMMessage parseAsCMMessage(){
 		
-		int type;
+		CMType type;
 		String content;
 		String sender;
 		String senderTheme;
@@ -52,7 +53,7 @@ public class CMFormDataParser {
 				String message = messageValue.getValue();
 				//throws exception if JSON is curropt
 				JSONObject json = new JSONObject(message);
-				type = json.getInt("type");
+				type = CMType.valueOf(json.getString("type"));
 				content = json.getString("content");
 				sender = json.getString("sender");
 				//for backwards compatibility if the message doesn't have a sender_theme
@@ -73,7 +74,7 @@ public class CMFormDataParser {
 					String message = formMetadata.getValue();
 					//throws exception if JSON is curropt
 					JSONObject json = new JSONObject(message);
-					type = json.getInt("type");
+					type = CMType.valueOf(json.getString("type"));
 					content = json.getString("content");
 					sender = json.getString("sender");
 					//for backwards compatibility if the message doesn't have a sender_theme
@@ -96,19 +97,31 @@ public class CMFormDataParser {
 
 		}catch(JSONException e){
 			//create a 'bad message' instance as our message because the original one is lost
-			type = TYPE_BADMESSAGE;
-			content = "bad json syntax";
-			sender = "unknown";
-			senderTheme = "default";
+			type = CMType.BADMESSAGE;
+			sender = "bad json syntax";
+			content = "unknown content";
+			if(formData.contains("message")){
+				content = formData.getFirst("message").getValue();
+			}
+			else if(formData.contains("file")){
+				content = formData.getFirst("metadata").getValue();
+			}
+			senderTheme = CMConfig.DEFAULT_THEME;
 			time = CMHelper.getInstance().getTime();
 			
 		}catch(Exception e){
 			//create a 'bad message' instance as our message because the original one is lost
-			type = TYPE_BADMESSAGE;
-			content = "bad message";
-			sender = "unknown";
-			senderTheme = "default";
-			time = CMHelper.getInstance().getTime();	
+			type = CMType.BADMESSAGE;
+			sender = "bad message";
+			content = "unknown content";
+			if(formData.contains("message")){
+				content = formData.getFirst("message").getValue();
+			}
+			else if(formData.contains("file")){
+				content = formData.getFirst("metadata").getValue();
+			}
+			senderTheme = CMConfig.DEFAULT_THEME;
+			time = CMHelper.getInstance().getTime();
 		}
 		
 		CMMessage message = new CMMessage(type, content, sender, senderTheme, time);

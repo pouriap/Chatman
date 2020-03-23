@@ -26,15 +26,15 @@ import com.pouria.chatman.gui.ChatFrame;
  */
 public class DisplayableMsgHandler {
 	
-	private final int direction;
+	private final CMMessage.Direction direction;
 	
-	public DisplayableMsgHandler(int direction) {
+	public DisplayableMsgHandler(CMMessage.Direction direction) {
 		this.direction = direction;
 	}
 	
 	public void handle(CMMessage message){
 		
-		if(direction == CMMessage.DIR_IN){
+		if(direction == CMMessage.Direction.IN){
 			IncomingMsgHandler handler = new IncomingMsgHandler(message);
 			handler.handle();
 		}

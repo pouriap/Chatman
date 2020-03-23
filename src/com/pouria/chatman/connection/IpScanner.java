@@ -86,7 +86,7 @@ public class IpScanner {
 					Thread.sleep(100);
 				}catch(InterruptedException e){
 					String error = CMHelper.getInstance().getStr("thread_sleep_fail");
-						(new CmdInvokeLater(new CmdFatalErrorExit(error, e))).execute();
+					(new CmdInvokeLater(new CmdFatalErrorExit(error, e))).execute();
 				}
 			}
 			//forced shutdown in for when loop stops because ip was found

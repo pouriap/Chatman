@@ -17,11 +17,14 @@
 package com.pouria.chatman;
 
 import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.enums.CMColor;
+import com.pouria.chatman.enums.CMType;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import org.json.JSONObject;
 
 /**
  *
@@ -29,38 +32,26 @@ import org.json.JSONObject;
  */
 public class CMMessage {
 
-	private final int type;
+	private final CMType type;
 	private final String content;
 	private final String sender;
 	private final String senderTheme;
 	private final long time;
 	private final HashMap<String, String> miscData  = new HashMap<>();
-	private int status = STATUS_NOTSENT;
-	private int direction = DIR_UNKNOWN;
+	private Status status = Status.NOTSENT;
+	private Direction direction = Direction.UNKNOWN;
 	private boolean isSaved = false;
-	
-	public static final String COLOR_FAILED = "#f73900";
 
-	public static final int TYPE_BADMESSAGE = 0;
-	public static final int TYPE_TEXT = 1;
-	public static final int TYPE_SHUTDOWN = 2;
-	public static final int TYPE_ABORT_SHUTDOWN = 3;
-	public static final int TYPE_FILE = 4;
-	public static final int TYPE_SHOWGUI = 5;
-	public static final int TYPE_PING = 6;
-	public static final int TYPE_PEER_THEME_FILE = 7;
-	public static final int TYPE_REQUEST_THEME_FILE = 8;
-	
-	public static final int DIR_UNKNOWN = -1;
-	public static final int DIR_IN = 0;
-	public static final int DIR_OUT = 1;
-	
-	public static final int STATUS_NOTSENT = 0;
-	public static final int STATUS_SENT = 1;
-	public static final int STATUS_SENDFAIL = 2;
-	
+	public enum Status{
+		NOTSENT, SENT, SENDFAIL;
+	}
+
+	public enum Direction{
+		UNKNOWN, IN, OUT;
+	}
+
 	//this is for outgoing messsages
-	public CMMessage(int type, String content){
+	public CMMessage(CMType type, String content){
 		this.type = type;
 		this.content = content;
 		this.sender = ChatFrame.getInstance().getUserName();
@@ -68,7 +59,7 @@ public class CMMessage {
 		this.time = CMHelper.getInstance().getTime();
 	}
 
-	public CMMessage(int type, String content, String sender, String senderTheme, long time){
+	public CMMessage(CMType type, String content, String sender, String senderTheme, long time){
 		this.type = type;
 		this.content = content;
 		this.sender = sender;
@@ -86,7 +77,7 @@ public class CMMessage {
 		return json.toString();
 	}
 	
-	public int getType(){
+	public CMType getType(){
 		return this.type;
 	}
 	
@@ -102,27 +93,27 @@ public class CMMessage {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         String timeTxt = dateFormat.format(d);
 		
-		if(this.type == TYPE_TEXT){
+		if(this.type == CMType.TEXT){
 			//parse web links 
 			t = t.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'><u>$1</u></a> ");
 			//parse emoticons
 			String url = getClass().getResource("/resources/emoticons_large/").toString();
 			t = t.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");
 		}
-		else if(this.type == TYPE_FILE){
+		else if(this.type == CMType.FILE){
 			File file = new File(this.getMiscData("file_path"));
 			String path = file.getAbsolutePath();
 			String name = file.getName();
 			//add file link
 			t = "<a style='color:#dee3e9;font-weight:bold;' href='file://"+path+"'><u>"+name+"</u></a>";
 		}
-		else if(this.type == TYPE_SHUTDOWN){
+		else if(this.type == CMType.SHUTDOWN){
 			t = "[SHUTDOWN COMMAND]";
 		}
-		else if(this.type == TYPE_BADMESSAGE){
-			t = "BAD MESSAGE: " + content;
+		else if(this.type == CMType.BADMESSAGE){
+			t = content;
 		}
-		else if(this.type == TYPE_ABORT_SHUTDOWN){
+		else if(this.type == CMType.ABORT_SHUTDOWN){
 			t = "[ABORT SHUTDOWN COMMAND]";
 		}
 		else{
@@ -132,9 +123,9 @@ public class CMMessage {
 
 		String textAlign = "left";
 		String you = "You";
-		String color = (this.status==STATUS_SENDFAIL)? COLOR_FAILED : ChatFrame.getInstance().getTextColor();
+		String color = (this.status == Status.SENDFAIL)? CMColor.RED.hex : ChatFrame.getInstance().getTextColor();
 		String senderName = (isOurMessage())? you : sender;
-		if(this.type == TYPE_FILE){
+		if(this.type == CMType.FILE){
 			senderName = (isOurMessage())? "File Sent: " : "File Received: ";
 		}
 		
@@ -145,23 +136,23 @@ public class CMMessage {
 		
 	}
 
-	public void setDirection(int dir){
+	public void setDirection(Direction dir){
 		this.direction = dir;
 	}
 	
 	public boolean isOurMessage(){
-		return this.direction == DIR_OUT;
+		return this.direction == direction.OUT;
 	}
 	
 	public long getTime(){
 		return this.time;
 	}
 	
-	public int getStatus(){
+	public Status getStatus(){
 		return this.status;
 	}
 	
-	public void setStatus(int status){
+	public void setStatus(Status status){
 		this.status = status;
 	}
 	

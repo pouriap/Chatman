@@ -111,7 +111,8 @@ public class HistoryTablePagination extends AbstractPagination{
             }//while
             
         }catch ( Exception e ){
-            gui.message(CMHelper.getInstance().getStr("history_fail") + e.getMessage() + "1");
+            gui.message(CMHelper.getInstance().getStr("history_fail"));
+            CMHelper.getInstance().log("could not load history: " + e.getMessage());
         }
         
         return resultCount;

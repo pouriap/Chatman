@@ -19,6 +19,9 @@ package com.pouria.chatman;
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.ResourceBundleWrapper;
+import com.pouria.chatman.enums.CMOS;
+
+import javax.swing.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -46,9 +49,7 @@ public class CMHelper {
 	
 	private ResourceBundleWrapper l;
 	private Logger logger;
-	
-	public static final int OS_WIN = 0, OS_LIN = 1;
-	
+
 	private CMHelper() {
 	}
 	
@@ -74,7 +75,7 @@ public class CMHelper {
 	}
 	
 	public void localShutdown() throws IOException{
-		if(getOS() == OS_WIN){
+		if(getOS() == CMOS.WINDOWS){
 			Runtime.getRuntime().exec("shutdown /s /f /t 100");
 		}
 		else{
@@ -83,7 +84,7 @@ public class CMHelper {
 	}
 	
 	public void abortLocalShutdown() throws IOException{
-		if(getOS() == OS_WIN){
+		if(getOS() == CMOS.WINDOWS){
 			Runtime.getRuntime().exec("shutdown /a");
 		}
 		else{
@@ -98,14 +99,14 @@ public class CMHelper {
 		//Runtime.getRuntime().exec("wolcmd 9C5C8E719827 192.168.2.21 255.255.255.0");
 	}
 	
-	public int getOS(){
+	public CMOS getOS(){
 		String os = System.getProperty("os.name");
 		os = os.toLowerCase();
 		if(os.contains("windows")){
-			return OS_WIN;
+			return CMOS.WINDOWS;
 		}
 		else{
-			return OS_LIN;
+			return CMOS.LINUX;
 		}
 	}
 	
@@ -228,5 +229,9 @@ public class CMHelper {
 		}
 		return out.toByteArray();
 	}
-	
+
+	public String getCMDownloadsDir(){
+		return (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
+	}
+
 }

@@ -39,10 +39,10 @@ public class CMSendQueue {
 			while(!queue.isEmpty()){
 				//avvalin message ra befrest
 				CMMessage firstMessage = queue.peek();
-				DisplayableMsgHandler sender = new DisplayableMsgHandler(CMMessage.DIR_OUT);
+				DisplayableMsgHandler sender = new DisplayableMsgHandler(CMMessage.Direction.OUT);
 				sender.handle(firstMessage);
 				//agar ferestade shod az saf dar biar va boro baadi
-				if(firstMessage.getStatus() == CMMessage.STATUS_SENT){
+				if(firstMessage.getStatus() == CMMessage.Status.SENT){
 					queue.poll();
 					continue;
 				}
@@ -54,8 +54,8 @@ public class CMSendQueue {
 						//add them to gui because meessages are added to gui int messageHandler whicih we don't use here
 						for(CMMessage message : queue){
 							//add them to conversation without sending
-							message.setStatus(CMMessage.STATUS_SENDFAIL);
-							message.setDirection(CMMessage.DIR_OUT);
+							message.setStatus(CMMessage.Status.SENDFAIL);
+							message.setDirection(CMMessage.Direction.OUT);
 							ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
 							(new CmdInvokeLater(new CmdShowMessage(message))).execute();
 						}

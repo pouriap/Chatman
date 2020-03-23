@@ -18,6 +18,8 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.enums.CMType;
+
 import java.io.File;
 
 /**
@@ -36,15 +38,15 @@ public class OutgoingMsgHandler {
 	public void handle(){
 		
 		boolean success;
-		int messageType = message.getType();
+		CMType messageType = message.getType();
 		
 		switch(messageType){
 			
-			case CMMessage.TYPE_FILE:
+			case FILE:
 				success = sendFileMessage();
 				break;
 				
-			case CMMessage.TYPE_SHOWGUI:
+			case SHOWGUI:
 				success = sendShowGUIMessage();
 				break;
 				
@@ -54,11 +56,11 @@ public class OutgoingMsgHandler {
 				
 		}
 
-		message.setDirection(CMMessage.DIR_OUT);
-		int status = (success)? CMMessage.STATUS_SENT : CMMessage.STATUS_SENDFAIL;
+		message.setDirection(CMMessage.Direction.OUT);
+		CMMessage.Status status = (success)? CMMessage.Status.SENT : CMMessage.Status.SENDFAIL;
 		message.setStatus(status);
 		
-		if(message.getType() == CMMessage.TYPE_PING){
+		if(message.getType() == CMType.PING){
 			if(success){
 				CMHelper.getInstance().log("ping sent successfully");
 			}
@@ -86,5 +88,4 @@ public class OutgoingMsgHandler {
 		return client.sendText(text);
 	}
 
-	
 }

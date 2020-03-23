@@ -20,11 +20,9 @@ import com.pouria.chatman.classes.ChatmanClient;
 import com.pouria.chatman.classes.ChatmanServer;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Timer;
-import java.util.TimerTask;
+import com.pouria.chatman.enums.CMType;
+
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -119,7 +117,7 @@ public class Chatman {
 			//connect for the first time and send a first ping letting them know we're up
 			Runnable r = () -> {
 				client.connect();
-				CMMessage firstPing = new CMMessage(CMMessage.TYPE_PING, "");
+				CMMessage firstPing = new CMMessage(CMType.PING, "");
 				OutgoingMsgHandler handler = new OutgoingMsgHandler(firstPing);
 				handler.handle();
 			};
@@ -140,10 +138,10 @@ public class Chatman {
 			TimerTask heartBeatTask = new TimerTask() {
 				@Override
 				public void run() {
-					CMMessage pingMessage = new CMMessage(CMMessage.TYPE_PING, "");
+					CMMessage pingMessage = new CMMessage(CMType.PING, "");
 					OutgoingMsgHandler handler = new OutgoingMsgHandler(pingMessage);
 					handler.handle();
-					boolean connected = (pingMessage.getStatus() == CMMessage.STATUS_SENT);
+					boolean connected = (pingMessage.getStatus() == CMMessage.Status.SENT);
 					if(!connected){
 						client.connect();
 					}

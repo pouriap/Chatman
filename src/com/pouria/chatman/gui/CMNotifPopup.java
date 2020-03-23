@@ -19,6 +19,8 @@ package com.pouria.chatman.gui;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.pouria.chatman.classes.CmdShowError;
+import com.pouria.chatman.enums.CMOS;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -38,7 +40,7 @@ import javax.swing.JLabel;
  */
 public class CMNotifPopup{
 	
-	private final int os;
+	private final CMOS os;
 	private final JDialog dialog;
 	
 	public CMNotifPopup(CMTheme theme) {
@@ -100,7 +102,7 @@ public class CMNotifPopup{
 			Clip clip;
 			
 			//linux sucks so...
-			if(os == CMHelper.OS_WIN){
+			if(os == CMOS.WINDOWS){
 				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification-bat.wav"));
 				clip = AudioSystem.getClip();
 			}
@@ -117,7 +119,7 @@ public class CMNotifPopup{
 
         }catch(Exception e){
 			CMHelper.getInstance().log("playing notification sound failed: " + e.getMessage());
-			String error = CMHelper.getInstance().getStr("audio_play_fail") + e.getMessage();
+			String error = CMHelper.getInstance().getStr("audio_play_fail");
             (new CmdInvokeLater(new CmdShowError(error))).execute();
         }
     }

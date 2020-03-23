@@ -1,29 +1,22 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="Chatman:jar">
+  <artifact name="Chatman:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/Chatman_jar</output-path>
-    <root id="archive" name="Chatman.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/out/META-INF/MANIFEST.MF" />
+    <root id="root">
+      <element id="archive" name="Chatman.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/out/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="Chatman" />
       </element>
-      <element id="module-output" name="Chatman" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/SQLite-JDBC/sqlite-jdbc-3.27.2.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/JSON/json-20190722.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/JSON/json-20190722-javadoc.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/JSON/json-20190722-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../PoConfig/dist/PoConfig.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../JalaliDate/dist/JalaliDate.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/jsoup html parser/jsoup-1.13.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/undertow web server/undertow-core-2.0.29.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/undertow web server/dependencies/jboss-logging-3.4.0.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/undertow web server/dependencies/xnio-api-3.3.8.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/undertow web server/dependencies/xnio-nio-3.3.8.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/apache httpclient5/dependencies/slf4j-api-1.7.25.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/apache httpclient5/httpcore5-5.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/apache httpclient5/httpclient5-5.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/apache httpclient5/httpcore5-5.0-javadoc.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/apache httpclient5/httpcore5-5.0-sources.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/apache httpclient5/httpclient5-5.0-javadoc.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="D:/Program Files/Java Libraries/apache httpclient5/httpclient5-5.0-sources.jar" path-in-jar="/" />
+      <element id="directory" name="lib">
+        <element id="library" level="application" name="apache httpclient5" />
+        <element id="library" level="application" name="JalaliDate" />
+        <element id="library" level="application" name="JSON" />
+        <element id="library" level="application" name="jsoup-1.13.1-sources" />
+        <element id="library" level="application" name="PoConfig" />
+        <element id="library" level="application" name="sqlite-jdbc-3.27.2.1" />
+        <element id="library" level="application" name="undertow-core-2.0.29.Final-javadoc" />
+      </element>
     </root>
   </artifact>
 </component>
