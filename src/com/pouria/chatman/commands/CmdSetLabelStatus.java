@@ -29,7 +29,7 @@ public class CmdSetLabelStatus implements Command{
     public CmdSetLabelStatus(String text){
         this.gui = ChatFrame.getInstance();
         this.text = text;
-    }//todo: one loop gif is not animated
+    }
     
     @Override
     public void execute(){

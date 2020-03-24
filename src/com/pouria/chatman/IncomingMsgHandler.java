@@ -23,6 +23,7 @@ import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.CMTheme;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.*;
+import com.pouria.chatman.messages.BadMessage;
 
 import java.io.File;
 import java.io.IOException;

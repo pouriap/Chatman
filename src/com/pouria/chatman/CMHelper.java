@@ -61,7 +61,7 @@ public class CMHelper {
 	private static class HelperHolder {
 		private static final CMHelper INSTANCE = new CMHelper();
 	}
-	//todo: ping messages are received from others and we get 'bad message' even when server-ip is set
+
 	public String getStr(String key){
 		try{
 			return bundle.getString(key);

@@ -34,9 +34,12 @@ public class CMNotifPopup{
 	
 	private final CMOS os;
 	private final JDialog dialog;
+	private final CMTheme theme;
+	private final JLabel label;
 	
 	public CMNotifPopup(CMTheme theme) {
-			
+
+		this.theme = theme;
 		ImageIcon popupImage = theme.getPopupImage();
 		int widht = popupImage.getIconWidth();
 		int height = popupImage.getIconHeight();
@@ -58,7 +61,7 @@ public class CMNotifPopup{
                 screenHeight - dialog.getHeight() - bottomOffset
         );
 		
-		JLabel label = new JLabel();
+		label = new JLabel();
         label.setIcon(popupImage);
         label.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         label.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -72,13 +75,13 @@ public class CMNotifPopup{
 		
 		this.os = CMHelper.getInstance().getOS();
 	}
-	
-	//@Override
+
 	public void show(){
+		//to reload one-loop gif animations
+		label.setIcon(theme.getPopupImage());
 		dialog.setVisible(true);
 	}
 	
-	//@Override
 	public void hide(){
 		dialog.dispose();
 	}

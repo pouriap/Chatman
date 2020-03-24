@@ -72,13 +72,23 @@ public class HttpServer implements ChatmanServer{
 			
 			String localIp = exchange.getDestinationAddress().getAddress().getHostAddress();
 			String peerIp = exchange.getSourceAddress().getAddress().getHostAddress();
-			//we don't want to receive our own messages unless it's a showGUI
-			if(peerIp.equals(localIp) && !peerIp.equals("127.0.0.1")){
-				CMHelper.getInstance().log("rejecting self-to-self message with IP: " + peerIp);
-				exchange.setStatusCode(400);
-				return;
+
+			//some guards
+			if(!"127.0.0.1".equals(peerIp)){
+				//we don't want to receive our own messages unless it's a showGUI
+				if(peerIp.equals(localIp)){
+					CMHelper.getInstance().log("rejecting self-to-self message with IP: " + peerIp);
+					exchange.setStatusCode(400);
+					return;
+				}
+				//don't receive message from anyone else when server is set
+				if(CMConfig.getInstance().isSet("server-ip")){
+					String configServerIP = CMConfig.getInstance().get("server-ip", "");
+					if(!peerIp.equals(configServerIP))
+					return;
+				}
 			}
-			
+
 			//form data is stored here
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			CMFormDataParser parser = new CMFormDataParser(formData);
