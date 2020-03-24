@@ -14,25 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman.classes;
+package com.pouria.chatman.commands;
 
-import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.CMHelper;
+
+import javax.swing.*;
 
 /**
  *
  * @author pouriap
  */
-public class CmdChangeStatusIcon implements Command{
-
-	final String iconName;
-	
-	public CmdChangeStatusIcon(String iconName){
-		this.iconName = iconName;
-	}
-	
-	@Override
-	public void execute() {
-		ChatFrame.getInstance().changeStatusIcon(iconName);
-	}
-	
+public class CmdShowError implements Command{
+    final String message;
+    
+    public CmdShowError(String message){
+        this.message = message;
+    }
+    
+    @Override
+    public void execute(){
+        JOptionPane.showMessageDialog(null, message, CMHelper.getInstance().getStr("error"), JOptionPane.ERROR_MESSAGE);
+    }
 }

@@ -17,14 +17,11 @@
 package com.pouria.chatman.connection;
 
 import com.pouria.chatman.classes.FileUploadCallback;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
+
+import java.io.*;
 
 /**
  *

@@ -16,9 +16,12 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CmdShowMessage;
-import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdShowMessage;
 import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.messages.CMMessage;
+import com.pouria.chatman.messages.DisplayableMessage;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -26,8 +29,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author pouriap
  */
 public class CMSendQueue {
-	
-	private final ConcurrentLinkedQueue<CMMessage> queue = new ConcurrentLinkedQueue<CMMessage>();
+
+	//we only send diaplayable messages with sendQueue
+	private final ConcurrentLinkedQueue<DisplayableMessage> queue = new ConcurrentLinkedQueue<>();
 	private Thread processThread = new Thread();
 	private final Runnable r;
 	private final int CONNECT_COOLDOWN = 1000 * 30;	//30 sec
@@ -38,9 +42,11 @@ public class CMSendQueue {
 			//ta zamani ke chizi dar queue has edame bede
 			while(!queue.isEmpty()){
 				//avvalin message ra befrest
-				CMMessage firstMessage = queue.peek();
-				DisplayableMsgHandler sender = new DisplayableMsgHandler(CMMessage.Direction.OUT);
-				sender.handle(firstMessage);
+				DisplayableMessage firstMessage = queue.peek();
+				OutgoingMsgHandler sender = new OutgoingMsgHandler(firstMessage);
+				sender.handle();
+				DisplayableMsgHandler displayer = new DisplayableMsgHandler(firstMessage);
+				displayer.handle();
 				//agar ferestade shod az saf dar biar va boro baadi
 				if(firstMessage.getStatus() == CMMessage.Status.SENT){
 					queue.poll();
@@ -52,11 +58,10 @@ public class CMSendQueue {
 					//agar connect nashod hamaro 'unsent' kon va processing ro motevaghef kon chon faide nadare
 					if(connectFail){
 						//add them to gui because meessages are added to gui int messageHandler whicih we don't use here
-						for(CMMessage message : queue){
+						for(DisplayableMessage message : queue){
 							//add them to conversation without sending
 							message.setStatus(CMMessage.Status.SENDFAIL);
-							message.setDirection(CMMessage.Direction.OUT);
-							ChatFrame.getInstance().getChatmanInstance().addToAllMessages(message);
+							ChatFrame.getInstance().getChatmanInstance().addToAllDisplayableMessages(message);
 							(new CmdInvokeLater(new CmdShowMessage(message))).execute();
 						}
 						return;
@@ -82,15 +87,15 @@ public class CMSendQueue {
 		return false;
 	}
 	
-	public void add(CMMessage object){
+	public void add(DisplayableMessage object){
 		queue.add(object);
 	}
 	
-	public CMMessage peek(){
+	public DisplayableMessage peek(){
 		return queue.peek();
 	}
 	
-	public CMMessage poll(){
+	public DisplayableMessage poll(){
 		return queue.poll();
 	}
 	

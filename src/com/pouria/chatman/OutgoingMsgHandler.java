@@ -16,9 +16,10 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.ChatmanClient;
-import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.connection.ChatmanClient;
 import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.messages.*;
 
 import java.io.File;
 
@@ -36,7 +37,7 @@ public class OutgoingMsgHandler {
 	}
 	
 	public void handle(){
-		
+
 		boolean success;
 		CMType messageType = message.getType();
 		
@@ -56,7 +57,6 @@ public class OutgoingMsgHandler {
 				
 		}
 
-		message.setDirection(CMMessage.Direction.OUT);
 		CMMessage.Status status = (success)? CMMessage.Status.SENT : CMMessage.Status.SENDFAIL;
 		message.setStatus(status);
 		
@@ -72,20 +72,58 @@ public class OutgoingMsgHandler {
 	}
 
 	private boolean sendTextMessage(){
-		String text = message.getAsJsonString();
+		String text = message.getAsJSONString();
 		return client.sendText(text);
 	}
 	
 	private boolean sendFileMessage(){
-		File file = new File(message.getMiscData("file_path"));
-		String metadata = message.getAsJsonString();
+		File file = ((FileMessage)message).getFile();
+		String metadata = message.getAsJSONString();
 		return client.sendFile(file, metadata);
 	}
 	
 	private boolean sendShowGUIMessage(){
 		client.setServer("127.0.0.1");
-		String text = message.getAsJsonString();
+		String text = message.getAsJSONString();
 		return client.sendText(text);
+	}
+
+	public static TextMessage buildTextMessage(String content){
+		CMMessage.Direction direction = CMMessage.Direction.OUT;
+		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
+		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+		long time = System.currentTimeMillis();
+		return new TextMessage(direction, sender, content, senderTheme, time);
+	}
+
+	public static FileMessage buildFileMessage(File file){
+		CMMessage.Direction direction = CMMessage.Direction.OUT;
+		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
+		String fileName = file.getName();
+		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+		long time = System.currentTimeMillis();
+		return new FileMessage(direction, sender, fileName, file, senderTheme, time);
+	}
+
+	public static PingMessage buildPingMessage(){
+		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+		return new PingMessage(senderTheme);
+	}
+
+	public static ShutdownMessage buildShutDownMessage(){
+		CMMessage.Direction direction = CMMessage.Direction.OUT;
+		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
+		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+		long time = System.currentTimeMillis();
+		return new ShutdownMessage(direction, sender, senderTheme, time);
+	}
+
+	public static AbortShutdownMessage buildAbortShutdownMessage(){
+		CMMessage.Direction direction = CMMessage.Direction.OUT;
+		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
+		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+		long time = System.currentTimeMillis();
+		return new AbortShutdownMessage(direction, sender, senderTheme, time);
 	}
 
 }

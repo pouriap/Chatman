@@ -16,12 +16,13 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CmdConfirmDialog;
-import com.pouria.chatman.classes.CmdInvokeLater;
-import com.pouria.chatman.classes.CmdShowError;
+import com.pouria.chatman.commands.CmdConfirmDialog;
+import com.pouria.chatman.commands.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdShowError;
+import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.CMTheme;
 import com.pouria.chatman.gui.ChatFrame;
-import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.messages.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +37,7 @@ import java.util.Base64;
  */
 public class IncomingMsgHandler {
 	
-	private final CMMessage message;
+	private CMMessage message;
 	
 	public IncomingMsgHandler(CMMessage message){
 		this.message = message;
@@ -87,13 +88,12 @@ public class IncomingMsgHandler {
 			default:
 				break;
 		}
-		
-		message.setDirection(CMMessage.Direction.IN);
-		
+
 	}
 	
 	private void processBadMessage(){
-		CMHelper.getInstance().log("bad message received: " + message.getContent());
+		String content = ((BadMessage)message).getContent();
+		CMHelper.getInstance().log("bad message received: " + content);
 	}
 	
 	private void processTextMessage(){
@@ -102,12 +102,16 @@ public class IncomingMsgHandler {
 	private void processFileMessage(){
 		
 		CMHelper.getInstance().log("file message received");
-		
-		String fileName = message.getContent();
-		String tmpFilePath = message.getMiscData("temp_file_path");
+
+		CMMessage.Direction direction = ((FileMessage)message).getDirection();
+		String sender = ((FileMessage)message).getSender();
+		String senderTheme = ((FileMessage)message).getSenderTheme();
+		long time = ((FileMessage)message).getTime();
+		String fileName = ((FileMessage)message).getFileName();
+		File tempFile = ((FileMessage)message).getFile();
+
 		String dlDirectory = CMHelper.getInstance().getCMDownloadsDir();
-		File srcFile = new File(tmpFilePath);
-		File dstFile = new File(dlDirectory+fileName);
+		File savedFile = new File(dlDirectory+fileName);
 		
 		//copy temp file to chatman dl directory
 		try{
@@ -119,16 +123,16 @@ public class IncomingMsgHandler {
 				CMHelper.getInstance().log("download dir created successfully");
 			}
 			
-			CMHelper.getInstance().log("copying received file from " + srcFile.getAbsolutePath() + " to " + dstFile.getAbsolutePath());
-			Files.copy(srcFile.toPath(), dstFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+			CMHelper.getInstance().log("copying received file from " + tempFile.getAbsolutePath() + " to " + savedFile.getAbsolutePath());
+			Files.copy(tempFile.toPath(), savedFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			CMHelper.getInstance().log("file copied");
 			
-			message.putMiscData("file_path", dstFile.getAbsolutePath());
+			message = new FileMessage(direction, sender, fileName, savedFile, senderTheme, time);
 			
 		}catch(IOException e){
 			CMHelper.getInstance().log("copying file from tmp folder to download direcoty failed");
 			String msg = CMHelper.getInstance().getStr("file-receive-failed");
-			message.putMiscData("file_path", "ERROR: " + msg);
+			message = new FileMessage(direction, "Error", "File receive failed", new File(""), senderTheme, time);
 		}
 		
 	}
@@ -152,8 +156,8 @@ public class IncomingMsgHandler {
 					ChatFrame.getInstance().message(CMHelper.getInstance().getStr("shutdown-abort-success"));	// we don't need invokelater because we're already in invokelater
 					//tell the other computer we have aborted
 					String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-					CMMessage message1 = new CMMessage(CMType.TEXT, info);
-					ChatFrame.getInstance().getChatmanInstance().sendMessage(message1);
+					TextMessage msg = OutgoingMsgHandler.buildTextMessage(info);
+					ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 				}catch(IOException e){
 					CMHelper.getInstance().log("failed to abort local shutdown");
 					//tell the user abort failed. we don't tell the other computer because it's not necessary
@@ -167,7 +171,7 @@ public class IncomingMsgHandler {
 			(new CmdInvokeLater(new CmdShowError(CMHelper.getInstance().getStr("shutdown-fail")))).execute();
 			//tell the other computer our shutdown has failed
 			String error = "[ERROR: SHUTDOWN FAILED]";
-			CMMessage msg = new CMMessage(CMType.TEXT, error);
+			TextMessage msg = OutgoingMsgHandler.buildTextMessage(error);
 			ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		}
 
@@ -175,18 +179,18 @@ public class IncomingMsgHandler {
 	
 	private void processAbortShutdown(){
 		
-		String msgText;
+		String info;
 		CMHelper.getInstance().log("remote-abort-shutdown received");
 		try{
 			CMHelper.getInstance().abortLocalShutdown();
 			CMHelper.getInstance().log("shutdown aborted successfully");
-			msgText = "[SHUTDOWN ABORTED SUCCESSFULLY]";
+			info = "[SHUTDOWN ABORTED SUCCESSFULLY]";
 		}catch(IOException e){
 			CMHelper.getInstance().log("abort failed");
-			msgText = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
+			info = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
 		}
 		//tell the other computer if abort was successfull
-		CMMessage msg = new CMMessage(CMType.TEXT, msgText);
+		TextMessage msg = OutgoingMsgHandler.buildTextMessage(info);
 		ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		
 	}
@@ -203,13 +207,13 @@ public class IncomingMsgHandler {
 		
 		try{
 			
-			String base64ThemeFile = message.getContent();
-			String themeName = message.getSenderTheme();
+			String themeDataBase64 = ((ThemeFileMessage)message).getThemeDataBase64();
+			String themeName = ((ThemeFileMessage)message).getThemeName();
 			File themeFileToSave = new File(
 				CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR) + "\\" + themeName
 			);
 
-			byte[] themeFileData = Base64.getDecoder().decode(base64ThemeFile);
+			byte[] themeFileData = Base64.getDecoder().decode(themeDataBase64);
 			CMHelper.getInstance().createFile(themeFileToSave, themeFileData);
 
 			CMTheme peerTheme = new CMTheme(themeFileToSave.getAbsolutePath());
@@ -224,8 +228,9 @@ public class IncomingMsgHandler {
 	
 	private void processRequestThemeFile(){
 		String themeData = ChatFrame.getInstance().getCurrentTheme().getDataBase64();
-		CMMessage themeMessage = new CMMessage(CMType.THEME_FILE, themeData);
-		OutgoingMsgHandler handler = new OutgoingMsgHandler(themeMessage);
+		String themeName =ChatFrame.getInstance().getCurrentTheme().getFileName();
+		ThemeFileMessage message = new ThemeFileMessage(themeName, themeData);
+		OutgoingMsgHandler handler = new OutgoingMsgHandler(message);
 		handler.handle();
 	}
 	

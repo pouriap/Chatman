@@ -16,14 +16,15 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.CMMessage;
-import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.messages.*;
 import io.undertow.server.handlers.form.FormData;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.util.function.Consumer;
 
 /**
  *
@@ -39,98 +40,136 @@ public class CMFormDataParser {
 	
 	public CMMessage parseAsCMMessage(){
 		
-		CMType type;
-		String content;
-		String sender;
-		String senderTheme;
-		long time;
-		String tmpFilePath = "";
+		CMMessage message;
 		
 		try{
 			//if normal message
 			if(formData.contains("message")){
-				FormData.FormValue messageValue = formData.get("message").getFirst();
-				String message = messageValue.getValue();
-				//throws exception if JSON is curropt
-				JSONObject json = new JSONObject(message);
-				type = CMType.valueOf(json.getString("type"));
-				content = json.getString("content");
-				sender = json.getString("sender");
-				//for backwards compatibility if the message doesn't have a sender_theme
-				//we set our own theme as sender theme 
-				try{
-					senderTheme = json.getString("sender_theme");
-				}catch(Exception e){
-					senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
+
+				FormData.FormValue messageValue = formData.getFirst("message");
+
+				String jsonString = messageValue.getValue();
+				JSONObject json = new JSONObject(jsonString);
+				CMType type = CMType.valueOf(json.getString("type"));
+
+				switch(type){
+					case TEXT:
+						message = getTextMessage(json);
+						break;
+					case SHUTDOWN:
+						message = getShutdownMessage(json);
+						break;
+					case ABORT_SHUTDOWN:
+						message = getAbortShutdownMessage(json);
+						break;
+					case PING:
+						message = getPingMessage(json);
+						break;
+					case SHOWGUI:
+						message = getShowguiMessage(json);
+						break;
+					case REQUEST_THEME_FILE:
+						message = getRequestThemeMessage(json);
+						break;
+					case THEME_FILE:
+						message = getThemeFileMessage(json);
+						break;
+					default: 
+						message = new BadMessage("unknown message type");
+						break;
 				}
-				time = json.getLong("time");
+
 			}
 			//if file message
 			else if(formData.contains("file")){
-				FormData.FormValue formFile = formData.get("file").getFirst();
-				FormData.FormValue formMetadata = formData.get("metadata").getFirst();
+				FormData.FormValue formFile = formData.getFirst("file");
+				FormData.FormValue formMetadata = formData.getFirst("metadata");
 				if(formFile.isFileItem()){
-					tmpFilePath = formFile.getFileItem().getFile().toAbsolutePath().toString();
-					String message = formMetadata.getValue();
-					//throws exception if JSON is curropt
-					JSONObject json = new JSONObject(message);
-					type = CMType.valueOf(json.getString("type"));
-					content = json.getString("content");
-					sender = json.getString("sender");
-					//for backwards compatibility if the message doesn't have a sender_theme
-					//we set our own theme as sender theme 
-					try{
-						senderTheme = json.getString("sender_theme");
-					}catch(Exception e){
-						senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
-					}
-					time = json.getLong("time");
+					File tempFile = formFile.getFileItem().getFile().toFile();
+					String jsonString = formMetadata.getValue();
+					JSONObject json = new JSONObject(jsonString);
+					String sender = json.getString("sender");
+					String fileName = json.getString("file_name");
+					String senderTheme = json.getString("sender_theme");
+					long time = json.getLong("time");
+					message = new FileMessage(CMMessage.Direction.IN, sender, fileName, tempFile, senderTheme, time);
 				}
 				else{
-					throw new Exception("bad file message");
+					throw new Exception("bad file item");
 				}
 			}
 			//if bad message
 			else{
-				throw new Exception();
+				throw new Exception("bad POST parameters");
 			}
-
-		}catch(JSONException e){
-			//create a 'bad message' instance as our message because the original one is lost
-			type = CMType.BADMESSAGE;
-			sender = "bad json syntax";
-			content = "unknown content";
-			if(formData.contains("message")){
-				content = formData.getFirst("message").getValue();
-			}
-			else if(formData.contains("file")){
-				content = formData.getFirst("metadata").getValue();
-			}
-			senderTheme = CMConfig.DEFAULT_THEME;
-			time = CMHelper.getInstance().getTime();
-			
 		}catch(Exception e){
-			//create a 'bad message' instance as our message because the original one is lost
-			type = CMType.BADMESSAGE;
-			sender = "bad message";
-			content = "unknown content";
-			if(formData.contains("message")){
-				content = formData.getFirst("message").getValue();
-			}
-			else if(formData.contains("file")){
-				content = formData.getFirst("metadata").getValue();
-			}
-			senderTheme = CMConfig.DEFAULT_THEME;
-			time = CMHelper.getInstance().getTime();
+			
+			StringBuilder b = new StringBuilder();
+			formData.iterator().forEachRemaining(new Consumer<String>() {
+				@Override
+				public void accept(String t) {
+					//don't get file data
+					if(formData.getFirst(t).isFileItem()){
+						return;
+					}
+					b.append(t);
+					b.append(" : ");
+					b.append(formData.getFirst(t).getValue());
+				}
+			});
+			String rawData = b.toString();
+			
+			CMHelper.getInstance().log("bad message recived:\n");
+			CMHelper.getInstance().log("exception message: " + e.getMessage() + "\nraw data: " + rawData);
+			
+			message = new BadMessage("bad message");
+			
 		}
-		
-		CMMessage message = new CMMessage(type, content, sender, senderTheme, time);
-		if(!tmpFilePath.isEmpty()){
-			message.putMiscData("temp_file_path", tmpFilePath);
-		}
-		
+
 		return message;
 		
+	}
+
+	private TextMessage getTextMessage(JSONObject json) throws JSONException{
+		String content = json.getString("content");
+		String sender = json.getString("sender");
+		String senderTheme = json.getString("sender_theme");
+		long time = json.getLong("time");
+		return new TextMessage(CMMessage.Direction.IN, sender, content, senderTheme, time);
+	}
+
+	private ShutdownMessage getShutdownMessage(JSONObject json) throws JSONException{
+		String sender = json.getString("sender");
+		String senderTheme = json.getString("sender_theme");
+		long time = json.getLong("time");
+		return new ShutdownMessage(CMMessage.Direction.IN, sender, senderTheme, time);
+	}
+
+	private AbortShutdownMessage getAbortShutdownMessage(JSONObject json) throws JSONException{
+		String sender = json.getString("sender");
+		String senderTheme = json.getString("sender_theme");
+		long time = json.getLong("time");
+		return new AbortShutdownMessage(CMMessage.Direction.IN, sender, senderTheme, time);
+	}
+
+	private PingMessage getPingMessage(JSONObject json) throws JSONException{
+		String senderTheme = json.getString("sender_theme");
+		return new PingMessage(senderTheme);
+	}
+
+	private ShowGUIMessage getShowguiMessage(JSONObject json) throws JSONException{
+		return new ShowGUIMessage();
+	}
+
+	private RequestThemeMessage getRequestThemeMessage(JSONObject json) throws JSONException{
+		String themeName = json.getString("theme_name");
+		return new RequestThemeMessage(themeName);
+	}
+
+	private ThemeFileMessage getThemeFileMessage(JSONObject json) throws JSONException{
+		String themeName = json.getString("theme_name");
+		String themeDataBase64 = json.getString("theme_data_base64");
+		return new ThemeFileMessage(themeName, themeDataBase64);
 	}
 	
 	

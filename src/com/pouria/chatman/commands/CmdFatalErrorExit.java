@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman.classes;
+package com.pouria.chatman.commands;
 
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.gui.ChatFrame;
+
+import javax.swing.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import javax.swing.JOptionPane;
 
 /**
  * shows an error and exits

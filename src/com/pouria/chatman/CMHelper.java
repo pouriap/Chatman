@@ -16,14 +16,13 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CmdFatalErrorExit;
-import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdFatalErrorExit;
+import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.enums.CMOS;
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class CMHelper {
 	private static class HelperHolder {
 		private static final CMHelper INSTANCE = new CMHelper();
 	}
-	//todo: ping messages are received from others and web get 'bad message' even when server-ip is set
+	//todo: ping messages are received from others and we get 'bad message' even when server-ip is set
 	public String getStr(String key){
 		try{
 			return bundle.getString(key);

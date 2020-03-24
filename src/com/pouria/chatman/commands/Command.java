@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 pouriap
+ * Copyright (C) 2016 Pouria Pirhadi
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,24 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman.classes;
-
-import com.pouria.chatman.CMHelper;
-import javax.swing.JOptionPane;
+package com.pouria.chatman.commands;
 
 /**
  *
  * @author pouriap
+ * 
+ * i could as well use the Runnable() interface instead of creating this
+ * but i was learning design patterns and was excited :P
+ * all classes implementing this interface do a GUI-related command
+ * all classes implementing this interface will get wrapped in a CommandInvokeLater object (they don't have to but that's the whole purpose of this interface)
+ * the purpose was to reduce code redundancy
  */
-public class CmdShowError implements Command{
-    final String message;
-    
-    public CmdShowError(String message){
-        this.message = message;
-    }
-    
-    @Override
-    public void execute(){
-        JOptionPane.showMessageDialog(null, message, CMHelper.getInstance().getStr("error"), JOptionPane.ERROR_MESSAGE);
-    }
+public interface Command {
+    public void execute();
 }

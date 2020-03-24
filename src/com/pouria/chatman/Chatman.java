@@ -16,11 +16,13 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.ChatmanClient;
-import com.pouria.chatman.classes.ChatmanServer;
+import com.pouria.chatman.connection.ChatmanClient;
+import com.pouria.chatman.connection.ChatmanServer;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
-import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.messages.CMMessage;
+import com.pouria.chatman.messages.DisplayableMessage;
+import com.pouria.chatman.messages.PingMessage;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +43,7 @@ public class Chatman {
 	private final long OLD_MSG_TIMEDIFF = TimeUnit.HOURS.toMillis(1);
 	
 	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";
-	private final ArrayList<CMMessage> allConversationMessages = new ArrayList<CMMessage>();
+	private final ArrayList<DisplayableMessage> allDisplayableMessages = new ArrayList<>();
 	private final CMSendQueue sendQueue;
 	
 	public Chatman(){
@@ -61,8 +63,9 @@ public class Chatman {
 		client.addServerFoundListener(bgTasksMngr);
 		bgTasksMngr.start();
 	}
-		
-	public void sendMessage(CMMessage m){
+
+	// we only send displayable messages with sentQueue
+	public void sendMessage(DisplayableMessage m){
 		sendQueue.add(m);
 		sendQueue.process();
 	}
@@ -72,16 +75,16 @@ public class Chatman {
 	}
 	
 	//anything that accesses Lists should be synchronized
-	public synchronized void addToAllMessages(CMMessage message){
+	public synchronized void addToAllDisplayableMessages(DisplayableMessage message){
 		//don't add duplicates (when resending failed messages)
-		if(!allConversationMessages.contains(message)){
-			allConversationMessages.add(message);
+		if(!allDisplayableMessages.contains(message)){
+			allDisplayableMessages.add(message);
 		}
 	}
 
-	public synchronized CMMessage[] getAllMessages(){
-		CMMessage[] messages = new CMMessage[allConversationMessages.size()];
-		allConversationMessages.toArray(messages);
+	public synchronized DisplayableMessage[] getAllDisplayableMessages(){
+		DisplayableMessage[] messages = new DisplayableMessage[allDisplayableMessages.size()];
+		allDisplayableMessages.toArray(messages);
 		return messages;
 	}
 
@@ -91,15 +94,15 @@ public class Chatman {
 		//this takes ~20ms with a shitload of messages
 		StringBuilder conversationTextAll = new StringBuilder();
 		long prevMessageTime = System.currentTimeMillis();
-		for(CMMessage message: allConversationMessages){
+		for(DisplayableMessage message: allDisplayableMessages){
 			//put a line after older messages
 			long messageTime = message.getTime();
 			if(messageTime - prevMessageTime > OLD_MSG_TIMEDIFF){
 				conversationTextAll.append(horizontalLineHtml);
 			}
 			prevMessageTime = messageTime;
-			
-			conversationTextAll.append(message.getDisplayableContent());
+
+			conversationTextAll.append(message.getAsHTMLString());
 		}
 		
 		return conversationTextAll.toString();
@@ -117,7 +120,7 @@ public class Chatman {
 			//connect for the first time and send a first ping letting them know we're up
 			Runnable r = () -> {
 				client.connect();
-				CMMessage firstPing = new CMMessage(CMType.PING, "");
+				PingMessage firstPing = OutgoingMsgHandler.buildPingMessage();
 				OutgoingMsgHandler handler = new OutgoingMsgHandler(firstPing);
 				handler.handle();
 			};
@@ -138,7 +141,7 @@ public class Chatman {
 			TimerTask heartBeatTask = new TimerTask() {
 				@Override
 				public void run() {
-					CMMessage pingMessage = new CMMessage(CMType.PING, "");
+					PingMessage pingMessage = OutgoingMsgHandler.buildPingMessage();
 					OutgoingMsgHandler handler = new OutgoingMsgHandler(pingMessage);
 					handler.handle();
 					boolean connected = (pingMessage.getStatus() == CMMessage.Status.SENT);

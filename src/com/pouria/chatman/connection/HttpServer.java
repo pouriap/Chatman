@@ -16,19 +16,21 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.CMMessage;
-import com.pouria.chatman.classes.ChatmanServer;
-import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.DisplayableMsgHandler;
+import com.pouria.chatman.IncomingMsgHandler;
 import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.messages.CMMessage;
+import com.pouria.chatman.messages.DisplayableMessage;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormDataParser;
 import io.undertow.server.handlers.form.FormParserFactory;
+
 import java.io.IOException;
 
 /**
@@ -81,8 +83,12 @@ public class HttpServer implements ChatmanServer{
 			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
 			CMFormDataParser parser = new CMFormDataParser(formData);
 			CMMessage message = parser.parseAsCMMessage();
-			DisplayableMsgHandler handler = new DisplayableMsgHandler(CMMessage.Direction.IN);
-			handler.handle(message);
+			IncomingMsgHandler handler = new IncomingMsgHandler(message);
+			handler.handle();
+			if(message.isDisplayable()){
+				DisplayableMsgHandler displayer = new DisplayableMsgHandler((DisplayableMessage)message);
+				displayer.handle();
+			}
 			
 			//don't set server for showgui messages
 			if(message.getType() == CMType.SHOWGUI){

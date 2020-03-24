@@ -1,22 +1,17 @@
 <component name="ArtifactManager">
   <artifact name="Chatman:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/Chatman_jar</output-path>
+    <output-path />
     <root id="root">
       <element id="archive" name="Chatman.jar">
-        <element id="directory" name="META-INF">
-          <element id="file-copy" path="$PROJECT_DIR$/out/META-INF/MANIFEST.MF" />
-        </element>
         <element id="module-output" name="Chatman" />
       </element>
-      <element id="directory" name="lib">
-        <element id="library" level="application" name="apache httpclient5" />
-        <element id="library" level="application" name="JalaliDate" />
-        <element id="library" level="application" name="JSON" />
-        <element id="library" level="application" name="jsoup-1.13.1-sources" />
-        <element id="library" level="application" name="PoConfig" />
-        <element id="library" level="application" name="sqlite-jdbc-3.27.2.1" />
-        <element id="library" level="application" name="undertow-core-2.0.29.Final-javadoc" />
-      </element>
+      <element id="library" level="application" name="JSON" />
+      <element id="library" level="application" name="JalaliDate" />
+      <element id="library" level="application" name="undertow-core-2.0.29.Final-javadoc" />
+      <element id="library" level="application" name="PoConfig" />
+      <element id="library" level="application" name="apache httpclient5" />
+      <element id="library" level="application" name="jsoup-1.13.1-sources" />
+      <element id="library" level="application" name="sqlite-jdbc-3.27.2.1" />
     </root>
   </artifact>
 </component>

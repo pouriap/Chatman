@@ -16,9 +16,10 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.CmdFatalErrorExit;
-import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdFatalErrorExit;
+import com.pouria.chatman.commands.CmdInvokeLater;
 import com.puria.PoConfig;
+
 import java.io.File;
 
 /**

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman.classes;
+package com.pouria.chatman.commands;
 
 import com.pouria.chatman.gui.ChatFrame;
 
@@ -22,17 +22,17 @@ import com.pouria.chatman.gui.ChatFrame;
  *
  * @author pouriap
  */
-public class CmdUpdateProgressbar implements Command{
-	
-	private final int progress;
-	
-	public CmdUpdateProgressbar(int progress){
-		this.progress = progress;
-	}
+public class CmdChangeStatusIcon implements Command{
 
+	final String iconName;
+	
+	public CmdChangeStatusIcon(String iconName){
+		this.iconName = iconName;
+	}
+	
 	@Override
 	public void execute() {
-		ChatFrame.getInstance().updateProgressBar(progress);
+		ChatFrame.getInstance().changeStatusIcon(iconName);
 	}
 	
 }

@@ -19,12 +19,13 @@ package com.pouria.chatman.classes;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.gui.ChatFrame;
 import com.puria.ShamsiDate;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *

@@ -18,16 +18,17 @@ package com.pouria.chatman.gui;
 
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.classes.CmdFatalErrorExit;
-import com.pouria.chatman.classes.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdFatalErrorExit;
+import com.pouria.chatman.commands.CmdInvokeLater;
+import org.json.JSONObject;
+
+import javax.swing.*;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import javax.swing.ImageIcon;
-import org.json.JSONObject;
 
 /**
  *

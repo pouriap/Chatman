@@ -17,8 +17,9 @@
 package com.pouria.chatman.connection;
 
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.classes.CmdInvokeLater;
-import com.pouria.chatman.classes.CmdFatalErrorExit;
+import com.pouria.chatman.commands.CmdFatalErrorExit;
+import com.pouria.chatman.commands.CmdInvokeLater;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;

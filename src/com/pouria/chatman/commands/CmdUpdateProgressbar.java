@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Pouria Pirhadi
+ * Copyright (C) 2020 pouriap
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,26 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman.classes;
+package com.pouria.chatman.commands;
 
-import com.pouria.chatman.CMMessage;
 import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
  * @author pouriap
  */
-public class CmdShowMessage implements Command{
-    final ChatFrame gui;
-    final CMMessage message;
-    
-    public CmdShowMessage(CMMessage message){
-        this.gui = ChatFrame.getInstance();
-        this.message = message;
-    }
-    
-    @Override
-    public void execute(){
-        gui.showMessage(message);
-    }
+public class CmdUpdateProgressbar implements Command{
+	
+	private final int progress;
+	
+	public CmdUpdateProgressbar(int progress){
+		this.progress = progress;
+	}
+
+	@Override
+	public void execute() {
+		ChatFrame.getInstance().updateProgressBar(progress);
+	}
+	
 }

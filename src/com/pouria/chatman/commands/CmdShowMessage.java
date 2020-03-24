@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 pouriap
+ * Copyright (C) 2016 Pouria Pirhadi
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,10 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman;
+package com.pouria.chatman.commands;
 
-import com.pouria.chatman.commands.CmdInvokeLater;
-import com.pouria.chatman.commands.CmdShowMessage;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.DisplayableMessage;
 
@@ -25,22 +23,17 @@ import com.pouria.chatman.messages.DisplayableMessage;
  *
  * @author pouriap
  */
-public class DisplayableMsgHandler {
-	
-	private final DisplayableMessage message;
-	
-	public DisplayableMsgHandler(DisplayableMessage message) {
-		this.message = message;
-	}
-	
-	public void handle(){
-
-		//add to all messages
-		ChatFrame.getInstance().getChatmanInstance().addToAllDisplayableMessages(message);
-		
-		//add to gui
-		(new CmdInvokeLater(new CmdShowMessage(message))).execute();
-
-	}
-	
+public class CmdShowMessage implements Command{
+    final ChatFrame gui;
+    final DisplayableMessage message;
+    
+    public CmdShowMessage(DisplayableMessage message){
+        this.gui = ChatFrame.getInstance();
+        this.message = message;
+    }
+    
+    @Override
+    public void execute(){
+        gui.showMessage(message);
+    }
 }

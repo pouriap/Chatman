@@ -18,18 +18,10 @@ package com.pouria.chatman.connection;
 
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.classes.ChatmanClient;
-import com.pouria.chatman.classes.CmdChangeStatusIcon;
-import com.pouria.chatman.classes.CmdInvokeLater;
-import com.pouria.chatman.classes.CmdSetLabelStatus;
-import com.pouria.chatman.classes.CmdUpdateProgressbar;
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.concurrent.TimeUnit;
+import com.pouria.chatman.commands.CmdChangeStatusIcon;
+import com.pouria.chatman.commands.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdSetLabelStatus;
+import com.pouria.chatman.commands.CmdUpdateProgressbar;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -43,6 +35,14 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.TimeUnit;
 
 /**
  *

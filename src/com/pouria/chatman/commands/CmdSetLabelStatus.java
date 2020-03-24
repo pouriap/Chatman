@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 pouriap
+ * Copyright (C) 2016 Pouria Pirhadi
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,19 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.pouria.chatman.classes;
+package com.pouria.chatman.commands;
 
-import java.io.IOException;
+import com.pouria.chatman.gui.ChatFrame;
 
 /**
  *
  * @author pouriap
  */
-public interface ChatmanServer {
-	/**
-	 * should start the server and listen for all incoming messages
-	 * incoming messages should be sent to a ChatmanMessageHandler for processing
-	 * @throws java.io.IOException when port bind fails
-	 */
-	public void start() throws IOException;
+public class CmdSetLabelStatus implements Command{
+    final ChatFrame gui;
+    final String text;
+    
+    public CmdSetLabelStatus(String text){
+        this.gui = ChatFrame.getInstance();
+        this.text = text;
+    }//todo: one loop gif is not animated
+    
+    @Override
+    public void execute(){
+        gui.setLabelStatus(text);
+    }
 }

@@ -17,6 +17,9 @@
 package com.pouria.chatman;
 
 import com.pouria.chatman.gui.ChatFrame;
+import com.pouria.chatman.messages.CMMessage;
+import com.pouria.chatman.messages.DisplayableMessage;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -40,9 +43,9 @@ public class CMHistory {
             con = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
             con.setAutoCommit(false);
 			
-			CMMessage allMessages[] = ChatFrame.getInstance().getChatmanInstance().getAllMessages();
+			DisplayableMessage allMessages[] = ChatFrame.getInstance().getChatmanInstance().getAllDisplayableMessages();
 
-			for(CMMessage message : allMessages){
+			for(DisplayableMessage message : allMessages){
 				
 				//don't save saved or failed messages
 				if(message.isSaved() || message.getStatus() == CMMessage.Status.SENDFAIL){
@@ -64,7 +67,7 @@ public class CMHistory {
 				//if there is a result it means that day already exists in table
 				if(rs.next()){
 					//we append
-					String content = message.getDisplayableContent();
+					String content = message.getAsHTMLString();
 					stmt = con.prepareStatement("UPDATE chat_sessions SET text=text||? WHERE date=?");
 					stmt.setString(1, content);
 					stmt.setLong(2, messageDay);
@@ -74,7 +77,7 @@ public class CMHistory {
 				}
 				//there is no result so we have to create that day in the table
 				else{
-					String content = message.getDisplayableContent();
+					String content = message.getAsHTMLString();
 					stmt = con.prepareStatement("INSERT INTO chat_sessions (date, text) Values(? , ?)");
 					stmt.setLong(1, messageDay);
 					stmt.setString(2, content);

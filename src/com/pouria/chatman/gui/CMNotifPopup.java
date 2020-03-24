@@ -17,22 +17,14 @@
 package com.pouria.chatman.gui;
 
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.classes.CmdInvokeLater;
-import com.pouria.chatman.classes.CmdShowError;
+import com.pouria.chatman.commands.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdShowError;
 import com.pouria.chatman.enums.CMOS;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import javax.sound.sampled.*;
+import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedInputStream;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 
 /**
  *

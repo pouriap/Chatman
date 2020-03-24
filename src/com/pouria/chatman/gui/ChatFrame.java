@@ -5,13 +5,16 @@
  */
 package com.pouria.chatman.gui;
 
-import com.pouria.chatman.*;
-import com.pouria.chatman.classes.CmdFatalErrorExit;
-import com.pouria.chatman.classes.CmdInvokeLater;
-import com.pouria.chatman.classes.CmdShowError;
+import com.pouria.chatman.CMConfig;
+import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.Chatman;
+import com.pouria.chatman.OutgoingMsgHandler;
 import com.pouria.chatman.classes.HistoryTablePagination;
+import com.pouria.chatman.commands.CmdFatalErrorExit;
+import com.pouria.chatman.commands.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdShowError;
 import com.pouria.chatman.enums.CMColor;
-import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.messages.*;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -800,7 +803,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("remote_shutdown_message"), CMHelper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            CMMessage message = new CMMessage(CMType.SHUTDOWN, "");
+            ShutdownMessage message = OutgoingMsgHandler.buildShutDownMessage();
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
@@ -832,7 +835,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		try{
 			CMHelper.getInstance().abortLocalShutdown();
 			String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-            final CMMessage message = new CMMessage(CMType.TEXT, info);
+            TextMessage message = OutgoingMsgHandler.buildTextMessage(info);
 			chatman.sendMessage(message);
 		}catch(IOException e){
 			CMHelper.getInstance().log("failed to abort local shutdown (from menu)");
@@ -854,7 +857,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("abort_remote_shutdown_message"), CMHelper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            final CMMessage message = new CMMessage(CMType.ABORT_SHUTDOWN, "");
+            AbortShutdownMessage message = OutgoingMsgHandler.buildAbortShutdownMessage();
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
@@ -1100,9 +1103,9 @@ public class ChatFrame extends javax.swing.JFrame {
 		Locale.setDefault(locale);
 		
 		//send a showgui message to localhost, if localhost responds we exit
-		CMMessage showGuiMessage = new CMMessage(CMType.SHOWGUI, "", "", "", 0);
+		ShowGUIMessage showGUIMessage = new ShowGUIMessage();
 		List<NameValuePair> postParams = new ArrayList<>();
-		postParams.add(new BasicNameValuePair("message", showGuiMessage.getAsJsonString()));
+		postParams.add(new BasicNameValuePair("message", showGUIMessage.getAsJSONString()));
 		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
 		String port = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
 		HttpPost post = new HttpPost("http://127.0.0.1:"+port);
@@ -1157,10 +1160,7 @@ public class ChatFrame extends javax.swing.JFrame {
 							}
                         }
                         //send the file
-						String filePath = file.getAbsolutePath();
-						String fileName = file.getName();
-						final CMMessage fileMessage = new CMMessage(CMType.FILE, fileName);
-						fileMessage.putMiscData("file_path", filePath);
+						FileMessage fileMessage = OutgoingMsgHandler.buildFileMessage(file);
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
 						chatman.sendMessage(fileMessage);
@@ -1554,7 +1554,7 @@ public class ChatFrame extends javax.swing.JFrame {
         if(text.isEmpty())
             return;
 
-		final CMMessage message = new CMMessage(CMType.TEXT, text);
+	    TextMessage message = OutgoingMsgHandler.buildTextMessage(text);
 		chatman.sendMessage(message);
 
 		clearInputText();
@@ -1563,31 +1563,32 @@ public class ChatFrame extends javax.swing.JFrame {
     
     //adds a message to messages history and shows it in conversation panel
     //it is called both when we sendInputText a message or receive a message
-    public void showMessage(CMMessage message){
+    public void showMessage(DisplayableMessage message){
 		
 		//don't do anything for ping and other shit messages
-		if(message.getDisplayableContent().isEmpty()){
+		if(message.getAsHTMLString().isEmpty()){
 			return;
 		}
 		
 		updateTextAreaConversation(chatman.getAllMessagesText());
 		
 		//check peer theme
-		if(!message.isOurMessage()){
+		if(message.getDirection() == CMMessage.Direction.IN){
+			String senderTheme = message.getSenderTheme();
 			try{
-				if(peerTheme == null || !peerTheme.getFileName().equals(message.getSenderTheme())){
+				if(peerTheme == null || !peerTheme.getFileName().equals(senderTheme)){
 					peerTheme = CMTheme.getFromDefaultDir(message.getSenderTheme());
 					setPeerTheme(peerTheme);
 				}
 			}catch(Exception e){
-				CMMessage themeReqMsg = new CMMessage(CMType.REQUEST_THEME_FILE, "");
-				OutgoingMsgHandler handler = new OutgoingMsgHandler(themeReqMsg);
+				RequestThemeMessage reqThemeMsg = new RequestThemeMessage(senderTheme);
+				OutgoingMsgHandler handler = new OutgoingMsgHandler(reqThemeMsg);
 				handler.handle();
 				return;
 			}
 		}
 
-		if(!message.isOurMessage()){
+		if(message.getDirection() == CMMessage.Direction.IN){
 			showNewMessagePopup();
 		}
 			
