@@ -37,12 +37,13 @@ public class CMTheme {
 	
 	private final File file;
 	private final ImageIcon bgImage;
-	private final ImageIcon popupImage;
 	private final int popupRightOffset;
 	private final int popupBottomOffset;
 	private final String userName;
 	private final String buttonsTheme;
 	private final String textAreasTheme;
+	
+	private final byte[] popupData;
 	
 	public CMTheme(String themeFilePath) throws Exception{
 		
@@ -72,8 +73,7 @@ public class CMTheme {
 
 			ZipEntry popupFile = zipFile.getEntry(popupFilename);
 			InputStream popupIn = zipFile.getInputStream(popupFile);
-			byte[] popupData = CMHelper.readStreamAsByteArray(popupIn);
-			popupImage = new ImageIcon(popupData);
+			popupData = CMHelper.readStreamAsByteArray(popupIn);
 		}
 		
 	}
@@ -83,7 +83,8 @@ public class CMTheme {
 	}
 
 	public ImageIcon getPopupImage() {
-		return popupImage;
+		//baraye inke gif haii ke yek repeat darad reset shavand
+		return new ImageIcon(popupData);
 	}
 
 	public int getPopupRightOffset() {

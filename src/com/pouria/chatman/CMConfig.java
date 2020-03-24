@@ -20,7 +20,6 @@ import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
 import com.puria.PoConfig;
 import java.io.File;
-import java.util.Locale;
 
 /**
  *
@@ -98,8 +97,4 @@ public class CMConfig {
 		return config.isSet(key);
 	}
 	
-	public Locale getLocale(){
-		String[] l = get("locale", "fa_IR").split("_");
-        return new Locale(l[0], l[1]);
-    }
 }

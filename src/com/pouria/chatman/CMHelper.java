@@ -18,8 +18,10 @@ package com.pouria.chatman;
 
 import com.pouria.chatman.classes.CmdFatalErrorExit;
 import com.pouria.chatman.classes.CmdInvokeLater;
-import com.pouria.chatman.classes.ResourceBundleWrapper;
 import com.pouria.chatman.enums.CMOS;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +38,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -47,8 +49,8 @@ import java.util.logging.SimpleFormatter;
  */
 public class CMHelper {
 	
-	private ResourceBundleWrapper l;
 	private Logger logger;
+	private ResourceBundle bundle = ResourceBundle.getBundle("com.pouria.chatman.gui.locale");
 
 	private CMHelper() {
 	}
@@ -60,18 +62,14 @@ public class CMHelper {
 	private static class HelperHolder {
 		private static final CMHelper INSTANCE = new CMHelper();
 	}
-	
-	public void setLocale(Locale locale){
+	//todo: ping messages are received from others and web get 'bad message' even when server-ip is set
+	public String getStr(String key){
 		try{
-			l = new ResourceBundleWrapper("resources.locale.locale", locale);
+			return bundle.getString(key);
 		}catch(Exception e){
-			String error = "Could not get locale";
-			(new CmdInvokeLater(new CmdFatalErrorExit(error, e))).execute();
+			CMHelper.getInstance().log("locale key " + key + " not defined: " + e.getMessage());
+			return "locale key \"" + key + "\" not defined";
 		}
-    }
-	
-	public String getStr(String str){
-		return l.getString(str);
 	}
 	
 	public void localShutdown() throws IOException{
@@ -232,6 +230,27 @@ public class CMHelper {
 
 	public String getCMDownloadsDir(){
 		return (new JFileChooser()).getFileSystemView().getDefaultDirectory().toString() + "\\Chatman Downloads\\";
+	}
+	
+	public ImageIcon applyOpacity(ImageIcon img, float opacity){
+		
+		try{
+			
+			int width = img.getIconWidth();
+			int height = img.getIconHeight();
+			BufferedImage transparentImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g = (Graphics2D) transparentImage.createGraphics();
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+			g.drawImage(img.getImage(), 0, 0, width, height, null);
+			g.dispose();
+		
+			return new ImageIcon(transparentImage);
+			
+		}catch(Exception e){
+			CMHelper.getInstance().log("failed to apply transparency to image: " + img.toString());
+			return img;
+		}
+		
 	}
 
 }
