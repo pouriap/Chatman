@@ -24,7 +24,7 @@ import com.pouria.chatman.enums.CMOS;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedInputStream;
+import java.io.*;
 
 /**
  *
@@ -32,14 +32,16 @@ import java.io.BufferedInputStream;
  */
 public class CMNotifPopup{
 	
-	private final CMOS os;
+
 	private final JDialog dialog;
-	private final CMTheme theme;
 	private final JLabel label;
-	
+	private final CMTheme theme;
+	private final CMOS os;
+	private AudioFormat audioFormat;
+
+
 	public CMNotifPopup(CMTheme theme) {
 
-		this.theme = theme;
 		ImageIcon popupImage = theme.getPopupImage();
 		int widht = popupImage.getIconWidth();
 		int height = popupImage.getIconHeight();
@@ -74,6 +76,8 @@ public class CMNotifPopup{
 		dialog.add(label);
 		
 		this.os = CMHelper.getInstance().getOS();
+		this.theme = theme;
+
 	}
 
 	public void show(){
@@ -89,34 +93,50 @@ public class CMNotifPopup{
 	public boolean isVisible(){
 		return dialog.isVisible();
 	}
-	
+
     //plays the bleep
     public void playSound(){
-        try{ 
-			AudioInputStream audioStream;
-			Clip clip;
-			
-			//linux sucks so...
-			if(os == CMOS.WINDOWS){
-				audioStream = AudioSystem.getAudioInputStream(getClass().getResource("/resources/notification-bat.wav"));
-				clip = AudioSystem.getClip();
-			}
-			else{
-				BufferedInputStream srcStream = new BufferedInputStream(getClass().getResourceAsStream("/resources/notification-bat.wav")); 
-				audioStream = AudioSystem.getAudioInputStream(srcStream);
-				AudioFormat format = audioStream.getFormat();
-				DataLine.Info info = new DataLine.Info(Clip.class, format);
-				clip = (Clip)AudioSystem.getLine(info);
-			}
 
-			clip.open(audioStream);
-			clip.start();
+	    try{
 
-        }catch(Exception e){
-			CMHelper.getInstance().log("playing notification sound failed: " + e.getMessage());
-			String error = CMHelper.getInstance().getStr("audio_play_fail");
-            (new CmdInvokeLater(new CmdShowError(error))).execute();
-        }
+		    if(audioFormat == null){
+			    setAudioFormat();
+		    }
+
+		    Clip clip = getClip();
+		    clip.addLineListener(myLineEvent -> {
+			    if (myLineEvent.getType() == LineEvent.Type.STOP) {
+				    clip.close();
+			    }
+		    });
+
+		    clip.open(audioFormat, theme.getSoundFileBytes(), 0, theme.getSoundFileBytes().length);
+		    clip.start();
+
+	    }catch(Exception e){
+		    CMHelper.getInstance().log("playing notification sound failed: " + e.getMessage());
+		    String error = CMHelper.getInstance().getStr("audio_play_fail");
+		    (new CmdInvokeLater(new CmdShowError(error))).execute();
+	    }
+
     }
+
+	public Clip getClip() throws Exception{
+		if(os == CMOS.WINDOWS){
+			return AudioSystem.getClip();
+		}
+		else{
+			DataLine.Info info = new DataLine.Info(Clip.class, audioFormat);
+			return (Clip)AudioSystem.getLine(info);
+		}
+	}
+
+	private void setAudioFormat() throws Exception{
+		ByteArrayInputStream is = new ByteArrayInputStream(theme.getSoundFileBytes());
+		AudioInputStream audioStream = AudioSystem.getAudioInputStream(is);
+		audioFormat = audioStream.getFormat();
+		audioStream.close();
+		is.close();
+	}
 	
 }

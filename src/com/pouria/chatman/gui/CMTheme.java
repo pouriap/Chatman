@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Base64;
@@ -45,6 +46,7 @@ public class CMTheme {
 	private final String textAreasTheme;
 	
 	private final byte[] popupData;
+	private final byte[] soundData;
 	
 	public CMTheme(String themeFilePath) throws Exception{
 		
@@ -61,6 +63,7 @@ public class CMTheme {
 			JSONObject json = new JSONObject(jsonString);
 			String bgFilename = json.getString("bg-image");
 			String popupFilename = json.getString("popup-image");
+			String soundFilename = json.getString("sound-file");
 			popupRightOffset = json.getInt("popup-right-offset");
 			popupBottomOffset = json.getInt("popup-bottom-offset");
 			userName = json.getString("username");
@@ -75,6 +78,11 @@ public class CMTheme {
 			ZipEntry popupFile = zipFile.getEntry(popupFilename);
 			InputStream popupIn = zipFile.getInputStream(popupFile);
 			popupData = CMHelper.readStreamAsByteArray(popupIn);
+
+			ZipEntry soundFile = zipFile.getEntry(soundFilename);
+			InputStream soundIn = zipFile.getInputStream(soundFile);
+			soundData = CMHelper.readStreamAsByteArray(soundIn);
+
 		}
 		
 	}
@@ -86,6 +94,10 @@ public class CMTheme {
 	public ImageIcon getPopupImage() {
 		//baraye inke gif haii ke yek repeat darad reset shavand
 		return new ImageIcon(popupData);
+	}
+
+	public byte[] getSoundFileBytes(){
+		return soundData;
 	}
 
 	public int getPopupRightOffset() {
