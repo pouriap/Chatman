@@ -35,14 +35,14 @@ public class OutgoingMsgHandler {
 	public OutgoingMsgHandler(CMMessage message){
 		this.message = message;
 	}
-	
+	//todo: all calls to this except the one from sendQueue happen on UI thread!
 	public void handle(){
 
 		boolean success;
 		CMType messageType = message.getType();
 		
 		switch(messageType){
-			
+
 			case FILE:
 				success = sendFileMessage();
 				break;
