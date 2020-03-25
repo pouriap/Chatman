@@ -23,6 +23,7 @@ import io.undertow.server.handlers.form.FormData;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.xml.soap.Text;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -54,25 +55,25 @@ public class CMFormDataParser {
 
 				switch(type){
 					case TEXT:
-						message = getTextMessage(json);
+						message = TextMessage.getNewIncoming(json);
 						break;
 					case SHUTDOWN:
-						message = getShutdownMessage(json);
+						message = ShutdownMessage.getNewIncoming(json);
 						break;
 					case ABORT_SHUTDOWN:
-						message = getAbortShutdownMessage(json);
+						message = AbortShutdownMessage.getNewIncoming(json);
 						break;
 					case PING:
-						message = getPingMessage(json);
+						message = PingMessage.getNewIncoming(json);
 						break;
 					case SHOWGUI:
-						message = getShowguiMessage(json);
+						message = ShowGUIMessage.getNewIncoming();
 						break;
 					case REQUEST_THEME_FILE:
-						message = getRequestThemeMessage(json);
+						message = RequestThemeMessage.getNewIncoming(json);
 						break;
 					case THEME_FILE:
-						message = getThemeFileMessage(json);
+						message = ThemeFileMessage.getNewIncoming(json);
 						break;
 					default: 
 						message = new BadMessage("unknown message type");
@@ -88,11 +89,7 @@ public class CMFormDataParser {
 					File tempFile = formFile.getFileItem().getFile().toFile();
 					String jsonString = formMetadata.getValue();
 					JSONObject json = new JSONObject(jsonString);
-					String sender = json.getString("sender");
-					String fileName = json.getString("file_name");
-					String senderTheme = json.getString("sender_theme");
-					long time = json.getLong("time");
-					message = new FileMessage(CMMessage.Direction.IN, sender, fileName, tempFile, senderTheme, time);
+					message = FileMessage.getNewIncoming(tempFile, json);
 				}
 				else{
 					throw new Exception("bad file item");
@@ -127,50 +124,7 @@ public class CMFormDataParser {
 		}
 
 		return message;
-		
+
 	}
 
-	private TextMessage getTextMessage(JSONObject json) throws JSONException{
-		String content = json.getString("content");
-		String sender = json.getString("sender");
-		String senderTheme = json.getString("sender_theme");
-		long time = json.getLong("time");
-		return new TextMessage(CMMessage.Direction.IN, sender, content, senderTheme, time);
-	}
-
-	private ShutdownMessage getShutdownMessage(JSONObject json) throws JSONException{
-		String sender = json.getString("sender");
-		String senderTheme = json.getString("sender_theme");
-		long time = json.getLong("time");
-		return new ShutdownMessage(CMMessage.Direction.IN, sender, senderTheme, time);
-	}
-
-	private AbortShutdownMessage getAbortShutdownMessage(JSONObject json) throws JSONException{
-		String sender = json.getString("sender");
-		String senderTheme = json.getString("sender_theme");
-		long time = json.getLong("time");
-		return new AbortShutdownMessage(CMMessage.Direction.IN, sender, senderTheme, time);
-	}
-
-	private PingMessage getPingMessage(JSONObject json) throws JSONException{
-		String senderTheme = json.getString("sender_theme");
-		return new PingMessage(senderTheme);
-	}
-
-	private ShowGUIMessage getShowguiMessage(JSONObject json) throws JSONException{
-		return new ShowGUIMessage();
-	}
-
-	private RequestThemeMessage getRequestThemeMessage(JSONObject json) throws JSONException{
-		String themeName = json.getString("theme_name");
-		return new RequestThemeMessage(themeName);
-	}
-
-	private ThemeFileMessage getThemeFileMessage(JSONObject json) throws JSONException{
-		String themeName = json.getString("theme_name");
-		String themeDataBase64 = json.getString("theme_data_base64");
-		return new ThemeFileMessage(themeName, themeDataBase64);
-	}
-	
-	
 }

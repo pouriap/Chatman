@@ -803,7 +803,7 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("remote_shutdown_message"), CMHelper.getInstance().getStr("remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            ShutdownMessage message = OutgoingMsgHandler.buildShutDownMessage();
+            ShutdownMessage message = ShutdownMessage.getNewOutgoing();
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuRemoteShutdownActionPerformed
@@ -835,7 +835,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		try{
 			CMHelper.getInstance().abortLocalShutdown();
 			String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-            TextMessage message = OutgoingMsgHandler.buildTextMessage(info);
+            TextMessage message = TextMessage.getNewOutgoing(info);
 			chatman.sendMessage(message);
 		}catch(IOException e){
 			CMHelper.getInstance().log("failed to abort local shutdown (from menu)");
@@ -857,7 +857,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("abort_remote_shutdown_message"), CMHelper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
         if(answer == JOptionPane.YES_OPTION){
-            AbortShutdownMessage message = OutgoingMsgHandler.buildAbortShutdownMessage();
+            AbortShutdownMessage message = AbortShutdownMessage.getNewOutgoing();
 			chatman.sendMessage(message);
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
@@ -1103,7 +1103,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		Locale.setDefault(locale);
 		
 		//send a showgui message to localhost, if localhost responds we exit
-		ShowGUIMessage showGUIMessage = new ShowGUIMessage();
+		ShowGUIMessage showGUIMessage = ShowGUIMessage.getNewOutgoing();
 		List<NameValuePair> postParams = new ArrayList<>();
 		postParams.add(new BasicNameValuePair("message", showGUIMessage.getAsJSONString()));
 		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
@@ -1160,7 +1160,7 @@ public class ChatFrame extends javax.swing.JFrame {
 							}
                         }
                         //send the file
-						FileMessage fileMessage = OutgoingMsgHandler.buildFileMessage(file);
+						FileMessage fileMessage = FileMessage.getNewOutgoing(file);
 						//avoid getting a notification sound when dragging the file because window gets out of focus
 						ChatFrame.getInstance().toFront();
 						chatman.sendMessage(fileMessage);
@@ -1563,7 +1563,7 @@ public class ChatFrame extends javax.swing.JFrame {
         if(text.isEmpty())
             return;
 
-	    TextMessage message = OutgoingMsgHandler.buildTextMessage(text);
+	    TextMessage message = TextMessage.getNewOutgoing(text);
 		chatman.sendMessage(message);
 
 		clearInputText();
@@ -1590,9 +1590,9 @@ public class ChatFrame extends javax.swing.JFrame {
 					setPeerTheme(peerTheme);
 				}
 			}catch(Exception e){
-				RequestThemeMessage reqThemeMsg = new RequestThemeMessage(senderTheme);
+				RequestThemeMessage reqThemeMsg = RequestThemeMessage.getNewOutgoing(senderTheme);
 				OutgoingMsgHandler handler = new OutgoingMsgHandler(reqThemeMsg);
-				handler.handle();
+				handler.send();
 				return;
 			}
 		}

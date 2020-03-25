@@ -9,7 +9,6 @@ import java.util.Date;
 
 public abstract class DisplayableMessage extends CMMessage {
 
-	private final Direction direction;
 	private final String sender;
 	private final String content;
 	private final String senderTheme;
@@ -18,7 +17,7 @@ public abstract class DisplayableMessage extends CMMessage {
 	private boolean isSaved = false;
 
 	public DisplayableMessage(Direction direction, String sender, String content, String senderTheme, long time) {
-		this.direction = direction;
+		super(direction);
 		this.sender = sender;
 		this.content = content;
 		this.senderTheme = senderTheme;
@@ -63,10 +62,6 @@ public abstract class DisplayableMessage extends CMMessage {
 		html = "<div style='padding:5px;'><span class='time'>["+timeTxt+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + html + "</div>";
 
 		return html;
-	}
-
-	public Direction getDirection() {
-		return direction;
 	}
 
 	public String getSender(){

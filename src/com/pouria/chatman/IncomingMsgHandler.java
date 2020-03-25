@@ -44,7 +44,7 @@ public class IncomingMsgHandler {
 		this.message = message;
 	}
 	
-	public void handle(){
+	public void receive(){
 		
 		CMType messageType = message.getType();
 
@@ -128,12 +128,11 @@ public class IncomingMsgHandler {
 			Files.copy(tempFile.toPath(), savedFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			CMHelper.getInstance().log("file copied");
 			
-			message = new FileMessage(direction, sender, fileName, savedFile, senderTheme, time);
+			message = FileMessage.getNew(direction, sender, fileName, savedFile, senderTheme, time);
 			
 		}catch(IOException e){
 			CMHelper.getInstance().log("copying file from tmp folder to download direcoty failed");
-			String msg = CMHelper.getInstance().getStr("file-receive-failed");
-			message = new FileMessage(direction, "Error", "File receive failed", new File(""), senderTheme, time);
+			message = FileMessage.getNew(direction, "Error", "File receive failed", new File(""), senderTheme, time);
 		}
 		
 	}
@@ -157,7 +156,7 @@ public class IncomingMsgHandler {
 					ChatFrame.getInstance().message(CMHelper.getInstance().getStr("shutdown-abort-success"));	// we don't need invokelater because we're already in invokelater
 					//tell the other computer we have aborted
 					String info = "[INFO: REMOTE SHUTDOWN ABORTED BY USER]";
-					TextMessage msg = OutgoingMsgHandler.buildTextMessage(info);
+					TextMessage msg = TextMessage.getNewOutgoing(info);
 					ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 				}catch(IOException e){
 					CMHelper.getInstance().log("failed to abort local shutdown");
@@ -172,7 +171,7 @@ public class IncomingMsgHandler {
 			(new CmdInvokeLater(new CmdShowError(CMHelper.getInstance().getStr("shutdown-fail")))).execute();
 			//tell the other computer our shutdown has failed
 			String error = "[ERROR: SHUTDOWN FAILED]";
-			TextMessage msg = OutgoingMsgHandler.buildTextMessage(error);
+			TextMessage msg = TextMessage.getNewOutgoing(error);
 			ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		}
 
@@ -191,7 +190,7 @@ public class IncomingMsgHandler {
 			info = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
 		}
 		//tell the other computer if abort was successfull
-		TextMessage msg = OutgoingMsgHandler.buildTextMessage(info);
+		TextMessage msg = TextMessage.getNewOutgoing(info);
 		ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
 		
 	}
@@ -228,11 +227,11 @@ public class IncomingMsgHandler {
 	}
 	
 	private void processRequestThemeFile(){
-		String themeData = ChatFrame.getInstance().getCurrentTheme().getDataBase64();
+		String themeDataBase64 = ChatFrame.getInstance().getCurrentTheme().getDataBase64();
 		String themeName =ChatFrame.getInstance().getCurrentTheme().getFileName();
-		ThemeFileMessage message = new ThemeFileMessage(themeName, themeData);
+		ThemeFileMessage message = ThemeFileMessage.getNewOutgoing(themeName, themeDataBase64);
 		OutgoingMsgHandler handler = new OutgoingMsgHandler(message);
-		handler.handle();
+		handler.send();
 	}
 	
 }

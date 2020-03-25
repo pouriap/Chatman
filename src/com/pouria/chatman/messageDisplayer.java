@@ -25,15 +25,15 @@ import com.pouria.chatman.messages.DisplayableMessage;
  *
  * @author pouriap
  */
-public class DisplayableMsgHandler {
+public class messageDisplayer {
 	
 	private final DisplayableMessage message;
 	
-	public DisplayableMsgHandler(DisplayableMessage message) {
+	public messageDisplayer(DisplayableMessage message) {
 		this.message = message;
 	}
 	
-	public void handle(){
+	public void display(){
 
 		//add to all messages
 		ChatFrame.getInstance().getChatmanInstance().addToAllDisplayableMessages(message);

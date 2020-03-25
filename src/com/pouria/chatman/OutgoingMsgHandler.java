@@ -36,7 +36,7 @@ public class OutgoingMsgHandler {
 		this.message = message;
 	}
 	//todo: all calls to this except the one from sendQueue happen on UI thread!
-	public void handle(){
+	public void send(){
 
 		boolean success;
 		CMType messageType = message.getType();
@@ -86,44 +86,6 @@ public class OutgoingMsgHandler {
 		client.setServer("127.0.0.1");
 		String text = message.getAsJSONString();
 		return client.sendText(text);
-	}
-
-	public static TextMessage buildTextMessage(String content){
-		CMMessage.Direction direction = CMMessage.Direction.OUT;
-		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
-		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
-		long time = System.currentTimeMillis();
-		return new TextMessage(direction, sender, content, senderTheme, time);
-	}
-
-	public static FileMessage buildFileMessage(File file){
-		CMMessage.Direction direction = CMMessage.Direction.OUT;
-		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
-		String fileName = file.getName();
-		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
-		long time = System.currentTimeMillis();
-		return new FileMessage(direction, sender, fileName, file, senderTheme, time);
-	}
-
-	public static PingMessage buildPingMessage(){
-		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
-		return new PingMessage(senderTheme);
-	}
-
-	public static ShutdownMessage buildShutDownMessage(){
-		CMMessage.Direction direction = CMMessage.Direction.OUT;
-		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
-		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
-		long time = System.currentTimeMillis();
-		return new ShutdownMessage(direction, sender, senderTheme, time);
-	}
-
-	public static AbortShutdownMessage buildAbortShutdownMessage(){
-		CMMessage.Direction direction = CMMessage.Direction.OUT;
-		String sender = ChatFrame.getInstance().getCurrentTheme().getUsername();
-		String senderTheme = ChatFrame.getInstance().getCurrentTheme().getFileName();
-		long time = System.currentTimeMillis();
-		return new AbortShutdownMessage(direction, sender, senderTheme, time);
 	}
 
 }

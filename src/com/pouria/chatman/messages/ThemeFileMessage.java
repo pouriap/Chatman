@@ -1,6 +1,7 @@
 package com.pouria.chatman.messages;
 
 import com.pouria.chatman.enums.CMType;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ThemeFileMessage extends HiddenMessage {
@@ -8,9 +9,20 @@ public class ThemeFileMessage extends HiddenMessage {
 	private final String themeName;
 	private final String themeDataBase64;
 
-	public ThemeFileMessage(String themeName, String themeDataBase64) {
+	private ThemeFileMessage(Direction direction, String themeName, String themeDataBase64) {
+		super(direction);
 		this.themeName = themeName;
 		this.themeDataBase64 = themeDataBase64;
+	}
+
+	public static ThemeFileMessage getNewOutgoing(String themeName, String themeDataBase64){
+		return new ThemeFileMessage(Direction.OUT, themeName, themeDataBase64);
+	}
+
+	public static ThemeFileMessage getNewIncoming(JSONObject json) throws JSONException {
+		String themeName = json.getString("theme_name");
+		String themeDataBase64 = json.getString("theme_data_base64");
+		return new ThemeFileMessage(Direction.IN, themeName, themeDataBase64);
 	}
 
 	@Override

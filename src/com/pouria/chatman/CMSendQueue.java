@@ -44,9 +44,9 @@ public class CMSendQueue {
 				//avvalin message ra befrest
 				DisplayableMessage firstMessage = queue.peek();
 				OutgoingMsgHandler sender = new OutgoingMsgHandler(firstMessage);
-				sender.handle();
-				DisplayableMsgHandler displayer = new DisplayableMsgHandler(firstMessage);
-				displayer.handle();
+				sender.send();
+				messageDisplayer displayer = new messageDisplayer(firstMessage);
+				displayer.display();
 				//agar ferestade shod az saf dar biar va boro baadi
 				if(firstMessage.getStatus() == CMMessage.Status.SENT){
 					queue.poll();

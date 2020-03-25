@@ -18,7 +18,7 @@ package com.pouria.chatman.connection;
 
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.DisplayableMsgHandler;
+import com.pouria.chatman.messageDisplayer;
 import com.pouria.chatman.IncomingMsgHandler;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
@@ -94,10 +94,10 @@ public class HttpServer implements ChatmanServer{
 			CMFormDataParser parser = new CMFormDataParser(formData);
 			CMMessage message = parser.parseAsCMMessage();
 			IncomingMsgHandler handler = new IncomingMsgHandler(message);
-			handler.handle();
+			handler.receive();
 			if(message.isDisplayable()){
-				DisplayableMsgHandler displayer = new DisplayableMsgHandler((DisplayableMessage)message);
-				displayer.handle();
+				messageDisplayer displayer = new messageDisplayer((DisplayableMessage)message);
+				displayer.display();
 			}
 			
 			//don't set server for showgui messages
