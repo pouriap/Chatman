@@ -79,7 +79,8 @@ public class ChatFrame extends javax.swing.JFrame {
 	private TrayIcon trayIconApp, trayIconNewMessage;
 	private CMNotifPopup newMessagePopup;
 	private CMTheme currentTheme, peerTheme;
-	private CMTheme themeChooserSelectedTheme;
+	private CMTheme previewTheme;
+	private CMNotifPopup previewPopup;
 	
 	private final String version = "3.0.0";
 	private final String appTitle = "Chatman Forever";
@@ -118,8 +119,9 @@ public class ChatFrame extends javax.swing.JFrame {
         labelBgPrev = new javax.swing.JLabel();
         labelPopupPrev = new javax.swing.JLabel();
         dropdownThemes = new javax.swing.JComboBox<>();
-        buttonApplyTheme = new javax.swing.JButton();
+        buttonThemeApply = new javax.swing.JButton();
         labelThemeName = new javax.swing.JLabel();
+        buttonThemePreview = new javax.swing.JButton();
         scrollPaneConversation = new javax.swing.JScrollPane();
         textAreaConversation = new javax.swing.JEditorPane();
         scrollPaneInput = new javax.swing.JScrollPane();
@@ -249,6 +251,7 @@ public class ChatFrame extends javax.swing.JFrame {
         dialogChooseTheme.setTitle(bundle.getString("ChatFrame.dialogChooseTheme.title")); // NOI18N
         dialogChooseTheme.setIconImage(null);
         dialogChooseTheme.setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+        dialogChooseTheme.setResizable(false);
         dialogChooseTheme.setSize(new java.awt.Dimension(800, 620));
         dialogChooseTheme.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -264,14 +267,6 @@ public class ChatFrame extends javax.swing.JFrame {
 
         labelPopupPrev.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelPopupPrev.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), bundle.getString("ChatFrame.labelPopupPrev.border.title"), javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 51))); // NOI18N
-        labelPopupPrev.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                labelPopupPrevMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                labelPopupPrevMouseExited(evt);
-            }
-        });
 
         dropdownThemes.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         dropdownThemes.addActionListener(new java.awt.event.ActionListener() {
@@ -280,10 +275,10 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
 
-        buttonApplyTheme.setText(bundle.getString("ChatFrame.buttonApplyTheme.text")); // NOI18N
-        buttonApplyTheme.addActionListener(new java.awt.event.ActionListener() {
+        buttonThemeApply.setText(bundle.getString("ChatFrame.buttonThemeApply.text")); // NOI18N
+        buttonThemeApply.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonApplyThemeActionPerformed(evt);
+                buttonThemeApplyActionPerformed(evt);
             }
         });
 
@@ -293,23 +288,30 @@ public class ChatFrame extends javax.swing.JFrame {
         labelThemeName.setText(bundle.getString("ChatFrame.labelThemeName.text")); // NOI18N
         labelThemeName.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), bundle.getString("ChatFrame.labelThemeName.border.title"), javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 51))); // NOI18N
 
+        buttonThemePreview.setText(bundle.getString("ChatFrame.buttonThemePreview.text")); // NOI18N
+        buttonThemePreview.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonThemePreviewActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelChooseThemeLayout = new javax.swing.GroupLayout(panelChooseTheme);
         panelChooseTheme.setLayout(panelChooseThemeLayout);
         panelChooseThemeLayout.setHorizontalGroup(
             panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelChooseThemeLayout.createSequentialGroup()
-                .addGap(40, 40, 40)
-                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(labelBgPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(dropdownThemes, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(20, 20, 20)
+                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(dropdownThemes, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(labelBgPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(buttonThemePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(labelPopupPrev, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(panelChooseThemeLayout.createSequentialGroup()
-                        .addComponent(buttonApplyTheme)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(labelThemeName, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE))
-                .addContainerGap())
+                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(labelPopupPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 392, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(labelThemeName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(buttonThemeApply, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         panelChooseThemeLayout.setVerticalGroup(
             panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -323,7 +325,9 @@ public class ChatFrame extends javax.swing.JFrame {
                     .addComponent(labelPopupPrev, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(labelBgPrev, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonApplyTheme)
+                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonThemeApply)
+                    .addComponent(buttonThemePreview))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -683,7 +687,7 @@ public class ChatFrame extends javax.swing.JFrame {
         
         
         //true = append
-        updateInputText(img, true);
+        setInputText(img, true);
         textAreaInput.requestFocus();
     
     }//GEN-LAST:event_tableEmojisMouseReleased
@@ -760,13 +764,13 @@ public class ChatFrame extends javax.swing.JFrame {
         //put selected history item in textAreaChatHistory
         int row = tableHistory.getSelectedRow();
         String savedHistory = tableHistory.getModel().getValueAt(row, 1).toString();
-		updateTextAreaConversation(savedHistory);
+		setTextAreaConversationText(savedHistory);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
     private void dialogHistoryWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogHistoryWindowClosing
         //restore the incoming text
-		updateTextAreaConversation(chatman.getAllMessagesText());
+		updateConversationText();
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
@@ -877,10 +881,9 @@ public class ChatFrame extends javax.swing.JFrame {
 			kit.setStyleSheet(cssHideTime);
 		}
 		
-		String previousText = getConversationTextAll();
 		textAreaConversation.setEditorKit(kit);
 		textAreaConversation.setText(defaultTextAreaHtml);
-		updateTextAreaConversation(previousText);
+		updateConversationText();
 
 		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
     }//GEN-LAST:event_textAreaConversationMouseClicked
@@ -975,7 +978,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//set things to default
 		dropdownThemes.removeAllItems();
-		themeChooserSelectedTheme = null;
+		previewTheme = null;
 		labelPopupPrev.setIcon(null);
 		labelBgPrev.setIcon(null);
 		
@@ -1003,50 +1006,57 @@ public class ChatFrame extends javax.swing.JFrame {
 			return;
 		}
 		
+		if(previewPopup != null){
+			if(previewPopup.isVisible()){
+				previewPopup.hide();
+			}
+		}
+		
 		try{
 			String themeName = (String) dropdownThemes.getSelectedItem();
-			themeChooserSelectedTheme = CMTheme.getFromDefaultDir(themeName);
-			Image bg = themeChooserSelectedTheme.getBgImage().getImage().getScaledInstance(
+			previewTheme = CMTheme.getFromDefaultDir(themeName);
+			Image bg = previewTheme.getBgImage().getImage().getScaledInstance(
 					330, 400, Image.SCALE_SMOOTH);
 			
 			labelBgPrev.setIcon(new ImageIcon(bg));
-			labelPopupPrev.setIcon(themeChooserSelectedTheme.getPopupImage());
-			labelThemeName.setText(themeChooserSelectedTheme.getUsername());
+			labelPopupPrev.setIcon(previewTheme.getPopupImage());
+			labelThemeName.setText(previewTheme.getUsername());
 		}catch(Exception e ){
 			message("Bad theme file");
 			CMHelper.getInstance().log("bad theme file selected: " + e.getMessage());
 		}
     }//GEN-LAST:event_dropdownThemesActionPerformed
 
-    private void buttonApplyThemeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonApplyThemeActionPerformed
-        currentTheme = themeChooserSelectedTheme;
+    private void buttonThemeApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonThemeApplyActionPerformed
+        currentTheme = previewTheme;
 		applyCurrentTheme();
 		CMConfig.getInstance().set("theme", currentTheme.getFileName());
 		CMConfig.getInstance().save();
-    }//GEN-LAST:event_buttonApplyThemeActionPerformed
+    }//GEN-LAST:event_buttonThemeApplyActionPerformed
 
     private void dialogChooseThemeWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogChooseThemeWindowClosing
-
-    }//GEN-LAST:event_dialogChooseThemeWindowClosing
-
-    private void labelPopupPrevMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPopupPrevMouseEntered
-        labelPopupPrev.setIcon(null);
-		newMessagePopup = new CMNotifPopup(themeChooserSelectedTheme);
-		newMessagePopup.show();
-    }//GEN-LAST:event_labelPopupPrevMouseEntered
-
-    private void labelPopupPrevMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelPopupPrevMouseExited
-        if(labelPopupPrev.getIcon() == null){
-			newMessagePopup.hide();
-			labelPopupPrev.setIcon(themeChooserSelectedTheme.getPopupImage());
-			if(peerTheme != null){
-				newMessagePopup = new CMNotifPopup(peerTheme);
-			}
-			else{
-				newMessagePopup = new CMNotifPopup(currentTheme);
+        if(previewPopup != null){
+			if(previewPopup.isVisible()){
+				previewPopup.hide();
 			}
 		}
-    }//GEN-LAST:event_labelPopupPrevMouseExited
+		previewTheme = null;
+		previewPopup = null;
+    }//GEN-LAST:event_dialogChooseThemeWindowClosing
+
+    private void buttonThemePreviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonThemePreviewActionPerformed
+		
+		if(previewPopup != null){
+			if(previewPopup.isVisible()){
+				previewPopup.hide();
+			}
+		}
+		
+		previewPopup = new CMNotifPopup(previewTheme);
+		previewPopup.show();
+		previewPopup.playSound();
+		
+    }//GEN-LAST:event_buttonThemePreviewActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1089,9 +1099,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
     }
-	
-	//todo: button names are image
-	
+		
 	//bejash folder ro baz konim dar in halat
 	private static void do_pregui_check(){
 		
@@ -1130,7 +1138,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}catch(Exception e){
 			(new CmdFatalErrorExit("history database cannot be created", e)).execute();
 		}
-		
+			
 		// !!! DO NOT MOVE THE ABOVE CODE BELOW THEY HAVE TO BE RUN FIRST !!!
 		
 		this.setTitle(appTitle);
@@ -1184,7 +1192,7 @@ public class ChatFrame extends javax.swing.JFrame {
 				String pastedText = tempField.getText();
 				//agar ax darim faghat akhar paste kon chon nemish
 				if(getInputText().contains("<img")){
-					updateInputText(pastedText, true);
+					setInputText(pastedText, true);
 					return;
 				}
 				//vaghti yek ghesmat as text select shode va mikhaim oonja paste konim				
@@ -1203,12 +1211,12 @@ public class ChatFrame extends javax.swing.JFrame {
 					String currentText = getInputText();
 					String firstHalf = currentText.substring(0, currentCaretPos-1);
 					String secondHalf = currentText.substring(currentCaretPos-1, currentText.length());
-					updateInputText(firstHalf+pastedText+secondHalf, false);
+					setInputText(firstHalf+pastedText+secondHalf, false);
 					textAreaInput.setCaretPosition(currentCaretPos + pastedText.length());
 					return;
 				}
 				//vaghti akhare text paste mikonim
-				updateInputText(pastedText, true);
+				setInputText(pastedText, true);
 				
             }
         };
@@ -1266,6 +1274,12 @@ public class ChatFrame extends javax.swing.JFrame {
 			}
         };
 		nextEmojiPage();
+		   
+		// CSS for conversation pane 
+		cssHideTime = new StyleSheet();
+		cssShowTime = new StyleSheet();
+		cssHideTime.addRule(".time{font-size:0px;color:#3a3a3a}");
+		cssShowTime.addRule(".time{font-size:11px}");
 		
         // Theme
 		try{
@@ -1276,19 +1290,11 @@ public class ChatFrame extends javax.swing.JFrame {
 			currentTheme = CMTheme.getDefaultTheme();
 		}
 		applyCurrentTheme();
-       
-		// CSS for conversation pane 
-		cssHideTime = new StyleSheet();
-		cssShowTime = new StyleSheet();
-		cssHideTime.addRule(".time{font-size:0px;color:#3a3a3a}");
-		cssShowTime.addRule(".time{font-size:11px}");
 		
-        // Empty HTML Texts
-        defaultTextAreaHtml = "<html><head><style type='text/css'>#text { color: "+ textColor +"; font-family: Tahoma; font-size: 12px; }</style></head><body id='text'></body></html>";
+        // Default to hide time CSS
 		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
-		textAreaConversation.setEditorKit(tkit);		
-        textAreaInput.setText(defaultTextAreaHtml);
+		textAreaConversation.setEditorKit(tkit);
 		textAreaConversation.setText(defaultTextAreaHtml);
         
         // Make ScrollPanes invisible
@@ -1369,15 +1375,6 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		// Hide progressbar
 		progressBar.setVisible(false);
-		//todo: this ->
-        labelPopupPrev.addMouseListener(new MouseAdapter() {
-	        @Override
-	        public void mouseReleased(MouseEvent e) {
-		        newMessagePopup.playSound();
-	        }
-        });
-
-        //todo: when popup is too big theme choose dialog fucks up
 		
     } 
     
@@ -1585,7 +1582,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			return;
 		}
 		
-		updateTextAreaConversation(chatman.getAllMessagesText());
+		updateConversationText();
 		
 		//check peer theme
 		if(message.getDirection() == CMMessage.Direction.IN){
@@ -1609,22 +1606,27 @@ public class ChatFrame extends javax.swing.JFrame {
 			
     }
 	 
-	private void updateTextAreaConversation(String text){
+	private void setTextAreaConversationText(String text){
         String html = textAreaConversation.getText();
 		Document doc = Jsoup.parse(html);
-		Element textDiv = doc.select("body#text").first();
+		Element textDiv = doc.select("body").first();
 		if(textDiv == null){
 			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
 		}
 		textDiv.html(text);
 		textAreaConversation.setText(doc.outerHtml());
 	}
+	
+	private void updateConversationText(){
+		String conversationText = (chatman != null)? chatman.getAllMessagesText() : "";
+		setTextAreaConversationText(conversationText);
+	}
 	  
     //is called when we want to add something to the outgoing text like emoticons, paste stuff
-    public void updateInputText(String t, boolean append){
+    public void setInputText(String t, boolean append){
         String html = textAreaInput.getText();
 		Document doc = Jsoup.parse(html);
-		Element textDiv = doc.select("body#text").first();
+		Element textDiv = doc.select("body").first();
 		if(textDiv == null){
 			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
 		}
@@ -1640,17 +1642,7 @@ public class ChatFrame extends javax.swing.JFrame {
     public String getInputText(){
         String html = textAreaInput.getText();
 		Document doc = Jsoup.parse(html);
-		Element textDiv = doc.select("body#text").first();
-		if(textDiv == null){
-			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
-		}		
-		return textDiv.html();
-    }
-	
-    public String getConversationTextAll(){
-        String html = textAreaConversation.getText();
-		Document doc = Jsoup.parse(html);
-		Element textDiv = doc.select("body#text").first();
+		Element textDiv = doc.select("body").first();
 		if(textDiv == null){
 			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
 		}		
@@ -1658,7 +1650,7 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     public void clearInputText(){
-        updateInputText("", false);
+        setInputText("", false);
     }
 	
 	private void fixConvoScroll(){
@@ -1693,6 +1685,13 @@ public class ChatFrame extends javax.swing.JFrame {
 		textColor = (textAreasTheme.equals("dark"))? CMColor.WHITE.hex : CMColor.BLACK.hex;
 		//input caret color according to text color
 		textAreaInput.setCaretColor(Color.getColor(textColor));
+		
+		defaultTextAreaHtml = "<html><head><style type='text/css'>body { color: "+ textColor +"; font-family: Tahoma; font-size: 12px; }</style></head><body></body></html>";
+        textAreaInput.setText(defaultTextAreaHtml);
+		textAreaConversation.setText(defaultTextAreaHtml);
+		
+		//resfresh text area to apply new text color
+		updateConversationText();
 
 		//set label icons
 		changeLabelIcon(labelConvoBg, "");
@@ -1810,9 +1809,10 @@ public class ChatFrame extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton buttonApplyTheme;
     private javax.swing.JButton buttonNextHistoryPage;
     private javax.swing.JButton buttonPrevHistoryPage;
+    private javax.swing.JButton buttonThemeApply;
+    private javax.swing.JButton buttonThemePreview;
     private javax.swing.JDialog dialogChooseTheme;
     private javax.swing.JDialog dialogHistory;
     private javax.swing.JComboBox<String> dropdownThemes;

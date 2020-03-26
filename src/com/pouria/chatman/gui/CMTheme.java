@@ -47,19 +47,19 @@ public class CMTheme {
 	private final byte[] popupData;
 	private final byte[] soundData;
 
-	private static String USERNAME = "username";
-	private static String BG_IMAGE = "bg-image";
-	private static String POPUP_IMAGE = "notification-image";
-	private static String POPUP_SOUND = "notification-sound";
-	private static String POPUP_MARGIN_RIGHT = "notification-margin-right";
-	private static String POPUP_MARGIN_BOTTOM = "notification-margin-bottom";
-	private static String BUTTONS_THEME = "buttons-theme";
-	private static String TEXTAREAS_THEME = "text-areas-theme";
+	private final static String USERNAME = "username";
+	private final static String BG_IMAGE = "bg-image";
+	private final static String POPUP_IMAGE = "notification-image";
+	private final static String POPUP_SOUND = "notification-sound";
+	private final static String POPUP_MARGIN_RIGHT = "notification-margin-right";
+	private final static String POPUP_MARGIN_BOTTOM = "notification-margin-bottom";
+	private final static String BUTTONS_THEME = "buttons-theme";
+	private final static String TEXTAREAS_THEME = "textareas-theme";
 
-	private static String DEFAULT_POPUP_IMAGE = "default_popup_image.gif";
-	private static String DEFAULT_POPUP_SOUND = "default_popup_sound.wav";
-	private static int DEFAULT_POPUP_MARGIN_RIGHT = 10;
-	private static int DEFAULT_POPUP_MARGIN_BOTTOM = 30;
+	private final static String DEFAULT_POPUP_IMAGE = "default_popup_image.gif";
+	private final static String DEFAULT_POPUP_SOUND = "default_popup_sound.wav";
+	private final static int DEFAULT_POPUP_MARGIN_RIGHT = 10;
+	private final static int DEFAULT_POPUP_MARGIN_BOTTOM = 30;
 
 	public CMTheme(String themeFilePath) throws Exception{
 		

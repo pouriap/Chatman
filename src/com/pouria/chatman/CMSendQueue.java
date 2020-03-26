@@ -56,6 +56,8 @@ public class CMSendQueue {
 						//add them to gui because meessages are added to gui int messageHandler whicih we don't use here
 						for(DisplayableMessage message : queue){
 							//add them to conversation without sending
+							//todo: in kar baes mishe masalan age 5 ta unsent darim 5 bar display beshan
+							//dar dafaaate baadi ke in queue run mishavad
 							message.onSend(false);
 						}
 						return;

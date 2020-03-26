@@ -42,12 +42,16 @@ public class CMNotifPopup{
 
 	public CMNotifPopup(CMTheme theme) {
 
+		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		int taskBarHeight = scrnSize.height - winSize.height;
+
 		ImageIcon popupImage = theme.getPopupImage();
 		int widht = popupImage.getIconWidth();
 		int height = popupImage.getIconHeight();
 		int rightOffset = theme.getPopupRightMargin();
 		int bottomOffset = theme.getPopupBottomMargin();
-		
+
 		dialog = new JDialog();
 		dialog.setSize(widht, height);
 		dialog.setUndecorated(true);
@@ -60,7 +64,7 @@ public class CMNotifPopup{
         int screenHeight = (int) screenSize.getHeight();
         dialog.setLocation(
                 screenWidth - dialog.getWidth() - rightOffset, 
-                screenHeight - dialog.getHeight() - bottomOffset
+                screenHeight - dialog.getHeight() - taskBarHeight - bottomOffset
         );
 		
 		label = new JLabel();
