@@ -1,11 +1,16 @@
 package com.pouria.chatman.messages;
 
+import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.messageDisplayer;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class FileMessage extends DisplayableMessage {
 
@@ -74,11 +79,43 @@ public class FileMessage extends DisplayableMessage {
 		return json.toString();
 	}
 
-	public String getFileName() {
-		return fileName;
-	}
-
 	public File getFile() {
 		return file;
 	}
+
+	@Override
+	public void doOnReceive(){
+
+		CMHelper.getInstance().log("file message received");
+
+		FileMessage messageToDisplay;
+		String dlDirectory = CMHelper.getInstance().getCMDownloadsDir();
+		File savedFile = new File(dlDirectory+fileName);
+
+		//copy temp file to chatman dl directory
+		try{
+
+			File saveDir = new File(dlDirectory);
+			if(!saveDir.isDirectory()){
+				CMHelper.getInstance().log("download dir doesn't exist. creating download dir");
+				saveDir.mkdirs();
+				CMHelper.getInstance().log("download dir created successfully");
+			}
+
+			CMHelper.getInstance().log("copying received file from " + file.getAbsolutePath() + " to " + savedFile.getAbsolutePath());
+			Files.copy(getFile().toPath(), savedFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+			CMHelper.getInstance().log("file copied");
+
+			messageToDisplay = FileMessage.getNew(getDirection(), sender, fileName, savedFile, getSenderTheme(), getTime());
+
+		}catch(IOException e){
+			CMHelper.getInstance().log("copying file from tmp folder to download direcoty failed");
+			messageToDisplay = FileMessage.getNew(getDirection(), "Error", "File receive failed", new File(""), getSenderTheme(), getTime());
+		}
+
+		messageDisplayer displayer = new messageDisplayer(messageToDisplay);
+		displayer.display();
+
+	}
+
 }

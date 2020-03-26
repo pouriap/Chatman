@@ -16,8 +16,6 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.commands.CmdInvokeLater;
-import com.pouria.chatman.commands.CmdShowMessage;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.DisplayableMessage;
@@ -45,8 +43,6 @@ public class CMSendQueue {
 				DisplayableMessage firstMessage = queue.peek();
 				OutgoingMsgHandler sender = new OutgoingMsgHandler(firstMessage);
 				sender.send();
-				messageDisplayer displayer = new messageDisplayer(firstMessage);
-				displayer.display();
 				//agar ferestade shod az saf dar biar va boro baadi
 				if(firstMessage.getStatus() == CMMessage.Status.SENT){
 					queue.poll();
@@ -60,9 +56,7 @@ public class CMSendQueue {
 						//add them to gui because meessages are added to gui int messageHandler whicih we don't use here
 						for(DisplayableMessage message : queue){
 							//add them to conversation without sending
-							message.setStatus(CMMessage.Status.SENDFAIL);
-							ChatFrame.getInstance().getChatmanInstance().addToAllDisplayableMessages(message);
-							(new CmdInvokeLater(new CmdShowMessage(message))).execute();
+							message.onSend(false);
 						}
 						return;
 					}

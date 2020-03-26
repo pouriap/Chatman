@@ -18,12 +18,10 @@ package com.pouria.chatman.connection;
 
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.messageDisplayer;
 import com.pouria.chatman.IncomingMsgHandler;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;
-import com.pouria.chatman.messages.DisplayableMessage;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -95,11 +93,7 @@ public class HttpServer implements ChatmanServer{
 			CMMessage message = parser.parseAsCMMessage();
 			IncomingMsgHandler handler = new IncomingMsgHandler(message);
 			handler.receive();
-			if(message.isDisplayable()){
-				messageDisplayer displayer = new messageDisplayer((DisplayableMessage)message);
-				displayer.display();
-			}
-			
+
 			//don't set server for showgui messages
 			if(message.getType() == CMType.SHOWGUI){
 				return;

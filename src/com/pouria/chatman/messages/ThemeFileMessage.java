@@ -1,8 +1,15 @@
 package com.pouria.chatman.messages;
 
+import com.pouria.chatman.CMConfig;
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.gui.CMTheme;
+import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.util.Base64;
 
 public class ThemeFileMessage extends HiddenMessage {
 
@@ -39,12 +46,31 @@ public class ThemeFileMessage extends HiddenMessage {
 		return json.toString();
 	}
 
-	public String getThemeName() {
-		return themeName;
+	@Override
+	public void doOnReceive(){
+
+		try{
+
+			File themeFileToSave = new File(
+					CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR) + "\\" + themeName
+			);
+
+			byte[] themeFileData = Base64.getDecoder().decode(themeDataBase64);
+			CMHelper.getInstance().createFile(themeFileToSave, themeFileData);
+
+			CMTheme peerTheme = new CMTheme(themeFileToSave.getAbsolutePath());
+			ChatFrame.getInstance().setPeerTheme(peerTheme);
+			ChatFrame.getInstance().showNewMessagePopup();
+
+		}catch(Exception e){
+			CMHelper.getInstance().log("failed to receive peer theme: " + e.getMessage());
+			ChatFrame.getInstance().setPeerTheme(CMTheme.getDefaultTheme());
+		}
+
 	}
 
-	public String getThemeDataBase64() {
-		return themeDataBase64;
+	@Override
+	public void doOnSend(){
+		//nothing
 	}
-
 }

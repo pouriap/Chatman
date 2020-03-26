@@ -1,5 +1,6 @@
 package com.pouria.chatman.messages;
 
+import com.pouria.chatman.messageDisplayer;
 import com.pouria.chatman.enums.CMColor;
 import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONObject;
@@ -43,8 +44,15 @@ public abstract class DisplayableMessage extends CMMessage {
 	}
 
 	@Override
-	public boolean isDisplayable(){
-		return true;
+	protected void doOnReceive() {
+		messageDisplayer displayer = new messageDisplayer(this);
+		displayer.display();
+	}
+
+	@Override
+	protected void doOnSend() {
+		messageDisplayer displayer = new messageDisplayer(this);
+		displayer.display();
 	}
 
 	public String getAsHTMLString(){

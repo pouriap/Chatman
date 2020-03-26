@@ -1,5 +1,6 @@
 package com.pouria.chatman.messages;
 
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONException;
@@ -40,4 +41,20 @@ public class PingMessage extends HiddenMessage{
 		json.put("sender_theme", senderTheme);
 		return json.toString();
 	}
+
+	@Override
+	public void doOnReceive(){
+		CMHelper.getInstance().log("ping received");
+	}
+
+	@Override
+	public void doOnSend(){
+		if(getStatus() == Status.SENT){
+			CMHelper.getInstance().log("ping sent successfully");
+		}
+		else{
+			CMHelper.getInstance().log("ping send failed");
+		}
+	}
+
 }

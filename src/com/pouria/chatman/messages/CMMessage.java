@@ -5,7 +5,7 @@ import com.pouria.chatman.enums.CMType;
 public abstract class CMMessage {
 
 	private Status status = Status.NOTSENT;
-	private Direction direction = Direction.UKNOWN;
+	private Direction direction;
 
 	public enum Status{
 		NOTSENT, SENT, SENDFAIL;
@@ -21,14 +21,22 @@ public abstract class CMMessage {
 
 	abstract public CMType getType();
 	abstract public String getAsJSONString();
-	abstract public boolean isDisplayable();
+	abstract protected void doOnReceive();
+	abstract protected void doOnSend();
+
+	public void onReceive(){
+		//things to do for all messages
+		doOnReceive();
+	}
+
+	public void onSend(boolean success){
+		//things to do for all messages
+		this.status = (success)? CMMessage.Status.SENT : CMMessage.Status.SENDFAIL;
+		doOnSend();
+	}
 
 	public Status getStatus(){
 		return this.status;
-	}
-
-	public void setStatus(Status status){
-		this.status = status;
 	}
 
 	public Direction getDirection() {

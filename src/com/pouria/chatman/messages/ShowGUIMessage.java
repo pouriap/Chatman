@@ -1,6 +1,7 @@
 package com.pouria.chatman.messages;
 
 import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONObject;
 
 public class ShowGUIMessage extends HiddenMessage {
@@ -27,6 +28,16 @@ public class ShowGUIMessage extends HiddenMessage {
 		JSONObject json = new JSONObject();
 		json.put("type", CMType.SHOWGUI);
 		return json.toString();
+	}
+
+	@Override
+	public void doOnReceive(){
+		ChatFrame.getInstance().showWindow();
+	}
+
+	@Override
+	public void doOnSend(){
+		//nothing
 	}
 
 }

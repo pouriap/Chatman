@@ -1,6 +1,8 @@
 package com.pouria.chatman.messages;
 
+import com.pouria.chatman.OutgoingMsgHandler;
 import com.pouria.chatman.enums.CMType;
+import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,5 +35,19 @@ public class RequestThemeMessage extends HiddenMessage {
 		json.put("type", CMType.REQUEST_THEME_FILE);
 		json.put("theme_name", themeName);
 		return json.toString();
+	}
+
+	@Override
+	public void doOnReceive(){
+		String themeDataBase64 = ChatFrame.getInstance().getCurrentTheme().getDataBase64();
+		String themeName =ChatFrame.getInstance().getCurrentTheme().getFileName();
+		ThemeFileMessage message = ThemeFileMessage.getNewOutgoing(themeName, themeDataBase64);
+		OutgoingMsgHandler handler = new OutgoingMsgHandler(message);
+		handler.send();
+	}
+
+	@Override
+	public void doOnSend(){
+		//nothing
 	}
 }

@@ -1,6 +1,7 @@
 package com.pouria.chatman.messages;
 
 import com.pouria.chatman.CMConfig;
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.enums.CMType;
 
 public class BadMessage extends DisplayableMessage {
@@ -17,5 +18,16 @@ public class BadMessage extends DisplayableMessage {
 	@Override
 	public String getDisplayableContent() {
 		return getContent();
+	}
+
+	@Override
+	public void doOnReceive(){
+		CMHelper.getInstance().log("bad message received: " + getContent());
+		super.doOnReceive();
+	}
+
+	@Override
+	public void doOnSend(){
+		//nothing
 	}
 }

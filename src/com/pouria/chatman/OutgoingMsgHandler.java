@@ -19,7 +19,8 @@ package com.pouria.chatman;
 import com.pouria.chatman.connection.ChatmanClient;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
-import com.pouria.chatman.messages.*;
+import com.pouria.chatman.messages.CMMessage;
+import com.pouria.chatman.messages.FileMessage;
 
 import java.io.File;
 
@@ -57,18 +58,8 @@ public class OutgoingMsgHandler {
 				
 		}
 
-		CMMessage.Status status = (success)? CMMessage.Status.SENT : CMMessage.Status.SENDFAIL;
-		message.setStatus(status);
-		
-		if(message.getType() == CMType.PING){
-			if(success){
-				CMHelper.getInstance().log("ping sent successfully");
-			}
-			else{
-				CMHelper.getInstance().log("ping send failed");
-			}
-		}
-		
+		message.onSend(success);
+
 	}
 
 	private boolean sendTextMessage(){

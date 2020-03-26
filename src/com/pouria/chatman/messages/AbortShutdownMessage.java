@@ -1,9 +1,12 @@
 package com.pouria.chatman.messages;
 
+import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class AbortShutdownMessage extends DisplayableMessage {
 
@@ -41,4 +44,25 @@ public class AbortShutdownMessage extends DisplayableMessage {
 	public String getDisplayableContent() {
 		return getContent();
 	}
+
+	@Override
+	public void doOnReceive() {
+
+		String info;
+		CMHelper.getInstance().log("remote-abort-shutdown received");
+		try {
+			CMHelper.getInstance().abortLocalShutdown();
+			CMHelper.getInstance().log("shutdown aborted successfully");
+			info = "[SHUTDOWN ABORTED SUCCESSFULLY]";
+		} catch (IOException e) {
+			CMHelper.getInstance().log("abort failed");
+			info = "[ERROR: COULD NOT ABORT THE SHUTDOWN]";
+		}
+		//tell the other computer if abort was successfull
+		TextMessage msg = TextMessage.getNewOutgoing(info);
+		ChatFrame.getInstance().getChatmanInstance().sendMessage(msg);
+
+		super.doOnReceive();
+	}
+
 }
