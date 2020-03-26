@@ -24,7 +24,7 @@ import com.pouria.chatman.enums.CMOS;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
 
 /**
  *
@@ -45,8 +45,8 @@ public class CMNotifPopup{
 		ImageIcon popupImage = theme.getPopupImage();
 		int widht = popupImage.getIconWidth();
 		int height = popupImage.getIconHeight();
-		int rightOffset = theme.getPopupRightOffset();
-		int bottomOffset = theme.getPopupBottomOffset();
+		int rightOffset = theme.getPopupRightMargin();
+		int bottomOffset = theme.getPopupBottomMargin();
 		
 		dialog = new JDialog();
 		dialog.setSize(widht, height);

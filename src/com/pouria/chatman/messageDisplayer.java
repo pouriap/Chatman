@@ -25,11 +25,11 @@ import com.pouria.chatman.messages.DisplayableMessage;
  *
  * @author pouriap
  */
-public class messageDisplayer {
+public class MessageDisplayer {
 	
 	private final DisplayableMessage message;
 	
-	public messageDisplayer(DisplayableMessage message) {
+	public MessageDisplayer(DisplayableMessage message) {
 		this.message = message;
 	}
 	

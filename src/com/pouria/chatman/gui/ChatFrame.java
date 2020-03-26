@@ -495,7 +495,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelPrevEmojiPage.setBounds(350, 490, 30, 25);
 
         labelSend.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelSend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-send-dark-normal.png"))); // NOI18N
+        labelSend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ui_en_US/label-send-dark-normal.png"))); // NOI18N
         labelSend.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelSend.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -515,7 +515,7 @@ public class ChatFrame extends javax.swing.JFrame {
         labelSend.setBounds(35, 490, 120, 40);
 
         labelClear.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelClear.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-clear-dark-normal.png"))); // NOI18N
+        labelClear.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ui_en_US/label-clear-dark-normal.png"))); // NOI18N
         labelClear.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelClear.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -1101,7 +1101,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		String country = configLocale.split("_")[1];
 		Locale locale = new Locale(language, country);
 		Locale.setDefault(locale);
-		
+
 		//send a showgui message to localhost, if localhost responds we exit
 		ShowGUIMessage showGUIMessage = ShowGUIMessage.getNewOutgoing();
 		List<NameValuePair> postParams = new ArrayList<>();
@@ -1462,29 +1462,35 @@ public class ChatFrame extends javax.swing.JFrame {
 		else if(state.isEmpty()){
 			state = "normal";
 		}
-		String template = "/resources/label-*name*-*theme*-*state*.png";
+
+		String iconImagesTemplate = "/resources/label-*name*-*theme*-*state*.png";
+		String textImagesTemplate = "/resources/ui_*locale*/label-*name*-*theme*-*state*.png";
 		String path = "";
+
+		//set locale
+		String locale = Locale.getDefault().toString();
+		textImagesTemplate = textImagesTemplate.replace("*locale*", locale);
 		
 		if(label == labelSend){
-			path = template.replace("*name*", "send").replace("*theme*", labelsTheme).replace("*state*", state);
+			path = textImagesTemplate.replace("*name*", "send").replace("*theme*", labelsTheme).replace("*state*", state);
 		}
 		else if(label == labelClear){
-			path = template.replace("*name*", "clear").replace("*theme*", labelsTheme).replace("*state*", state);
+			path = textImagesTemplate.replace("*name*", "clear").replace("*theme*", labelsTheme).replace("*state*", state);
 		}
 		else if(label == labelPrevEmojiPage){
-			path = template.replace("*name*", "prev").replace("*theme*", labelsTheme).replace("*state*", state);
+			path = iconImagesTemplate.replace("*name*", "prev").replace("*theme*", labelsTheme).replace("*state*", state);
 		}
 		else if(label == labelNextEmojiPage){
-			path = template.replace("*name*", "next").replace("*theme*", labelsTheme).replace("*state*", state);
+			path = iconImagesTemplate.replace("*name*", "next").replace("*theme*", labelsTheme).replace("*state*", state);
 		}
 		else if(label == labelConvoBg){
-			path = template.replace("*name*", "top").replace("*theme*", textAreasTheme).replace("*state*", state);
+			path = iconImagesTemplate.replace("*name*", "top").replace("*theme*", textAreasTheme).replace("*state*", state);
 		}
 		else if(label == labelInputBg){
-			path = template.replace("*name*", "bottom").replace("*theme*", textAreasTheme).replace("*state*", state);
+			path = iconImagesTemplate.replace("*name*", "bottom").replace("*theme*", textAreasTheme).replace("*state*", state);
 		}
 		else if(label == labelTableBg){
-			path = template.replace("*name*", "table").replace("*theme*", textAreasTheme).replace("*state*", state);
+			path = iconImagesTemplate.replace("*name*", "table").replace("*theme*", textAreasTheme).replace("*state*", state);
 		}
 		
 		ImageIcon icon = (new ImageIcon(getClass().getResource(path)));

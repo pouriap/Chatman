@@ -1,6 +1,6 @@
 package com.pouria.chatman.messages;
 
-import com.pouria.chatman.messageDisplayer;
+import com.pouria.chatman.MessageDisplayer;
 import com.pouria.chatman.enums.CMColor;
 import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONObject;
@@ -45,13 +45,13 @@ public abstract class DisplayableMessage extends CMMessage {
 
 	@Override
 	protected void doOnReceive() {
-		messageDisplayer displayer = new messageDisplayer(this);
+		MessageDisplayer displayer = new MessageDisplayer(this);
 		displayer.display();
 	}
 
 	@Override
 	protected void doOnSend() {
-		messageDisplayer displayer = new messageDisplayer(this);
+		MessageDisplayer displayer = new MessageDisplayer(this);
 		displayer.display();
 	}
 

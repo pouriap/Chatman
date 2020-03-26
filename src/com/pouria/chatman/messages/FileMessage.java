@@ -1,7 +1,7 @@
 package com.pouria.chatman.messages;
 
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.messageDisplayer;
+import com.pouria.chatman.MessageDisplayer;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONException;
@@ -113,7 +113,7 @@ public class FileMessage extends DisplayableMessage {
 			messageToDisplay = FileMessage.getNew(getDirection(), "Error", "File receive failed", new File(""), getSenderTheme(), getTime());
 		}
 
-		messageDisplayer displayer = new messageDisplayer(messageToDisplay);
+		MessageDisplayer displayer = new MessageDisplayer(messageToDisplay);
 		displayer.display();
 
 	}

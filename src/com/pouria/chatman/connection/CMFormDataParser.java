@@ -20,10 +20,8 @@ import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.messages.*;
 import io.undertow.server.handlers.form.FormData;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.xml.soap.Text;
 import java.io.File;
 import java.util.function.Consumer;
 

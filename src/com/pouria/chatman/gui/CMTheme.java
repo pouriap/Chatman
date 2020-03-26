@@ -24,7 +24,6 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Base64;
@@ -39,15 +38,29 @@ public class CMTheme {
 	
 	private final File file;
 	private final ImageIcon bgImage;
-	private final int popupRightOffset;
-	private final int popupBottomOffset;
+	private final int popupRightMargin;
+	private final int popupBottomMargin;
 	private final String userName;
 	private final String buttonsTheme;
 	private final String textAreasTheme;
 	
 	private final byte[] popupData;
 	private final byte[] soundData;
-	
+
+	private static String USERNAME = "username";
+	private static String BG_IMAGE = "bg-image";
+	private static String POPUP_IMAGE = "notification-image";
+	private static String POPUP_SOUND = "notification-sound";
+	private static String POPUP_MARGIN_RIGHT = "notification-margin-right";
+	private static String POPUP_MARGIN_BOTTOM = "notification-margin-bottom";
+	private static String BUTTONS_THEME = "buttons-theme";
+	private static String TEXTAREAS_THEME = "text-areas-theme";
+
+	private static String DEFAULT_POPUP_IMAGE = "default_popup_image.gif";
+	private static String DEFAULT_POPUP_SOUND = "default_popup_sound.wav";
+	private static int DEFAULT_POPUP_MARGIN_RIGHT = 10;
+	private static int DEFAULT_POPUP_MARGIN_BOTTOM = 30;
+
 	public CMTheme(String themeFilePath) throws Exception{
 		
 		file = new File(themeFilePath);
@@ -61,14 +74,24 @@ public class CMTheme {
 			String jsonString = new String(jsonData);
 
 			JSONObject json = new JSONObject(jsonString);
-			String bgFilename = json.getString("bg-image");
-			String popupFilename = json.getString("popup-image");
-			String soundFilename = json.getString("sound-file");
-			popupRightOffset = json.getInt("popup-right-offset");
-			popupBottomOffset = json.getInt("popup-bottom-offset");
-			userName = json.getString("username");
-			buttonsTheme = json.getString("buttons-theme");
-			textAreasTheme = json.getString("textareas-theme");
+			//mandatory properties
+			userName = json.getString(USERNAME);
+			String bgFilename = json.getString(BG_IMAGE);
+			//optional properties
+			String popupFilename = json.has(POPUP_IMAGE)?
+					json.getString(POPUP_IMAGE) : "";
+			String soundFilename = json.has(POPUP_SOUND)?
+					json.getString(POPUP_SOUND) : "";
+			popupRightMargin = json.has(POPUP_MARGIN_RIGHT)?
+					json.getInt(POPUP_MARGIN_RIGHT) :
+					json.has(POPUP_IMAGE)? 0 : DEFAULT_POPUP_MARGIN_RIGHT;
+			popupBottomMargin = json.has(POPUP_MARGIN_BOTTOM)?
+					json.getInt(POPUP_MARGIN_BOTTOM) :
+					json.has(POPUP_IMAGE)? 0 : DEFAULT_POPUP_MARGIN_BOTTOM;
+			buttonsTheme = json.has(BUTTONS_THEME)?
+					json.getString(BUTTONS_THEME) : "dark";
+			textAreasTheme = json.has(TEXTAREAS_THEME)?
+					json.getString(TEXTAREAS_THEME) : "dark";
 
 			ZipEntry bgFile = zipFile.getEntry(bgFilename);
 			InputStream bgIn = zipFile.getInputStream(bgFile);
@@ -76,12 +99,24 @@ public class CMTheme {
 			bgImage = new ImageIcon(bgData);
 
 			ZipEntry popupFile = zipFile.getEntry(popupFilename);
-			InputStream popupIn = zipFile.getInputStream(popupFile);
-			popupData = CMHelper.readStreamAsByteArray(popupIn);
+			if(popupFile != null) {
+				InputStream popupIn = zipFile.getInputStream(popupFile);
+				popupData = CMHelper.readStreamAsByteArray(popupIn);
+			}
+			else{
+				InputStream popupIn = getClass().getResourceAsStream("/resources/" + DEFAULT_POPUP_IMAGE);
+				popupData = CMHelper.readStreamAsByteArray(popupIn);
+			}
 
 			ZipEntry soundFile = zipFile.getEntry(soundFilename);
-			InputStream soundIn = zipFile.getInputStream(soundFile);
-			soundData = CMHelper.readStreamAsByteArray(soundIn);
+			if(soundFile != null) {
+				InputStream soundIn = zipFile.getInputStream(soundFile);
+				soundData = CMHelper.readStreamAsByteArray(soundIn);
+			}
+			else{
+				InputStream soundIn = getClass().getResourceAsStream("/resources/" + DEFAULT_POPUP_SOUND);
+				soundData = CMHelper.readStreamAsByteArray(soundIn);
+			}
 
 		}
 		
@@ -100,12 +135,12 @@ public class CMTheme {
 		return soundData;
 	}
 
-	public int getPopupRightOffset() {
-		return popupRightOffset;
+	public int getPopupRightMargin() {
+		return popupRightMargin;
 	}
 
-	public int getPopupBottomOffset() {
-		return popupBottomOffset;
+	public int getPopupBottomMargin() {
+		return popupBottomMargin;
 	}
 	
 	public String getUsername(){
