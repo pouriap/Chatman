@@ -178,7 +178,7 @@ public class CMTheme {
 			
 			String defaultThemesDir = CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR);
 			File themeFile = new File(defaultThemesDir + "\\" + CMConfig.DEFAULT_THEME);
-			CMHelper.getInstance().copyFromResources("default_theme.cmtheme", themeFile);
+			CMHelper.getInstance().copyFromResources(CMConfig.DEFAULT_THEME, themeFile);
 			return new CMTheme(themeFile.getAbsolutePath());
 			
 		}catch(Exception e){

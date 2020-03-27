@@ -20,18 +20,19 @@ import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdShowError;
 import com.pouria.chatman.enums.CMOS;
+import com.sun.istack.internal.NotNull;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
+import java.util.Objects;
 
 /**
  *
  * @author Pouria
  */
 public class CMNotifPopup{
-	
 
 	private final JDialog dialog;
 	private final JLabel label;
@@ -39,13 +40,10 @@ public class CMNotifPopup{
 	private final CMOS os;
 	private AudioFormat audioFormat;
 
+	public CMNotifPopup(@NotNull CMTheme theme) {
 
-	public CMNotifPopup(CMTheme theme) {
+		Objects.requireNonNull(theme);
 		
-		if(ChatFrame.getInstance().overridePopup()){
-			theme = ChatFrame.getInstance().getCurrentTheme();
-		}
-
 		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 		int taskBarHeight = scrnSize.height - winSize.height;

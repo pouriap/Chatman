@@ -83,7 +83,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private CMTheme previewTheme;
 	private CMNotifPopup previewPopup;
 	
-	private final String version = "3.0.0b";
+	private final String version = "3.0.0b2";
 	private final String appTitle = "Chatman Forever";
 
     private ChatFrame(){
@@ -270,7 +270,9 @@ public class ChatFrame extends javax.swing.JFrame {
         labelPopupPrev.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelPopupPrev.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), bundle.getString("ChatFrame.labelPopupPrev.border.title"), javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 51))); // NOI18N
 
+        dropdownThemes.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         dropdownThemes.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        dropdownThemes.setPreferredSize(new java.awt.Dimension(90, 30));
         dropdownThemes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dropdownThemesActionPerformed(evt);
@@ -284,7 +286,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
 
-        labelThemeName.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        labelThemeName.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         labelThemeName.setForeground(new java.awt.Color(51, 51, 51));
         labelThemeName.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelThemeName.setText(bundle.getString("ChatFrame.labelThemeName.text")); // NOI18N
@@ -318,19 +320,21 @@ public class ChatFrame extends javax.swing.JFrame {
         panelChooseThemeLayout.setVerticalGroup(
             panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelChooseThemeLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dropdownThemes, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(labelThemeName))
-                .addGap(18, 18, 18)
-                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(labelPopupPrev, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(labelBgPrev, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(13, 13, 13)
+                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelChooseThemeLayout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(dropdownThemes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(labelThemeName, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(labelPopupPrev, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(labelBgPrev, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelChooseThemeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonThemeApply)
                     .addComponent(buttonThemePreview))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(26, 26, 26))
         );
 
         javax.swing.GroupLayout dialogChooseThemeLayout = new javax.swing.GroupLayout(dialogChooseTheme.getContentPane());
@@ -1078,7 +1082,7 @@ public class ChatFrame extends javax.swing.JFrame {
         String config = (selected)? "yes" : "no";
         CMConfig.getInstance().set("override-notification-theme", config);
         CMConfig.getInstance().save();
-        newMessagePopup = new CMNotifPopup(currentTheme);
+        updateNewMessagePopup();
     }//GEN-LAST:event_menuOverridePopupActionPerformed
 
     /**
@@ -1313,7 +1317,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			currentTheme = CMTheme.getDefaultTheme();
 		}
 		applyCurrentTheme();
-		
+
         // Default to hide time CSS
 		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
@@ -1383,6 +1387,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		        menuFile.setFont(iranSans);
 		        menuChooseTheme.setFont(iranSans);
 		        menuShowHistory.setFont(iranSans);
+		        menuOverridePopup.setFont(iranSans);
 		        menuRemoteShutdown.setFont(iranSans);
 		        menuAbortRemoteShutdown.setFont(iranSans);
 		        menuAbortLocalShutdown.setFont(iranSans);
@@ -1391,6 +1396,14 @@ public class ChatFrame extends javax.swing.JFrame {
 		        labelStatus.setFont(iranSans);
 		        labelStatusLabl.setFont(iranSans);
 		        tableHistory.setFont(iranSans);
+		        buttonThemeApply.setFont(iranSans);
+		        buttonThemePreview.setFont(iranSans);
+                ((javax.swing.border.TitledBorder) labelBgPrev.getBorder()).
+                        setTitleFont(iranSans);
+                ((javax.swing.border.TitledBorder) labelPopupPrev.getBorder()).
+                        setTitleFont(iranSans);
+                ((javax.swing.border.TitledBorder) labelThemeName.getBorder()).
+                        setTitleFont(iranSans);
 	        }catch(Exception e){
 		        //font will revert to default
 	        }
@@ -1702,9 +1715,11 @@ public class ChatFrame extends javax.swing.JFrame {
 	public void applyCurrentTheme(){
 		
 		labelFrameBg.setIcon(currentTheme.getBgImage());
-		newMessagePopup = new CMNotifPopup(currentTheme);
-		username = currentTheme.getUsername();
-				
+
+        username = currentTheme.getUsername();
+
+        updateNewMessagePopup();
+
 		//set up theme
 		labelsTheme = currentTheme.getButtonsTheme();
 		textAreasTheme = currentTheme.getTextAreasTheme();
@@ -1780,8 +1795,20 @@ public class ChatFrame extends javax.swing.JFrame {
 	
 	public void setPeerTheme(CMTheme peerTheme){
 		this.peerTheme = peerTheme;
-		newMessagePopup = new CMNotifPopup(peerTheme);
+        updateNewMessagePopup();
 	}
+
+	private void updateNewMessagePopup(){
+        try {
+            if (menuOverridePopup.isSelected()) {
+                newMessagePopup = new CMNotifPopup(currentTheme);
+            } else {
+                newMessagePopup = new CMNotifPopup(peerTheme);
+            }
+        }catch(Exception e){
+            newMessagePopup = new CMNotifPopup(CMTheme.getDefaultTheme());
+        }
+    }
 
     //sets the status label at the bottom
     public void setLabelStatus(String s){
