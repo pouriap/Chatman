@@ -59,7 +59,9 @@ public class CMTheme {
 	private final static String DEFAULT_POPUP_IMAGE = "default_popup_image.gif";
 	private final static String DEFAULT_POPUP_SOUND = "default_popup_sound.wav";
 	private final static int DEFAULT_POPUP_MARGIN_RIGHT = 10;
-	private final static int DEFAULT_POPUP_MARGIN_BOTTOM = 30;
+	private final static int DEFAULT_POPUP_MARGIN_BOTTOM = 0;
+
+	//todo: add option to override popup sound and image
 
 	public CMTheme(String themeFilePath) throws Exception{
 		
@@ -125,10 +127,14 @@ public class CMTheme {
 	public ImageIcon getBgImage() {
 		return bgImage;
 	}
-
-	public ImageIcon getPopupImage() {
-		//baraye inke gif haii ke yek repeat darad reset shavand
+	
+	public ImageIcon getPopupImage(){
+		//to re-draw one-loop gifs
 		return new ImageIcon(popupData);
+	}
+
+	public byte[] getPopupImageBytes() {
+		return popupData;
 	}
 
 	public byte[] getSoundFileBytes(){

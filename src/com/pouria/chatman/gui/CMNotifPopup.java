@@ -41,6 +41,10 @@ public class CMNotifPopup{
 
 
 	public CMNotifPopup(CMTheme theme) {
+		
+		if(ChatFrame.getInstance().overridePopup()){
+			theme = ChatFrame.getInstance().getCurrentTheme();
+		}
 
 		Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();

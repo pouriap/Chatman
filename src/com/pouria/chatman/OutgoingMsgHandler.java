@@ -25,7 +25,7 @@ import com.pouria.chatman.messages.FileMessage;
 import java.io.File;
 
 /**
- *
+ * takes a {@link CMMessage} as argument and sends it
  * @author pouriap
  */
 public class OutgoingMsgHandler {
@@ -36,7 +36,12 @@ public class OutgoingMsgHandler {
 	public OutgoingMsgHandler(CMMessage message){
 		this.message = message;
 	}
-	//todo: all calls to this except the one from sendQueue happen on UI thread!
+
+	/**
+	 * sends the message synchonously<br>
+	 * when the message is sent, the message's {@link CMMessage#onSend(boolean)} method is invoked<br>
+	 * this function is blocking
+	 */
 	public void send(){
 
 		boolean success;
@@ -62,17 +67,36 @@ public class OutgoingMsgHandler {
 
 	}
 
+	/**
+	 * Sends the message asynchronously
+	 */
+	public void sendAsync(){
+		(new Thread(this::send)).start();
+	}
+
+	/**
+	 * sends a text message using the underlying ChatmanClient
+	 * @return whether send was successful
+	 */
 	private boolean sendTextMessage(){
 		String text = message.getAsJSONString();
 		return client.sendText(text);
 	}
-	
+
+	/**
+	 * sends a file message using the underlying ChatmanClient
+	 * @return whether send was successful
+	 */
 	private boolean sendFileMessage(){
 		File file = ((FileMessage)message).getFile();
 		String metadata = message.getAsJSONString();
 		return client.sendFile(file, metadata);
 	}
-	
+
+	/**
+	 * sends a showGUI message using the underlying ChatmanClient
+	 * @return whether send was successful
+	 */
 	private boolean sendShowGUIMessage(){
 		client.setServer("127.0.0.1");
 		String text = message.getAsJSONString();

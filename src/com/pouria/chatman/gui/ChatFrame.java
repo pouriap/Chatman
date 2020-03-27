@@ -60,6 +60,7 @@ import java.util.Locale;
  * This file has the main() function and is the entry point of the application
  * 
  */
+@SuppressWarnings("ALL")
 public class ChatFrame extends javax.swing.JFrame {
 
     private static ChatFrame instance = null; 
@@ -146,11 +147,13 @@ public class ChatFrame extends javax.swing.JFrame {
         menuShowHistory = new javax.swing.JMenuItem();
         menuChooseTheme = new javax.swing.JMenuItem();
         menuSeparator1 = new javax.swing.JPopupMenu.Separator();
+        menuOverridePopup = new javax.swing.JCheckBoxMenuItem();
+        menuSeparator2 = new javax.swing.JPopupMenu.Separator();
         menuRemoteShutdown = new javax.swing.JMenuItem();
         menuAbortRemoteShutdown = new javax.swing.JMenuItem();
         menuAbortLocalShutdown = new javax.swing.JMenuItem();
         menuWakeOnLan = new javax.swing.JMenuItem();
-        menuSeparator2 = new javax.swing.JPopupMenu.Separator();
+        menuSeparator3 = new javax.swing.JPopupMenu.Separator();
         menuAbout = new javax.swing.JMenuItem();
         menuExit = new javax.swing.JMenuItem();
 
@@ -604,6 +607,16 @@ public class ChatFrame extends javax.swing.JFrame {
         menuFile.add(menuChooseTheme);
         menuFile.add(menuSeparator1);
 
+        menuOverridePopup.setSelected(true);
+        menuOverridePopup.setText(bundle.getString("ChatFrame.menuOverridePopup.text")); // NOI18N
+        menuOverridePopup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuOverridePopupActionPerformed(evt);
+            }
+        });
+        menuFile.add(menuOverridePopup);
+        menuFile.add(menuSeparator2);
+
         menuRemoteShutdown.setText(bundle.getString("ChatFrame.menuRemoteShutdown.text")); // NOI18N
         menuRemoteShutdown.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -636,7 +649,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         menuFile.add(menuWakeOnLan);
-        menuFile.add(menuSeparator2);
+        menuFile.add(menuSeparator3);
 
         menuAbout.setText(bundle.getString("ChatFrame.menuAbout.text")); // NOI18N
         menuAbout.addActionListener(new java.awt.event.ActionListener() {
@@ -720,8 +733,6 @@ public class ChatFrame extends javax.swing.JFrame {
                 else {
 	                Desktop.getDesktop().browse(evt.getURL().toURI());
                 }
-				//todo: redraw conversation when theme changes
-				//todo: white bg doesn't make text blacck?
             }catch(IOException e){
                 message(CMHelper.getInstance().getStr("url_open_fail"));
 				CMHelper.getInstance().log("failed to open url: " + e.getMessage());
@@ -985,10 +996,15 @@ public class ChatFrame extends javax.swing.JFrame {
 		try{
 			File themesDir = new File(CMConfig.getInstance().get("themes-dir", CMConfig.DEFAULT_THEMES_DIR));
 			Files.list(themesDir.toPath()).forEach((Path t) -> {
-				String[] s = t.getFileName().toString().split("\\.");
+			    String fileName = t.getFileName().toString();
+				String[] s = fileName.split("\\.");
 				String extension = s[s.length-1];
 				if("cmtheme".equals(extension) || "zip".equals(extension)){
-					dropdownThemes.addItem(t.getFileName().toString());
+                    dropdownThemes.addItem(fileName);
+                    //select current theme by default
+                    if(fileName.equals(currentTheme.getFileName())){
+                        dropdownThemes.setSelectedItem(fileName);
+                    }
 				}
 			});
 			dialogChooseTheme.setLocationRelativeTo(null);
@@ -1058,6 +1074,10 @@ public class ChatFrame extends javax.swing.JFrame {
 		
     }//GEN-LAST:event_buttonThemePreviewActionPerformed
 
+    private void menuOverridePopupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOverridePopupActionPerformed
+        newMessagePopup = new CMNotifPopup(currentTheme);
+    }//GEN-LAST:event_menuOverridePopupActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1104,7 +1124,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private static void do_pregui_check(){
 		
 		//set default locale
-		String configLocale = CMConfig.getInstance().get("locale", "en_US");
+		String configLocale = CMConfig.getInstance().get("locale", CMConfig.DEFAULT_LOCALE);
 		String language = configLocale.split("_")[0];
 		String country = configLocale.split("_")[1];
 		Locale locale = new Locale(language, country);
@@ -1409,8 +1429,8 @@ public class ChatFrame extends javax.swing.JFrame {
 		
         // create a right-click menu 
 		PopupMenu rclickMenu = new PopupMenu();
-        MenuItem openItem = new MenuItem("Open");
-        MenuItem exitItem = new MenuItem("Exit");
+        MenuItem openItem = new MenuItem(CMHelper.getInstance().getStr("open"));
+        MenuItem exitItem = new MenuItem(CMHelper.getInstance().getStr("exit"));
         rclickMenu.add(openItem);
         rclickMenu.add(exitItem);
         trayIconApp.setPopupMenu(rclickMenu);
@@ -1585,7 +1605,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		updateConversationText();
 		
 		//check peer theme
-		if(message.getDirection() == CMMessage.Direction.IN){
+		if(message.getDirection()==CMMessage.Direction.IN && overridePopup()==false){
 			String senderTheme = message.getSenderTheme();
 			try{
 				if(peerTheme == null || !peerTheme.getFileName().equals(senderTheme)){
@@ -1595,7 +1615,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			}catch(Exception e){
 				RequestThemeMessage reqThemeMsg = RequestThemeMessage.getNewOutgoing(senderTheme);
 				OutgoingMsgHandler handler = new OutgoingMsgHandler(reqThemeMsg);
-				handler.send();
+				handler.sendAsync();
 				return;
 			}
 		}
@@ -1780,6 +1800,10 @@ public class ChatFrame extends javax.swing.JFrame {
 	public String getTextColor(){
 		return this.textColor;
 	}
+	
+	public boolean overridePopup(){
+		return menuOverridePopup.isSelected();
+	}
 	  	
 	//hides the chatman windows
 	public void hideWindow(){
@@ -1838,10 +1862,12 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem menuChooseTheme;
     private javax.swing.JMenuItem menuExit;
     private javax.swing.JMenu menuFile;
+    private javax.swing.JCheckBoxMenuItem menuOverridePopup;
     private javax.swing.JMenuItem menuRemoteShutdown;
     private javax.swing.JPopupMenu menuRightClick;
     private javax.swing.JPopupMenu.Separator menuSeparator1;
     private javax.swing.JPopupMenu.Separator menuSeparator2;
+    private javax.swing.JPopupMenu.Separator menuSeparator3;
     private javax.swing.JMenuItem menuShowHistory;
     private javax.swing.JMenuItem menuWakeOnLan;
     private javax.swing.JMenuBar menubarMain;

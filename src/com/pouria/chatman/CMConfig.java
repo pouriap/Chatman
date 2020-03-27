@@ -31,15 +31,17 @@ public class CMConfig {
 	private final PoConfig config;
 	private final File configFile;
 	private final String CONFIG_FILE_PATH = "config.conf";
-	
-	public static final String DEFAULT_BG = "bane_1.jpg";
+
+	/*
+	any changes made here should also be applied to /resources/default_config.conf
+	 */
 	public static final String DEFAULT_SERVER_PORT = "20759";
 	public static final String DEFAULT_SUBNET = "192.168.1.*";
 	public static final String DEFAULT_HOSTS_SCAN = "50";
 	public static final String DEFAULT_FILEDROP_SIZEWARNING = "300";
-	public static final String DEFAULT_LOCALE = "fa_IR";
+	public static final String DEFAULT_LOCALE = "en_US";
 	public static final String DEFAULT_SHOWTRAY = "yes";
-	public static final String DEFAULT_THEME = "default.cmtheme";
+	public static final String DEFAULT_THEME = "chatman.cmtheme";
 	public static final String DEFAULT_THEMES_DIR = "themes";
 	
 	

@@ -357,6 +357,19 @@
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="menuSeparator1">
             </MenuItem>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="menuOverridePopup">
+              <Properties>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/pouria/chatman/gui/Bundle.properties" key="ChatFrame.menuOverridePopup.text" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuOverridePopupActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="menuSeparator2">
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuRemoteShutdown">
               <Properties>
                 <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
@@ -398,7 +411,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuWakeOnLanActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JPopupMenu$Separator" name="menuSeparator2">
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="menuSeparator3">
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuAbout">
               <Properties>

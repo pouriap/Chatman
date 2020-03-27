@@ -43,7 +43,7 @@ public class RequestThemeMessage extends HiddenMessage {
 		String themeName =ChatFrame.getInstance().getCurrentTheme().getFileName();
 		ThemeFileMessage message = ThemeFileMessage.getNewOutgoing(themeName, themeDataBase64);
 		OutgoingMsgHandler handler = new OutgoingMsgHandler(message);
-		handler.send();
+		handler.sendAsync();
 	}
 
 	@Override

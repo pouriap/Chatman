@@ -42,7 +42,7 @@ public class Chatman {
 	private final long HEARTBEAT_INTERVAL = TimeUnit.MINUTES.toMillis(1);
 	private final long OLD_MSG_TIMEDIFF = TimeUnit.HOURS.toMillis(1);
 	
-	private final String horizontalLineHtml = "<div style='text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";
+	private final String horizontalLineHtml = "<div style='margin-top:20px;margin-bottom:20px;text-align:center;font-size:8px;font-color:#606060'>____________________ older messages ____________________<br></div>";
 	private final ArrayList<DisplayableMessage> allDisplayableMessages = new ArrayList<>();
 	private final CMSendQueue sendQueue;
 	

@@ -19,7 +19,14 @@ package com.pouria.chatman;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.DisplayableMessage;
+import com.pouria.chatman.messages.TextMessage;
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -48,17 +55,20 @@ public class CMSendQueue {
 					queue.poll();
 					continue;
 				}
+
 				//agar nashod connect sho
 				else{
 					boolean connectFail = !connectWithCooldown();
-					//agar connect nashod hamaro 'unsent' kon va processing ro motevaghef kon chon faide nadare
 					if(connectFail){
-						//add them to gui because meessages are added to gui int messageHandler whicih we don't use here
+						/*
+						fake a failed send if connect fails because server is not connected
+						and actually sending them is useless
+					    */
 						for(DisplayableMessage message : queue){
-							//add them to conversation without sending
-							//todo: in kar baes mishe masalan age 5 ta unsent darim 5 bar display beshan
-							//dar dafaaate baadi ke in queue run mishavad
-							message.onSend(false);
+							//don't do it again for the ones already done
+							if(message.getStatus() == CMMessage.Status.NOTSENT) {
+								message.onSend(false);
+							}
 						}
 						return;
 					}
