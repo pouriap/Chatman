@@ -43,6 +43,7 @@ public class CMConfig {
 	public static final String DEFAULT_SHOWTRAY = "yes";
 	public static final String DEFAULT_THEME = "chatman.cmtheme";
 	public static final String DEFAULT_THEMES_DIR = "themes";
+	public static final String DEFAULT_OVERRIDE_NOTIFICATION = "no";
 	
 	
 	private CMConfig() {

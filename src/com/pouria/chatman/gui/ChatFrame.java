@@ -83,10 +83,9 @@ public class ChatFrame extends javax.swing.JFrame {
 	private CMTheme previewTheme;
 	private CMNotifPopup previewPopup;
 	
-	private final String version = "3.0.0";
+	private final String version = "3.0.0b";
 	private final String appTitle = "Chatman Forever";
 
-	
     private ChatFrame(){
         initComponents();
     }
@@ -1075,6 +1074,10 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonThemePreviewActionPerformed
 
     private void menuOverridePopupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuOverridePopupActionPerformed
+        boolean selected = menuOverridePopup.isSelected();
+        String config = (selected)? "yes" : "no";
+        CMConfig.getInstance().set("override-notification-theme", config);
+        CMConfig.getInstance().save();
         newMessagePopup = new CMNotifPopup(currentTheme);
     }//GEN-LAST:event_menuOverridePopupActionPerformed
 
@@ -1395,6 +1398,11 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		// Hide progressbar
 		progressBar.setVisible(false);
+
+        String override = CMConfig.getInstance().get("override-notification-theme",
+                CMConfig.DEFAULT_OVERRIDE_NOTIFICATION);
+        boolean selected = ("yes".equals(override))? true : false;
+        menuOverridePopup.setSelected(selected);
 		
     } 
     

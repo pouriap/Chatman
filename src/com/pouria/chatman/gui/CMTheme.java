@@ -61,8 +61,6 @@ public class CMTheme {
 	private final static int DEFAULT_POPUP_MARGIN_RIGHT = 10;
 	private final static int DEFAULT_POPUP_MARGIN_BOTTOM = 0;
 
-	//todo: add option to override popup sound and image
-
 	public CMTheme(String themeFilePath) throws Exception{
 		
 		file = new File(themeFilePath);
