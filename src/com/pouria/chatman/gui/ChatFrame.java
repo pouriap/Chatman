@@ -888,9 +888,10 @@ public class ChatFrame extends javax.swing.JFrame {
 			kit.setStyleSheet(cssHideTime);
 		}
 		
-		textAreaConversation.setEditorKit(kit);
-		textAreaConversation.setText(defaultTextAreaHtml);
-		updateConversationText();
+        String previousText = getConversationTextAll();
+        textAreaConversation.setEditorKit(kit);
+        textAreaConversation.setText(defaultTextAreaHtml);
+        setTextAreaConversationText(previousText);
 
 		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
     }//GEN-LAST:event_textAreaConversationMouseClicked
@@ -1650,6 +1651,23 @@ public class ChatFrame extends javax.swing.JFrame {
 		String conversationText = (chatman != null)? chatman.getAllMessagesText() : "";
 		setTextAreaConversationText(conversationText);
 	}
+
+    /**
+     * used for show/hiding time when viewing chat history because we don't have
+     * the messages then
+     * @return the html content of all conversation messages<br>
+     * is equal to chatman.getAllMessagesText() but in chat history<br>
+     * mode we don't have that
+     */
+    private String getConversationTextAll(){
+        String html = textAreaConversation.getText();
+        Document doc = Jsoup.parse(html);
+        Element textDiv = doc.select("body").first();
+        if(textDiv == null){
+            (new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
+        }
+        return textDiv.html();
+    }
 	  
     //is called when we want to add something to the outgoing text like emoticons, paste stuff
     public void setInputText(String t, boolean append){
