@@ -37,7 +37,10 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 
 /**

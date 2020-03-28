@@ -17,7 +17,6 @@
 package com.pouria.chatman;
 
 import com.pouria.chatman.connection.ChatmanClient;
-import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;

@@ -19,14 +19,7 @@ package com.pouria.chatman;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.DisplayableMessage;
-import com.pouria.chatman.messages.TextMessage;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
