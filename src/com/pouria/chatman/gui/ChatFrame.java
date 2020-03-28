@@ -14,7 +14,6 @@ import com.pouria.chatman.commands.CmdFatalErrorExit;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdShowError;
 import com.pouria.chatman.connection.HttpClient;
-import com.pouria.chatman.enums.CMColor;
 import com.pouria.chatman.messages.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -61,7 +60,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private String defaultTextAreaHtml;
 	private StyleSheet cssHideTime;
 	private StyleSheet cssShowTime;
-	private int conversationPaneCssToggle = 1;
+	private timeDisplay conversationShowTime = timeDisplay.HIDE_TIME;
     private HistoryTablePagination historyPagination;
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
@@ -75,8 +74,12 @@ public class ChatFrame extends javax.swing.JFrame {
 	private CMTheme currentTheme, peerTheme;
 	private CMTheme previewTheme;
 	private CMNotifPopup previewPopup;
-	
-	private final String version = "3.0.0b2";
+
+	private enum timeDisplay{
+	    HIDE_TIME, SHOW_TIME;
+    }
+
+	private final String version = "3.0.0b4";
 	private final String appTitle = "Chatman Forever";
 
     private ChatFrame(){
@@ -881,7 +884,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		
-		if(conversationPaneCssToggle == 1){
+		if(conversationShowTime == timeDisplay.SHOW_TIME){
 			kit.setStyleSheet(cssShowTime);
 		}
 		else{
@@ -893,7 +896,9 @@ public class ChatFrame extends javax.swing.JFrame {
         textAreaConversation.setText(defaultTextAreaHtml);
         setTextAreaConversationText(previousText);
 
-		conversationPaneCssToggle = 1 - conversationPaneCssToggle;
+		conversationShowTime = (conversationShowTime == timeDisplay.SHOW_TIME)?
+                timeDisplay.HIDE_TIME : timeDisplay.SHOW_TIME;
+
     }//GEN-LAST:event_textAreaConversationMouseClicked
 
     private void textAreaConversationMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseEntered
@@ -1145,7 +1150,7 @@ public class ChatFrame extends javax.swing.JFrame {
         if(showGUIMessage.getStatus() == CMMessage.Status.SENT){
             System.exit(0);
         }
-		
+
 	}
      
 
@@ -1289,13 +1294,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			}
         };
 		nextEmojiPage();
-		   
-		// CSS for conversation pane 
-		cssHideTime = new StyleSheet();
-		cssShowTime = new StyleSheet();
-		cssHideTime.addRule(".time{font-size:0px;color:#3a3a3a}");
-		cssShowTime.addRule(".time{font-size:11px}");
-		
+
         // Theme
 		try{
 			String themeName = CMConfig.getInstance().get("theme", CMConfig.DEFAULT_THEME);
@@ -1305,14 +1304,9 @@ public class ChatFrame extends javax.swing.JFrame {
 			currentTheme = CMTheme.getDefaultTheme();
 		}
 		applyCurrentTheme();
+		//todo: vaghti popup ghabli hanooz click nashode va theme avaz konim va popup jadid
+        //biad har dota neshoon dade mishan rooye ham
 
-        // Default to hide time CSS
-        Objects.requireNonNull(defaultTextAreaHtml);
-		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
-		tkit.setStyleSheet(cssHideTime);
-		textAreaConversation.setEditorKit(tkit);
-		textAreaConversation.setText(defaultTextAreaHtml);
-        
         // Make ScrollPanes invisible
         scrollPaneInput.setOpaque(false);
         scrollPaneInput.getViewport().setOpaque(false);
@@ -1734,11 +1728,51 @@ public class ChatFrame extends javax.swing.JFrame {
 		textAreasTheme = currentTheme.getTextAreasTheme();
 		
 		//set text color
-		textColor = (textAreasTheme.equals("dark"))? CMColor.WHITE.hex : CMColor.BLACK.hex;
-		//input caret color according to text color
+		textColor = (textAreasTheme.equals("dark"))? CMCSS.WHITE.val : CMCSS.BLACK.val;
+        String hiddenTimeColor = (textAreasTheme.equals("dark"))? CMCSS.BLACK.val : CMCSS.WHITE.val;
+
+                //input caret color according to text color
 		textAreaInput.setCaretColor(Color.getColor(textColor));
-		
-		defaultTextAreaHtml = "<html><head><style type='text/css'>body { color: "+ textColor +"; font-family: Tahoma; font-size: 12px; }</style></head><body></body></html>";
+
+        String style = ""
+		+ ".message-div{"
+                + "padding:" + CMCSS.MESSAGE_DIV_PADDING.val + ";"
+                + "}"
+		+ ".username-sent{"
+                + "font-size:" + CMCSS.USERNAME_FONT_SIZE.val + ";"
+                + "}"
+        + ".username-unsent{"
+                + "font-size:" + CMCSS.USERNAME_FONT_SIZE.val + ";"
+                + "color:" + CMCSS.RED.val + ";"
+                + "}"
+        + "body{"
+                + "color:" + textColor + ";"
+                + "font-family:" + CMCSS.CONVERSATION_FONT_FAMILY.val + ";"
+                + "font-size:" + CMCSS.CONVERSATION_FONT_SIZE.val + ";"
+                + "}";
+
+        cssHideTime = new StyleSheet();
+        cssShowTime = new StyleSheet();
+        cssHideTime.addRule(
+                ".time{" +
+                    "font-size:0px;" +
+                    "color:" + hiddenTimeColor +
+                "}");
+        cssShowTime.addRule(
+                ".time{" +
+                    "font-size:" + CMCSS.MESSAGE_TIME_FONT_SIZE.val +
+                ";}");
+
+        HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
+        if(conversationShowTime == timeDisplay.SHOW_TIME){
+            kit.setStyleSheet(cssShowTime);
+        }
+        else{
+            kit.setStyleSheet(cssHideTime);
+        }
+        textAreaConversation.setEditorKit(kit);
+
+        defaultTextAreaHtml = "<html><head><style type='text/css'>"+style+"</style></head><body></body></html>";
         textAreaInput.setText(defaultTextAreaHtml);
 		textAreaConversation.setText(defaultTextAreaHtml);
 		
@@ -1806,8 +1840,14 @@ public class ChatFrame extends javax.swing.JFrame {
 		this.peerTheme = peerTheme;
         updateNewMessagePopup();
 	}
+	//todo: popup takes away focus asdf
 
 	private void updateNewMessagePopup(){
+
+        if(newMessagePopup!=null && newMessagePopup.isVisible()){
+            newMessagePopup.hide();
+        }
+
         try {
             if (menuOverridePopup.isSelected()) {
                 newMessagePopup = new CMNotifPopup(currentTheme);
@@ -1817,6 +1857,7 @@ public class ChatFrame extends javax.swing.JFrame {
         }catch(Exception e){
             newMessagePopup = new CMNotifPopup(CMTheme.getDefaultTheme());
         }
+
     }
 
     //sets the status label at the bottom

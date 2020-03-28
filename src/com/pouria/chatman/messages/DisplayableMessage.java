@@ -1,8 +1,6 @@
 package com.pouria.chatman.messages;
 
 import com.pouria.chatman.MessageDisplayer;
-import com.pouria.chatman.enums.CMColor;
-import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -60,16 +58,20 @@ public abstract class DisplayableMessage extends CMMessage {
 		Date d = new Date(getTime());
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
 		String timeTxt = dateFormat.format(d);
-		String html = getDisplayableContent();
+		String messageHTML = getDisplayableContent();
 
 		String you = "You";
-		String color = (getStatus() == Status.SENDFAIL)? CMColor.RED.hex : ChatFrame.getInstance().getTextColor();
+		String class_ = (getStatus() == Status.SENDFAIL)? "username-unsent" : "username-sent";
 		String senderName = (getDirection() == Direction.OUT)? you : getSender();
 
 		//each message is a div
-		html = "<div style='padding:5px;'><span class='time'>["+timeTxt+"]  |  </span><b style='font-size:14px;color:"+color+"'>" + senderName + ":</b> " + html + "</div>";
+		messageHTML = "<div class='message-div'>" +
+					"<span class='time'>[" + timeTxt + "]  |  </span>" +
+					"<b class='" + class_ + "'>" + senderName + ":</b> " +
+					messageHTML +
+				"</div>";
 
-		return html;
+		return messageHTML;
 	}
 
 	public String getSender(){
