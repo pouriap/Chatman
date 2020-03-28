@@ -26,6 +26,10 @@ import java.util.Observer;
  */
 public interface ChatmanClient{
 
+	public enum ConnectionStatus{
+		CONNECTED, DISCONNECTED, CONNETING;
+	}
+
 	/**
 	 * sends a String to the server we're connected to<br>
 	 * this function should be blocking!
@@ -64,6 +68,6 @@ public interface ChatmanClient{
 	public void setServer(Object server);
 	
 	
-	public void addServerFoundListener(Observer o);
+	public void addServerStateChangedListener(Observer o);
 	
 }

@@ -18,10 +18,9 @@ package com.pouria.chatman.connection;
 
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.commands.CmdChangeStatusIcon;
 import com.pouria.chatman.commands.CmdInvokeLater;
-import com.pouria.chatman.commands.CmdSetLabelStatus;
 import com.pouria.chatman.commands.CmdUpdateProgressbar;
+import javafx.util.Pair;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -38,10 +37,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -164,11 +160,9 @@ public class HttpClient extends Observable implements ChatmanClient{
 		
 		connectInProgress = true;
 		removeServer();
+		notifyListeners(ConnectionStatus.CONNETING);
 
-		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("searching_network")))).execute();
-		(new CmdInvokeLater(new CmdChangeStatusIcon("connecting.gif"))).execute();
-		
-        int serverPort = Integer.valueOf(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
+        int serverPort = Integer.parseInt(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
 		String[] ipsToScan = getIpsToScan();
 		
 		IpScanner scanner = new IpScanner(ipsToScan, serverPort);
@@ -201,7 +195,7 @@ public class HttpClient extends Observable implements ChatmanClient{
         }
         else{
             String subnet = CMConfig.getInstance().get("subnet-mask", CMConfig.DEFAULT_SUBNET);
-			int numHostsToScan = Integer.valueOf(CMConfig.getInstance().get("num-hosts-to-scan", CMConfig.DEFAULT_HOSTS_SCAN));
+			int numHostsToScan = Integer.parseInt(CMConfig.getInstance().get("num-hosts-to-scan", CMConfig.DEFAULT_HOSTS_SCAN));
 			ipsToScan = new String[numHostsToScan];
 			for(int i=0; i<numHostsToScan; i++){
 				String ip = subnet.replace("*", String.valueOf(i));
@@ -229,21 +223,23 @@ public class HttpClient extends Observable implements ChatmanClient{
 		}
 
 		this.serverIP = ip;
-		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + this.serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
-		(new CmdInvokeLater(new CmdChangeStatusIcon("connected.png"))).execute();
-		setChanged();
-		notifyObservers();
+		notifyListeners(ConnectionStatus.CONNECTED);
 
 	}
 	
 	private synchronized void removeServer(){
 		this.serverIP = null;
-		(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("server_not_found")))).execute();
-		(new CmdInvokeLater(new CmdChangeStatusIcon("disconnected.png"))).execute();
+		notifyListeners(ConnectionStatus.DISCONNECTED);
+	}
+
+	private void notifyListeners(ConnectionStatus status){
+		Pair<ConnectionStatus, String> result = new Pair<>(status, this.serverIP);
+		setChanged();
+		notifyObservers(result);
 	}
 
 	@Override
-	public void addServerFoundListener(Observer o){
+	public void addServerStateChangedListener(Observer o){
 		addObserver(o);
 	}
 	

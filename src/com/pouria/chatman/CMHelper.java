@@ -143,25 +143,31 @@ public class CMHelper {
 	
 	
 	public void checkDatabaseFile() throws Exception{
-		
+
 		File dbFile = new File("history.sqlite");
 		if(dbFile.isFile()){
 			return;
 		}
 
-		log("history.sqlite doesn't exist. creating it");
-		dbFile.createNewFile();
-		log("history.sqlite created successfully");
-		
-		log("creating database tables");
-		Connection con = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
-		Statement stmt = con.createStatement();
-		String query = "CREATE TABLE IF NOT EXISTS chat_sessions (id INTEGER PRIMARY KEY ASC AUTOINCREMENT UNIQUE NOT NULL, date INTEGER UNIQUE NOT NULL, text VARCHAR NOT NULL)";
-		stmt.execute(query);
-		
-		stmt.close();
-		con.close();
-		log("tables created succesffully");
+		try {
+
+			log("history.sqlite doesn't exist. creating it");
+			dbFile.createNewFile();
+			log("history.sqlite created successfully");
+
+			log("creating database tables");
+			Connection con = DriverManager.getConnection("jdbc:sqlite:history.sqlite");
+			Statement stmt = con.createStatement();
+			String query = "CREATE TABLE IF NOT EXISTS chat_sessions (id INTEGER PRIMARY KEY ASC AUTOINCREMENT UNIQUE NOT NULL, date INTEGER UNIQUE NOT NULL, text VARCHAR NOT NULL)";
+			stmt.execute(query);
+
+			stmt.close();
+			con.close();
+			log("tables created succesffully");
+
+		}catch (Exception e){
+			throw new Exception("history database cannot be created", e);
+		}
 
 	}
 	

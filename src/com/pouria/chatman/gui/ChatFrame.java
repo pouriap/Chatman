@@ -13,17 +13,9 @@ import com.pouria.chatman.classes.HistoryTablePagination;
 import com.pouria.chatman.commands.CmdFatalErrorExit;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdShowError;
+import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.enums.CMColor;
 import com.pouria.chatman.messages.*;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -45,13 +37,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+
 
 /**
  *
@@ -1090,7 +1083,7 @@ public class ChatFrame extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
 
-		do_pregui_check();
+		do_pregui_checks();
 		
         /* Set the look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -1121,14 +1114,21 @@ public class ChatFrame extends javax.swing.JFrame {
             public void run() {
                 ChatFrame frame = ChatFrame.getInstance();
 				//in tartib bayad bashe hatman
-                frame.initialize();
-				frame.startChatman();
+                try{
+                    frame.initialize();
+                    frame.startChatman();
+                }catch(Exception e){
+                    String error = "Initialization failed: " + e.getMessage();
+                    String causeError = (e.getCause() != null) ?
+                            "\n" + "Cause: " + e.getCause().getMessage() : "";
+                    (new CmdFatalErrorExit(error + causeError, e)).execute();
+                }
             }
         });
     }
 		
 	//bejash folder ro baz konim dar in halat
-	private static void do_pregui_check(){
+	private static void do_pregui_checks(){
 		
 		//set default locale
 		String configLocale = CMConfig.getInstance().get("locale", CMConfig.DEFAULT_LOCALE);
@@ -1138,39 +1138,26 @@ public class ChatFrame extends javax.swing.JFrame {
 		Locale.setDefault(locale);
 
 		//send a showgui message to localhost, if localhost responds we exit
-		ShowGUIMessage showGUIMessage = ShowGUIMessage.getNewOutgoing();
-		List<NameValuePair> postParams = new ArrayList<>();
-		postParams.add(new BasicNameValuePair("message", showGUIMessage.getAsJSONString()));
-		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
-		String port = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
-		HttpPost post = new HttpPost("http://127.0.0.1:"+port);
-		post.setEntity(postData);
-		try (CloseableHttpClient httpClient = HttpClientBuilder.create().build(); CloseableHttpResponse response = httpClient.execute(post)) {
-			int code = response.getCode();
-			EntityUtils.consume(response.getEntity());
-			//if localhost responds we exit
-			if(code == 200){
-				System.exit(0);
-			}
-		}catch(Exception e){}
+        ShowGUIMessage showGUIMessage = ShowGUIMessage.getNewOutgoing();
+        OutgoingMsgHandler sender = new OutgoingMsgHandler(showGUIMessage, new HttpClient());
+        sender.send();
+        if(showGUIMessage.getStatus() == CMMessage.Status.SENT){
+            System.exit(0);
+        }
 		
 	}
      
 
-    public void initialize(){
+    public void initialize() throws Exception {
 
 		// Checks if history.sqlite exists and if not tries to create it
-		try{
-			CMHelper.getInstance().checkDatabaseFile();
-		}catch(Exception e){
-			(new CmdFatalErrorExit("history database cannot be created", e)).execute();
-		}
-			
-		// !!! DO NOT MOVE THE ABOVE CODE BELOW THEY HAVE TO BE RUN FIRST !!!
-		
+		CMHelper.getInstance().checkDatabaseFile();
+
 		this.setTitle(appTitle);
-		
+
 		createTrayIcons();
+		Objects.requireNonNull(trayIconApp);
+        Objects.requireNonNull(trayIconNewMessage);
 		
 		// Show tray if config says yes
 		if(CMConfig.getInstance().get("show-tray-icon", CMConfig.DEFAULT_SHOWTRAY).equals("yes")){
@@ -1319,6 +1306,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		applyCurrentTheme();
 
         // Default to hide time CSS
+        Objects.requireNonNull(defaultTextAreaHtml);
 		HTMLEditorKit tkit = (HTMLEditorKit)textAreaConversation.getEditorKit();
 		tkit.setStyleSheet(cssHideTime);
 		textAreaConversation.setEditorKit(tkit);
@@ -1368,15 +1356,15 @@ public class ChatFrame extends javax.swing.JFrame {
 		// Hide text column in history table
 		tableHistory.removeColumn(tableHistory.getColumnModel().getColumn(1));
 
+        // History table header I18N because netbeans doesn't do it
+        String date = CMHelper.getInstance().getStr("date");
+        tableHistory.getTableHeader().getColumnModel().getColumn(0).setHeaderValue(date);
+
         // Center
         this.setLocationRelativeTo(null);
 		
 		// Hide wake on lan menu
 		menuWakeOnLan.setVisible(false);
-		
-		// Some stuff netbeans didn't I18N
-		String date = CMHelper.getInstance().getStr("date");
-		tableHistory.getTableHeader().getColumnModel().getColumn(0).setHeaderValue(date);
 
 		// Iransans font for everything
         if( "fa_IR".equals( CMConfig.getInstance().get("locale", "en_US") ) ){
@@ -1412,6 +1400,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		// Hide progressbar
 		progressBar.setVisible(false);
 
+        // Set override menu as checked if option is set
         String override = CMConfig.getInstance().get("override-notification-theme",
                 CMConfig.DEFAULT_OVERRIDE_NOTIFICATION);
         boolean selected = ("yes".equals(override))? true : false;
@@ -1420,13 +1409,12 @@ public class ChatFrame extends javax.swing.JFrame {
     } 
     
     // Start Chatman
-    public void startChatman(){	
+    public void startChatman() throws Exception{
 		try{
 			chatman = new Chatman();
 			chatman.start();
 		}catch(Exception e){
-            String error = "Could not start server: " + e.getMessage();
-			(new CmdFatalErrorExit(error, e)).execute();
+		    throw new Exception("Could not start server", e);
 		}
     }
     
@@ -1713,6 +1701,9 @@ public class ChatFrame extends javax.swing.JFrame {
 	}
     
 	public void applyCurrentTheme(){
+
+        Objects.requireNonNull(currentTheme);
+
 		
 		labelFrameBg.setIcon(currentTheme.getBgImage());
 

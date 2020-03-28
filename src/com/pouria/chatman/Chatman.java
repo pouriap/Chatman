@@ -16,6 +16,9 @@
  */
 package com.pouria.chatman;
 
+import com.pouria.chatman.commands.CmdChangeStatusIcon;
+import com.pouria.chatman.commands.CmdInvokeLater;
+import com.pouria.chatman.commands.CmdSetLabelStatus;
 import com.pouria.chatman.connection.ChatmanClient;
 import com.pouria.chatman.connection.ChatmanServer;
 import com.pouria.chatman.connection.HttpClient;
@@ -23,6 +26,7 @@ import com.pouria.chatman.connection.HttpServer;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.DisplayableMessage;
 import com.pouria.chatman.messages.PingMessage;
+import javafx.util.Pair;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +64,7 @@ public class Chatman {
 	
 	public void start() throws Exception{
 		server.start();
-		client.addServerFoundListener(bgTasksMngr);
+		client.addServerStateChangedListener(bgTasksMngr);
 		bgTasksMngr.start();
 	}
 
@@ -161,7 +165,28 @@ public class Chatman {
 		 */
 		@Override
 		public synchronized void update(Observable o, Object arg) {
-			sendQueue.process();
+
+			Pair<ChatmanClient.ConnectionStatus, String> result = (Pair)arg;
+			ChatmanClient.ConnectionStatus status = result.getKey();
+			String ip = result.getValue();
+
+			switch(status){
+				case CONNECTED:
+					(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + ip + CMHelper.getInstance().getStr("stablished")))).execute();
+					(new CmdInvokeLater(new CmdChangeStatusIcon("connected.png"))).execute();
+					sendQueue.process();
+					break;
+
+				case CONNETING:
+					(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("searching_network")))).execute();
+					(new CmdInvokeLater(new CmdChangeStatusIcon("connecting.gif"))).execute();
+					break;
+
+				case DISCONNECTED:
+					(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("server_not_found")))).execute();
+					(new CmdInvokeLater(new CmdChangeStatusIcon("disconnected.png"))).execute();
+			}
+
 		}
 
 	}

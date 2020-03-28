@@ -17,12 +17,15 @@
 package com.pouria.chatman;
 
 import com.pouria.chatman.connection.ChatmanClient;
+import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.FileMessage;
 
 import java.io.File;
+import java.util.Objects;
+
 
 /**
  * takes a {@link CMMessage} as argument and sends it
@@ -31,10 +34,18 @@ import java.io.File;
 public class OutgoingMsgHandler {
 	
 	private final CMMessage message;
-	private final ChatmanClient client = ChatFrame.getInstance().getChatmanInstance().getClient();
+	private final ChatmanClient client;
 	
 	public OutgoingMsgHandler(CMMessage message){
 		this.message = message;
+		this.client = ChatFrame.getInstance().getChatmanInstance().getClient();
+		Objects.requireNonNull(client);
+	}
+
+	public OutgoingMsgHandler(CMMessage message, ChatmanClient client){
+		this.message = message;
+		this.client = client;
+		Objects.requireNonNull(client);
 	}
 
 	/**
