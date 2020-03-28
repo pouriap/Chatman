@@ -39,6 +39,7 @@ public class CMNotifPopup{
 	private final CMTheme theme;
 	private final CMOS os;
 	private AudioFormat audioFormat;
+	private Clip clip;
 
 	public CMNotifPopup(@NotNull CMTheme theme) {
 
@@ -105,11 +106,16 @@ public class CMNotifPopup{
 
 	    try{
 
+	    	//don't play sound if sound is already playing
+	    	if(clip!=null &&(clip.isActive() || clip.isOpen() || clip.isRunning())){
+	    		return;
+		    }
+
 		    if(audioFormat == null){
 			    setAudioFormat();
 		    }
 
-		    Clip clip = getClip();
+		    clip = getClip();
 		    clip.addLineListener(myLineEvent -> {
 			    if (myLineEvent.getType() == LineEvent.Type.STOP) {
 				    clip.close();
