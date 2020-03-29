@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -78,7 +79,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 		
 		List<NameValuePair> postParams = new ArrayList<>();
 		postParams.add(new BasicNameValuePair("message", text));
-		HttpEntity postData = new UrlEncodedFormEntity(postParams, Charset.forName("UTF-8"));
+		HttpEntity postData = new UrlEncodedFormEntity(postParams, StandardCharsets.UTF_8);
 
 		return sendPOSTRequest(postData, configTimeoutText);
 
@@ -96,7 +97,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 		HttpEntity postData = MultipartEntityBuilder.create()
 				.addPart("file", fileBody)
 				.addPart("metadata", stringBodyMetadata)
-				.setCharset(Charset.forName("UTF-8"))
+				.setCharset(StandardCharsets.UTF_8)
 				.build();
 		
 		return sendPOSTRequest(postData, configTimeoutFile);

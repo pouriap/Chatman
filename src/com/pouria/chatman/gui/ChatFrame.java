@@ -1118,9 +1118,9 @@ public class ChatFrame extends javax.swing.JFrame {
 		/* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ChatFrame frame = ChatFrame.getInstance();
+				ChatFrame frame = ChatFrame.getInstance();
 				//in tartib bayad bashe hatman
-                try{
+				try{
                     frame.initialize();
                     frame.startChatman();
                 }catch(Exception e){
@@ -1144,12 +1144,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		Locale.setDefault(locale);
 
 		//send a showgui message to localhost, if localhost responds we exit
-        ShowGUIMessage showGUIMessage = ShowGUIMessage.getNewOutgoing();
-        OutgoingMsgHandler sender = new OutgoingMsgHandler(showGUIMessage, new HttpClient());
-        sender.send();
-        if(showGUIMessage.getStatus() == CMMessage.Status.SENT){
-            System.exit(0);
-        }
+		ShowGUIMessage showGUIMessage = ShowGUIMessage.getNewOutgoing();
+		OutgoingMsgHandler sender = new OutgoingMsgHandler(showGUIMessage, new HttpClient());
+		sender.send();
+		if(showGUIMessage.getStatus() == CMMessage.Status.SENT){
+			System.exit(0);
+		}
 
 	}
      
@@ -1201,7 +1201,7 @@ public class ChatFrame extends javax.swing.JFrame {
         });
 
         // TextArea right click
-		
+
         //create a paste action to replace the default one because the default copoies styles/html too
         Action pasteAction = new AbstractAction(CMHelper.getInstance().getStr("paste")) {
             @Override
@@ -1304,8 +1304,6 @@ public class ChatFrame extends javax.swing.JFrame {
 			currentTheme = CMTheme.getDefaultTheme();
 		}
 		applyCurrentTheme();
-		//todo: vaghti popup ghabli hanooz click nashode va theme avaz konim va popup jadid
-        //biad har dota neshoon dade mishan rooye ham
 
         // Make ScrollPanes invisible
         scrollPaneInput.setOpaque(false);
@@ -1433,8 +1431,10 @@ public class ChatFrame extends javax.swing.JFrame {
 		
         // create a right-click menu 
 		PopupMenu rclickMenu = new PopupMenu();
-        MenuItem openItem = new MenuItem(CMHelper.getInstance().getStr("open"));
-        MenuItem exitItem = new MenuItem(CMHelper.getInstance().getStr("exit"));
+        MenuItem openItem = new MenuItem("Open");
+        MenuItem exitItem = new MenuItem("Exit");
+        openItem.setFont(new java.awt.Font("Tahoma", Font.PLAIN, 14));
+        exitItem.setFont(new java.awt.Font("Tahoma", Font.PLAIN, 14));
         rclickMenu.add(openItem);
         rclickMenu.add(exitItem);
         trayIconApp.setPopupMenu(rclickMenu);
@@ -1662,7 +1662,7 @@ public class ChatFrame extends javax.swing.JFrame {
         }
         return textDiv.html();
     }
-	  
+
     //is called when we want to add something to the outgoing text like emoticons, paste stuff
     public void setInputText(String t, boolean append){
         String html = textAreaInput.getText();
@@ -1724,14 +1724,14 @@ public class ChatFrame extends javax.swing.JFrame {
         updateNewMessagePopup();
 
 		//set up theme
-		labelsTheme = currentTheme.getButtonsTheme();
-		textAreasTheme = currentTheme.getTextAreasTheme();
+        labelsTheme = currentTheme.getButtonsTheme();
+        textAreasTheme = currentTheme.getTextAreasTheme();
 		
 		//set text color
 		textColor = (textAreasTheme.equals("dark"))? CMCSS.WHITE.val : CMCSS.BLACK.val;
         String hiddenTimeColor = (textAreasTheme.equals("dark"))? CMCSS.BLACK.val : CMCSS.WHITE.val;
 
-                //input caret color according to text color
+        //input caret color according to text color
 		textAreaInput.setCaretColor(Color.getColor(textColor));
 
         String style = ""
@@ -1840,7 +1840,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		this.peerTheme = peerTheme;
         updateNewMessagePopup();
 	}
-	//todo: popup takes away focus asdf
+	//todo: popup takes away focus
 
 	private void updateNewMessagePopup(){
 

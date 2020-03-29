@@ -5,7 +5,7 @@ import com.pouria.chatman.enums.CMType;
 public abstract class CMMessage {
 
 	private Status status = Status.NOTSENT;
-	private Direction direction;
+	private final Direction direction;
 
 	public enum Status{
 		NOTSENT, SENT, SENDFAIL;

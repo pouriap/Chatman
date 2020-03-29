@@ -25,7 +25,7 @@ import com.pouria.chatman.messages.CMMessage;
  */
 public class IncomingMsgHandler {
 	
-	private CMMessage message;
+	private final CMMessage message;
 	
 	public IncomingMsgHandler(CMMessage message){
 		this.message = message;

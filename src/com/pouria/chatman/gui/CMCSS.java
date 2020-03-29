@@ -10,7 +10,7 @@ public enum CMCSS{
 	MESSAGE_TIME_FONT_SIZE("11px"),
 	;
 
-	public String val;
+	public final String val;
 
 	CMCSS(String s) {
 		this.val = s;

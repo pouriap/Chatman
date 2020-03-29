@@ -49,7 +49,7 @@ import java.util.logging.SimpleFormatter;
 public class CMHelper {
 	
 	private Logger logger;
-	private ResourceBundle bundle = ResourceBundle.getBundle("com.pouria.chatman.gui.locale");
+	private final ResourceBundle bundle = ResourceBundle.getBundle("com.pouria.chatman.gui.locale");
 
 	private CMHelper() {
 	}
@@ -244,7 +244,7 @@ public class CMHelper {
 			int width = img.getIconWidth();
 			int height = img.getIconHeight();
 			BufferedImage transparentImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D g = (Graphics2D) transparentImage.createGraphics();
+			Graphics2D g = transparentImage.createGraphics();
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 			g.drawImage(img.getImage(), 0, 0, width, height, null);
 			g.dispose();

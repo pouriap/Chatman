@@ -62,23 +62,23 @@ public class CMNotifPopup{
 		dialog.setResizable(false);
 		dialog.getRootPane().setOpaque(false);
 		dialog.setBackground(new Color(0,0,0,0));
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int screenWidth = (int) screenSize.getWidth();
-        int screenHeight = (int) screenSize.getHeight();
-        dialog.setLocation(
-                screenWidth - dialog.getWidth() - rightOffset, 
-                screenHeight - dialog.getHeight() - taskBarHeight - bottomOffset
-        );
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int screenWidth = (int) screenSize.getWidth();
+		int screenHeight = (int) screenSize.getHeight();
+		dialog.setLocation(
+				screenWidth - dialog.getWidth() - rightOffset,
+				screenHeight - dialog.getHeight() - taskBarHeight - bottomOffset
+		);
 		
 		label = new JLabel();
-        label.setIcon(popupImage);
-        label.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        label.addMouseListener(new java.awt.event.MouseAdapter() {
+		label.setIcon(popupImage);
+		label.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+		label.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                ChatFrame.getInstance().popopClicked(evt.getButton());
-            }
-        });
+			public void mouseReleased(java.awt.event.MouseEvent evt) {
+				ChatFrame.getInstance().popopClicked(evt.getButton());
+			}
+		});
 		
 		dialog.add(label);
 		
@@ -101,37 +101,37 @@ public class CMNotifPopup{
 		return dialog.isVisible();
 	}
 
-    //plays the bleep
-    public void playSound(){
+	//plays the bleep
+	public void playSound(){
 
-	    try{
+		try{
 
-	    	//don't play sound if sound is already playing
-	    	if(clip!=null &&(clip.isActive() || clip.isOpen() || clip.isRunning())){
-	    		return;
-		    }
+			//don't play sound if sound is already playing
+			if(clip!=null &&(clip.isActive() || clip.isOpen() || clip.isRunning())){
+				return;
+			}
 
-		    if(audioFormat == null){
-			    setAudioFormat();
-		    }
+			if(audioFormat == null){
+				setAudioFormat();
+			}
 
-		    clip = getClip();
-		    clip.addLineListener(myLineEvent -> {
-			    if (myLineEvent.getType() == LineEvent.Type.STOP) {
-				    clip.close();
-			    }
-		    });
+			clip = getClip();
+			clip.addLineListener(myLineEvent -> {
+				if (myLineEvent.getType() == LineEvent.Type.STOP) {
+					clip.close();
+				}
+			});
 
-		    clip.open(audioFormat, theme.getSoundFileBytes(), 0, theme.getSoundFileBytes().length);
-		    clip.start();
+			clip.open(audioFormat, theme.getSoundFileBytes(), 0, theme.getSoundFileBytes().length);
+			clip.start();
 
-	    }catch(Exception e){
-		    CMHelper.getInstance().log("playing notification sound failed: " + e.getMessage());
-		    String error = CMHelper.getInstance().getStr("audio_play_fail");
-		    (new CmdInvokeLater(new CmdShowError(error))).execute();
-	    }
+		}catch(Exception e){
+			CMHelper.getInstance().log("playing notification sound failed: " + e.getMessage());
+			String error = CMHelper.getInstance().getStr("audio_play_fail");
+			(new CmdInvokeLater(new CmdShowError(error))).execute();
+		}
 
-    }
+	}
 
 	public Clip getClip() throws Exception{
 		if(os == CMOS.WINDOWS){

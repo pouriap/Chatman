@@ -40,7 +40,7 @@ public class HttpServer implements ChatmanServer{
 	@Override
 	public void start() throws IOException{
 		
-		int serverPort = Integer.valueOf(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
+		int serverPort = Integer.parseInt(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
 		final ChatmanHandler handler = new ChatmanHandler();
 		
 		Undertow server = Undertow.builder()
@@ -61,7 +61,7 @@ public class HttpServer implements ChatmanServer{
 	}
 
 
-	private class ChatmanHandler implements HttpHandler{
+	private static class ChatmanHandler implements HttpHandler{
 		
 		@Override
 		public void handleRequest(HttpServerExchange exchange) throws Exception {
