@@ -5,7 +5,7 @@ Chatman is a 2-peer network chat application written in Java.
 This means:
 
  - You can chat with one person in your network. If two people on your network are running Chatman, Chatman will connect to the first one it finds.
- - You need to install JAVA Runtime Environment 8 or above to be able to install it. You can download JAVA here : [https://java.com/en/download/](https://java.com/en/download/)
+ - You need to install JAVA Runtime Environment 8 or above to be able to run it. You can download JAVA here : [https://java.com/en/download/](https://java.com/en/download/)
 
 ### How to use
  - [Download the latest Windows installer](https://github.com/pouriap/Chatman/releases/lates)
