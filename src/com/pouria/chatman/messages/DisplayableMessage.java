@@ -1,6 +1,7 @@
 package com.pouria.chatman.messages;
 
 import com.pouria.chatman.MessageDisplayer;
+import com.pouria.chatman.gui.ChatFrame;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -65,11 +66,12 @@ public abstract class DisplayableMessage extends CMMessage {
 		String senderName = (getDirection() == Direction.OUT)? you : getSender();
 
 		//each message is a div
-		messageHTML = "<div class='message-div'>" +
-					"<span class='time'>[" + timeTxt + "]  |  </span>" +
-					"<b class='" + class_ + "'>" + senderName + ":</b> " +
-					messageHTML +
-				"</div>";
+		messageHTML =
+					"<div class='message-div'>" +
+						"<span class='time'>[" + timeTxt + "]  |  </span>" +
+						"<b class='" + class_ + "'>" + senderName + ":</b> " +
+						messageHTML +
+					"</div>";
 
 		return messageHTML;
 	}

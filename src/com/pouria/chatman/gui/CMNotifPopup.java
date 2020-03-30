@@ -62,6 +62,8 @@ public class CMNotifPopup{
 		dialog.setResizable(false);
 		dialog.getRootPane().setOpaque(false);
 		dialog.setBackground(new Color(0,0,0,0));
+		// we don't want the popup to take away the focus from what we're doing
+		dialog.setFocusableWindowState(false);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int screenWidth = (int) screenSize.getWidth();
 		int screenHeight = (int) screenSize.getHeight();

@@ -1,0 +1,21 @@
+body{
+	font-family: Tahoma;
+	font-size: 12px;
+}
+
+.message-div{
+	padding: 5px;
+}
+
+.username-sent{
+	font-size: 14px;
+}
+
+.username-unsent{
+	font-size: 14px;
+	color: #f73900;
+}
+
+.time{
+	font-size: 0px;
+}

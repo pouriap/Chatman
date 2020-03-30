@@ -23,10 +23,7 @@ import com.pouria.chatman.enums.CMOS;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.file.Files;
@@ -221,6 +218,25 @@ public class CMHelper {
 		in.close();
 		createFile(dstFile, out.toByteArray());
 		CMHelper.getInstance().log("file copied successfully ");
+	}
+
+	public String readResourceToString(String resourceName) throws IOException{
+
+		CMHelper.getInstance().log("reading file from jar: " + resourceName);
+		InputStream in = getClass().getResourceAsStream("/resources/" + resourceName);
+		BufferedReader r = new BufferedReader(new InputStreamReader(in));
+
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while((line = r.readLine()) != null){
+			sb.append(line + "\n");
+		}
+
+		r.close();
+		CMHelper.getInstance().log("file read successfully ");
+
+		return sb.toString();
+
 	}
 	
 	public static byte[] readStreamAsByteArray(InputStream in) throws IOException{

@@ -11,19 +11,16 @@ import com.pouria.chatman.Chatman;
 import com.pouria.chatman.OutgoingMsgHandler;
 import com.pouria.chatman.classes.HistoryTablePagination;
 import com.pouria.chatman.commands.CmdFatalErrorExit;
-import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdShowError;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.messages.*;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Style;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
@@ -39,10 +36,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 
 
 /**
@@ -66,20 +61,18 @@ public class ChatFrame extends javax.swing.JFrame {
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
 	private AdjustmentListener scrollListenerAlwaysDown;
-	private String textColor;
-	private String labelsTheme;
-	private String textAreasTheme;
 	private TrayIcon trayIconApp, trayIconNewMessage;
 	private CMNotifPopup newMessagePopup;
 	private CMTheme currentTheme, peerTheme;
 	private CMTheme previewTheme;
 	private CMNotifPopup previewPopup;
+	private CMTextArea textAreaInput, textAreaConvo;
 
 	private enum timeDisplay{
 	    HIDE_TIME, SHOW_TIME;
     }
 
-	private final String version = "3.0.1";
+	private final String version = "3.0.2";
 	private final String appTitle = "Chatman Forever";
 
     private ChatFrame(){
@@ -119,9 +112,9 @@ public class ChatFrame extends javax.swing.JFrame {
         labelThemeName = new javax.swing.JLabel();
         buttonThemePreview = new javax.swing.JButton();
         scrollPaneConversation = new javax.swing.JScrollPane();
-        textAreaConversation = new javax.swing.JEditorPane();
+        editorPaneConversation = new javax.swing.JEditorPane();
         scrollPaneInput = new javax.swing.JScrollPane();
-        textAreaInput = new javax.swing.JEditorPane();
+        editorPaneInput = new javax.swing.JEditorPane();
         tableEmojis = new javax.swing.JTable();
         labelConvoBg = new javax.swing.JLabel();
         labelInputBg = new javax.swing.JLabel();
@@ -367,25 +360,25 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
 
-        textAreaConversation.setEditable(false);
-        textAreaConversation.setBorder(null);
-        textAreaConversation.setContentType("text/html"); // NOI18N
-        textAreaConversation.setAutoscrolls(false);
-        textAreaConversation.setOpaque(false);
-        textAreaConversation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+        editorPaneConversation.setEditable(false);
+        editorPaneConversation.setBorder(null);
+        editorPaneConversation.setContentType("text/html"); // NOI18N
+        editorPaneConversation.setAutoscrolls(false);
+        editorPaneConversation.setOpaque(false);
+        editorPaneConversation.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
-                textAreaConversationHyperlinkUpdate(evt);
+                editorPaneConversationHyperlinkUpdate(evt);
             }
         });
-        textAreaConversation.addMouseListener(new java.awt.event.MouseAdapter() {
+        editorPaneConversation.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                textAreaConversationMouseClicked(evt);
+                editorPaneConversationMouseClicked(evt);
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                textAreaConversationMouseEntered(evt);
+                editorPaneConversationMouseEntered(evt);
             }
         });
-        scrollPaneConversation.setViewportView(textAreaConversation);
+        scrollPaneConversation.setViewportView(editorPaneConversation);
 
         getContentPane().add(scrollPaneConversation);
         scrollPaneConversation.setBounds(25, 34, 440, 190);
@@ -393,21 +386,21 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneInput.setBorder(null);
         scrollPaneInput.setOpaque(false);
 
-        textAreaInput.setBorder(null);
-        textAreaInput.setContentType("text/html"); // NOI18N
-        textAreaInput.setCaretColor(new java.awt.Color(255, 255, 255));
-        textAreaInput.setOpaque(false);
-        textAreaInput.addMouseListener(new java.awt.event.MouseAdapter() {
+        editorPaneInput.setBorder(null);
+        editorPaneInput.setContentType("text/html"); // NOI18N
+        editorPaneInput.setCaretColor(new java.awt.Color(255, 255, 255));
+        editorPaneInput.setOpaque(false);
+        editorPaneInput.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                textAreaInputMouseReleased(evt);
+                editorPaneInputMouseReleased(evt);
             }
         });
-        textAreaInput.addKeyListener(new java.awt.event.KeyAdapter() {
+        editorPaneInput.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                textAreaInputKeyPressed(evt);
+                editorPaneInputKeyPressed(evt);
             }
         });
-        scrollPaneInput.setViewportView(textAreaInput);
+        scrollPaneInput.setViewportView(editorPaneInput);
 
         getContentPane().add(scrollPaneInput);
         scrollPaneInput.setBounds(30, 330, 255, 145);
@@ -698,13 +691,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		img = img.replaceAll("<html>(.*)emoticons(.*\\.gif')\\s(\\/>)<\\/html>", "$1emoticons_large$2  $3");
         
         
-        //true = append
-        setInputText(img, true);
-        textAreaInput.requestFocus();
+        textAreaInput.appendText(img);
+        editorPaneInput.requestFocus();
     
     }//GEN-LAST:event_tableEmojisMouseReleased
 
-    private void textAreaConversationHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_textAreaConversationHyperlinkUpdate
+    private void editorPaneConversationHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_editorPaneConversationHyperlinkUpdate
         //triggered when we click on a link
         if(evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
             try{
@@ -741,7 +733,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			}
         }
 		
-    }//GEN-LAST:event_textAreaConversationHyperlinkUpdate
+    }//GEN-LAST:event_editorPaneConversationHyperlinkUpdate
 
     private void menuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuExitActionPerformed
         exit(0);
@@ -752,12 +744,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		clearInputText();
     }//GEN-LAST:event_labelClearMouseReleased
 
-    private void textAreaInputMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaInputMouseReleased
+    private void editorPaneInputMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editorPaneInputMouseReleased
         //show the right-click menu
         if(evt.getButton() == MouseEvent.BUTTON3){
-            menuRightClick.show(textAreaInput, evt.getX(), evt.getY());
+            menuRightClick.show(editorPaneInput, evt.getX(), evt.getY());
         } 
-    }//GEN-LAST:event_textAreaInputMouseReleased
+    }//GEN-LAST:event_editorPaneInputMouseReleased
 
     private void menuShowHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuShowHistoryActionPerformed
         //show history dialog
@@ -774,7 +766,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //put selected history item in textAreaChatHistory
         int row = tableHistory.getSelectedRow();
         String savedHistory = tableHistory.getModel().getValueAt(row, 1).toString();
-		setTextAreaConversationText(savedHistory);
+		textAreaConvo.setText(savedHistory);
         
     }//GEN-LAST:event_tableHistoryMouseReleased
 
@@ -861,12 +853,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		changeLabelIcon((JLabel)evt.getComponent(), "pressed");
     }//GEN-LAST:event_labelSendMousePressed
 
-    private void textAreaInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textAreaInputKeyPressed
+    private void editorPaneInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_editorPaneInputKeyPressed
 		if (evt.getKeyChar() == '\n'){ 
 			evt.consume();
             sendInputText();
         }
-    }//GEN-LAST:event_textAreaInputKeyPressed
+    }//GEN-LAST:event_editorPaneInputKeyPressed
 
     private void menuAbortRemoteShutdownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuAbortRemoteShutdownActionPerformed
 		int answer = JOptionPane.showConfirmDialog(null, CMHelper.getInstance().getStr("abort_remote_shutdown_message"), CMHelper.getInstance().getStr("abort_remote_shutdown_title"), JOptionPane.YES_NO_OPTION);
@@ -876,34 +868,27 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_menuAbortRemoteShutdownActionPerformed
 
-    private void textAreaConversationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseClicked
+    private void editorPaneConversationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editorPaneConversationMouseClicked
 
 		if(evt.getButton() == MouseEvent.BUTTON1){
 			return;
 		}
-		
-		HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
-		
-		if(conversationShowTime == timeDisplay.SHOW_TIME){
-			kit.setStyleSheet(cssShowTime);
+
+		if(conversationShowTime == timeDisplay.HIDE_TIME){
+			textAreaConvo.showTime();
 		}
 		else{
-			kit.setStyleSheet(cssHideTime);
+			textAreaConvo.hideTime();
 		}
-		
-        String previousText = getConversationTextAll();
-        textAreaConversation.setEditorKit(kit);
-        textAreaConversation.setText(defaultTextAreaHtml);
-        setTextAreaConversationText(previousText);
 
 		conversationShowTime = (conversationShowTime == timeDisplay.SHOW_TIME)?
                 timeDisplay.HIDE_TIME : timeDisplay.SHOW_TIME;
 
-    }//GEN-LAST:event_textAreaConversationMouseClicked
+    }//GEN-LAST:event_editorPaneConversationMouseClicked
 
-    private void textAreaConversationMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_textAreaConversationMouseEntered
+    private void editorPaneConversationMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editorPaneConversationMouseEntered
 		scrollPaneConversation.getVerticalScrollBar().removeAdjustmentListener(scrollListenerAlwaysDown);
-    }//GEN-LAST:event_textAreaConversationMouseEntered
+    }//GEN-LAST:event_editorPaneConversationMouseEntered
 
     private void scrollPaneConversationMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_scrollPaneConversationMouseEntered
         scrollPaneConversation.getVerticalScrollBar().removeAdjustmentListener(scrollListenerAlwaysDown);
@@ -1161,6 +1146,9 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		this.setTitle(appTitle);
 
+		textAreaInput = new CMTextArea(editorPaneInput);
+		textAreaConvo = new CMTextArea(editorPaneConversation);
+
 		createTrayIcons();
 		Objects.requireNonNull(trayIconApp);
         Objects.requireNonNull(trayIconNewMessage);
@@ -1171,7 +1159,7 @@ public class ChatFrame extends javax.swing.JFrame {
 		}
 		
         // TextArea drag-n-drop
-        textAreaInput.setDropTarget(new DropTarget() {
+        editorPaneInput.setDropTarget(new DropTarget() {
 			@Override
             public synchronized void drop(DropTargetDropEvent evt) {
                 try {
@@ -1211,44 +1199,44 @@ public class ChatFrame extends javax.swing.JFrame {
 				tempField.paste();
 				String pastedText = tempField.getText();
 				//agar ax darim faghat akhar paste kon chon nemish
-				if(getInputText().contains("<img")){
-					setInputText(pastedText, true);
+				if(textAreaInput.getText().contains("<img")){
+					textAreaInput.appendText(pastedText);
 					return;
 				}
 				//vaghti yek ghesmat as text select shode va mikhaim oonja paste konim				
-				String selectedText = textAreaInput.getSelectedText();
+				String selectedText = editorPaneInput.getSelectedText();
 				if(selectedText!=null && !selectedText.isEmpty()){
-					String currentText = textAreaInput.getText();
+					String currentText = editorPaneInput.getText();
 					currentText = currentText.replace(selectedText, pastedText);
-					textAreaInput.setText(currentText);
+					editorPaneInput.setText(currentText);
 					return;
 				}
 				//vaghti vasate text paste mikonim
-				int currentCaretPos = textAreaInput.getCaretPosition();
-				textAreaInput.setCaretPosition(textAreaInput.getDocument().getLength());
-				int lastCaretPos = textAreaInput.getCaretPosition();
+				int currentCaretPos = editorPaneInput.getCaretPosition();
+				editorPaneInput.setCaretPosition(editorPaneInput.getDocument().getLength());
+				int lastCaretPos = editorPaneInput.getCaretPosition();
 				if(currentCaretPos != lastCaretPos){
-					String currentText = getInputText();
+					String currentText = textAreaInput.getText();
 					String firstHalf = currentText.substring(0, currentCaretPos-1);
 					String secondHalf = currentText.substring(currentCaretPos-1, currentText.length());
-					setInputText(firstHalf+pastedText+secondHalf, false);
-					textAreaInput.setCaretPosition(currentCaretPos + pastedText.length());
+					textAreaInput.setText(firstHalf+pastedText+secondHalf);
+					editorPaneInput.setCaretPosition(currentCaretPos + pastedText.length());
 					return;
 				}
 				//vaghti akhare text paste mikonim
-				setInputText(pastedText, true);
+				textAreaInput.appendText(pastedText);
 				
             }
         };
 		
 		//replace default paste action with our own
-		ActionMap map = textAreaInput.getActionMap();
+		ActionMap map = editorPaneInput.getActionMap();
 		map.put(DefaultEditorKit.pasteAction, pasteAction);
 		       
         //get default copy and cut actions
-        Action copyAction = textAreaInput.getActionMap().get(DefaultEditorKit.copyAction);
+        Action copyAction = editorPaneInput.getActionMap().get(DefaultEditorKit.copyAction);
         copyAction.putValue("Name", CMHelper.getInstance().getStr("copy"));
-        Action cutAction = textAreaInput.getActionMap().get(DefaultEditorKit.cutAction);
+        Action cutAction = editorPaneInput.getActionMap().get(DefaultEditorKit.cutAction);
         cutAction.putValue("Name", CMHelper.getInstance().getStr("cut"));
 		
 		//add copy/cut/paste actions to our right click menu
@@ -1257,10 +1245,7 @@ public class ChatFrame extends javax.swing.JFrame {
         menuRightClick.add (cutAction);
 
         // TextArea cursor
-        ((HTMLEditorKit)textAreaInput.getEditorKit()).setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
-        
-        // Input focus
-        textAreaInput.requestFocus();
+        ((HTMLEditorKit)editorPaneInput.getEditorKit()).setDefaultCursor(new Cursor(Cursor.TEXT_CURSOR));
 
         // Table BG transparent
         tableEmojis.setBackground(new Color(0,0,0,0));  
@@ -1311,19 +1296,25 @@ public class ChatFrame extends javax.swing.JFrame {
         scrollPaneConversation.setOpaque(false);
         scrollPaneConversation.getViewport().setOpaque(false);
 		
-		// To fix the scrolls
+		// To fix conversation scroll not going all the way down
 		scrollListenerAlwaysDown = new AdjustmentListener() {  
 			public void adjustmentValueChanged(AdjustmentEvent e) {  
 				e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
 			}
 		};	
 		
-		// Customized scrollbar
-		JScrollBar scrollbar = scrollPaneConversation.getVerticalScrollBar();
-		scrollbar.setOpaque(false);
-		int defaultHeight = scrollbar.getPreferredSize().height;
-		scrollbar.setPreferredSize(new Dimension(10, defaultHeight));
-		scrollbar.setUI(new CMScrollbarUI());
+		// Customized scrollbars
+		JScrollBar scrollbarV = scrollPaneConversation.getVerticalScrollBar();
+		scrollbarV.setOpaque(false);
+		int defaultHeight = scrollbarV.getPreferredSize().height;
+		scrollbarV.setPreferredSize(new Dimension(10, defaultHeight));
+		scrollbarV.setUI(new CMScrollbarUI());
+
+	    JScrollBar scrollbarH = scrollPaneConversation.getHorizontalScrollBar();
+	    scrollbarH.setOpaque(false);
+	    int defaultWidth = scrollbarH.getPreferredSize().width;
+	    scrollbarH.setPreferredSize(new Dimension(defaultWidth, 10));
+	    scrollbarH.setUI(new CMScrollbarUI());
 		
         // Application icon
         Toolkit toolkit = Toolkit.getDefaultToolkit();	
@@ -1353,9 +1344,6 @@ public class ChatFrame extends javax.swing.JFrame {
         String date = CMHelper.getInstance().getStr("date");
         tableHistory.getTableHeader().getColumnModel().getColumn(0).setHeaderValue(date);
 
-        // Center
-        this.setLocationRelativeTo(null);
-		
 		// Hide wake on lan menu
 		menuWakeOnLan.setVisible(false);
 
@@ -1398,6 +1386,12 @@ public class ChatFrame extends javax.swing.JFrame {
                 CMConfig.DEFAULT_OVERRIDE_NOTIFICATION);
         boolean selected = ("yes".equals(override))? true : false;
         menuOverridePopup.setSelected(selected);
+
+	    // Center
+	    this.setLocationRelativeTo(null);
+
+	    // Input focus
+	    editorPaneInput.requestFocus();
 		
     } 
     
@@ -1483,6 +1477,9 @@ public class ChatFrame extends javax.swing.JFrame {
 		else if(state.isEmpty()){
 			state = "normal";
 		}
+
+		String labelsTheme = currentTheme.getButtonsTheme();
+		String textAreasTheme = currentTheme.getTextAreasTheme();
 
 		String iconImagesTemplate = "/resources/label-*name*-*theme*-*state*.png";
 		String textImagesTemplate = "/resources/ui_*locale*/label-*name*-*theme*-*state*.png";
@@ -1579,12 +1576,12 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 	}
 
-    //sends the content of textAreaInput
+    //sends the content of editorPaneInput
     private void sendInputText(){
 		
 		fixConvoScroll();
     
-        String text = getInputText();
+        String text = textAreaInput.getText();
         
         //return if input is empty
         if(text.isEmpty())
@@ -1630,68 +1627,13 @@ public class ChatFrame extends javax.swing.JFrame {
 			
     }
 	 
-	private void setTextAreaConversationText(String text){
-        String html = textAreaConversation.getText();
-		Document doc = Jsoup.parse(html);
-		Element textDiv = doc.select("body").first();
-		if(textDiv == null){
-			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
-		}
-		textDiv.html(text);
-		textAreaConversation.setText(doc.outerHtml());
-	}
-	
 	private void updateConversationText(){
 		String conversationText = (chatman != null)? chatman.getAllMessagesText() : "";
-		setTextAreaConversationText(conversationText);
+		textAreaConvo.setText(conversationText);
 	}
 
-    /**
-     * used for show/hiding time when viewing chat history because we don't have
-     * the messages then
-     * @return the html content of all conversation messages<br>
-     * is equal to chatman.getAllMessagesText() but in chat history<br>
-     * mode we don't have that
-     */
-    private String getConversationTextAll(){
-        String html = textAreaConversation.getText();
-        Document doc = Jsoup.parse(html);
-        Element textDiv = doc.select("body").first();
-        if(textDiv == null){
-            (new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
-        }
-        return textDiv.html();
-    }
-
-    //is called when we want to add something to the outgoing text like emoticons, paste stuff
-    public void setInputText(String t, boolean append){
-        String html = textAreaInput.getText();
-		Document doc = Jsoup.parse(html);
-		Element textDiv = doc.select("body").first();
-		if(textDiv == null){
-			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
-		}
-		if(append){
-			textDiv.append(t);
-		}
-		else{
-			textDiv.html(t);
-		}
-		textAreaInput.setText(doc.outerHtml());
-    }
-    
-    public String getInputText(){
-        String html = textAreaInput.getText();
-		Document doc = Jsoup.parse(html);
-		Element textDiv = doc.select("body").first();
-		if(textDiv == null){
-			(new CmdInvokeLater(new CmdFatalErrorExit("tell pouria he has fucked up with the jsoup idea", (new Exception())))).execute();
-		}		
-		return textDiv.html();
-    }
-    
     public void clearInputText(){
-        setInputText("", false);
+        textAreaInput.setText("");
     }
 	
 	private void fixConvoScroll(){
@@ -1716,68 +1658,21 @@ public class ChatFrame extends javax.swing.JFrame {
 
         Objects.requireNonNull(currentTheme);
 
-		
 		labelFrameBg.setIcon(currentTheme.getBgImage());
 
         username = currentTheme.getUsername();
 
         updateNewMessagePopup();
 
-		//set up theme
-        labelsTheme = currentTheme.getButtonsTheme();
-        textAreasTheme = currentTheme.getTextAreasTheme();
-		
-		//set text color
-		textColor = (textAreasTheme.equals("dark"))? CMCSS.WHITE.val : CMCSS.BLACK.val;
-        String hiddenTimeColor = (textAreasTheme.equals("dark"))? CMCSS.BLACK.val : CMCSS.WHITE.val;
+        textAreaConvo.setTheme(currentTheme);
+        textAreaInput.setTheme(currentTheme);
 
-        //input caret color according to text color
-		textAreaInput.setCaretColor(Color.getColor(textColor));
-
-        String style = ""
-		+ ".message-div{"
-                + "padding:" + CMCSS.MESSAGE_DIV_PADDING.val + ";"
-                + "}"
-		+ ".username-sent{"
-                + "font-size:" + CMCSS.USERNAME_FONT_SIZE.val + ";"
-                + "}"
-        + ".username-unsent{"
-                + "font-size:" + CMCSS.USERNAME_FONT_SIZE.val + ";"
-                + "color:" + CMCSS.RED.val + ";"
-                + "}"
-        + "body{"
-                + "color:" + textColor + ";"
-                + "font-family:" + CMCSS.CONVERSATION_FONT_FAMILY.val + ";"
-                + "font-size:" + CMCSS.CONVERSATION_FONT_SIZE.val + ";"
-                + "}";
-
-        cssHideTime = new StyleSheet();
-        cssShowTime = new StyleSheet();
-        cssHideTime.addRule(
-                ".time{" +
-                    "font-size:0px;" +
-                    "color:" + hiddenTimeColor +
-                "}");
-        cssShowTime.addRule(
-                ".time{" +
-                    "font-size:" + CMCSS.MESSAGE_TIME_FONT_SIZE.val +
-                ";}");
-
-        HTMLEditorKit kit = (HTMLEditorKit)textAreaConversation.getEditorKit();
         if(conversationShowTime == timeDisplay.SHOW_TIME){
-            kit.setStyleSheet(cssShowTime);
+            textAreaConvo.showTime();
         }
         else{
-            kit.setStyleSheet(cssHideTime);
+	        textAreaConvo.hideTime();
         }
-        textAreaConversation.setEditorKit(kit);
-
-        defaultTextAreaHtml = "<html><head><style type='text/css'>"+style+"</style></head><body></body></html>";
-        textAreaInput.setText(defaultTextAreaHtml);
-		textAreaConversation.setText(defaultTextAreaHtml);
-		
-		//resfresh text area to apply new text color
-		updateConversationText();
 
 		//set label icons
 		changeLabelIcon(labelConvoBg, "");
@@ -1788,9 +1683,8 @@ public class ChatFrame extends javax.swing.JFrame {
 		changeLabelIcon(labelPrevEmojiPage, "");
 		changeLabelIcon(labelNextEmojiPage, "");
 		
-		//todo: opacity
-		//labelConvoBg.setIcon(CMHelper.getInstance().applyOpacity((ImageIcon)labelConvoBg.getIcon(), 0.2f));
 	}
+
 
 	public String getUserName(){
 		return this.username;
@@ -1809,7 +1703,7 @@ public class ChatFrame extends javax.swing.JFrame {
 			//Show
 			showWindow();
 			//Focus
-			textAreaInput.requestFocus();
+			editorPaneInput.requestFocus();
 		}
 		else{
 			setTrayIconVisible(trayIconNewMessage, true);
@@ -1840,7 +1734,6 @@ public class ChatFrame extends javax.swing.JFrame {
 		this.peerTheme = peerTheme;
         updateNewMessagePopup();
 	}
-	//todo: popup takes away focus
 
 	private void updateNewMessagePopup(){
 
@@ -1880,10 +1773,6 @@ public class ChatFrame extends javax.swing.JFrame {
 	//shows loading gif
 	public void changeStatusIcon(String iconName){
 		labelStatusIcon.setIcon((new ImageIcon(getClass().getResource("/resources/"+iconName))));
-	}
-	
-	public String getTextColor(){
-		return this.textColor;
 	}
 	
 	public boolean overridePopup(){
@@ -1963,7 +1852,7 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane scrollPaneInput;
     private javax.swing.JTable tableEmojis;
     private javax.swing.JTable tableHistory;
-    private javax.swing.JEditorPane textAreaConversation;
-    private javax.swing.JEditorPane textAreaInput;
+    private javax.swing.JEditorPane editorPaneConversation;
+    private javax.swing.JEditorPane editorPaneInput;
     // End of variables declaration//GEN-END:variables
 }
