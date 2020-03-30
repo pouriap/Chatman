@@ -8,8 +8,8 @@ This means:
  - You need to install JAVA Runtime Environment 8 or above to be able to run it. You can download JAVA here : [https://java.com/en/download/](https://java.com/en/download/)
 
 ### How to use
- - [Download the latest Windows installer](https://github.com/pouriap/Chatman/releases/lates)
+ - [Download the latest Windows installer](https://github.com/pouriap/Chatman/releases/latest)
 
  - Install Chatman on two computers that are on the same network.
 
- - A `config.conf` file will be created that stores configurations for Chatman. You can change it according to the instructions in the comments.
+ - A `config.conf` file will be created that stores configurations for Chatman. If you want, can change it according to the instructions in the comments.
