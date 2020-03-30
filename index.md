@@ -1,37 +1,15 @@
-## Welcome to GitHub Pages
+## Welcome to Chatman
 
-You can use the [editor on GitHub](https://github.com/pouriap/Chatman/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+Chatman is a 2-peer network chat application written in Java.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+This means:
 
-### Markdown
+ - You can chat with one person in your network. If two people on your network are running Chatman, Chatman will connect to the first one it finds.
+ - You need to install JAVA Runtime Environment 8+ to be able to install it. You can download it here : https://java.com/en/download/
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### How to use
+Go to https://github.com/pouriap/Chatman/releases/latest to get the latest Windows installer.
 
-```markdown
-Syntax highlighted code block
+Install it using the installer on two computers that are on the same network.
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/pouriap/Chatman/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+A `config.conf` file will be created that stores configurations for Chatman. You can change it according to the instructions in the comments.
