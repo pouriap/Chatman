@@ -1,4 +1,9 @@
-﻿# Chatman
+![GitHub repo size](https://img.shields.io/github/repo-size/pouriap/chatman)
+![GitHub](https://img.shields.io/github/license/pouriap/chatman)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/pouriap/chatman)
+
+
+# Chatman
 A 2-Peer Chat Application
 
 Chatman was created when I was obsessed with Batman. It's Chat+Batman.
