@@ -8,7 +8,7 @@ This means:
  - You need to install JAVA Runtime Environment 8 or above to be able to run it. You can download JAVA here : [https://java.com/en/download/](https://java.com/en/download/)
 
 ### How to use
- - [Download the latest Windows installer](https://github.com/pouriap/Chatman/releases/latest)
+ - [Download the latest Windows installer](https://github.com/pouriap/Chatman/releases/latest)&nbsp;&nbsp;&nbsp;&nbsp;![GitHub release (latest by date)](https://img.shields.io/github/v/release/pouriap/chatman)
 
  - Install Chatman on two computers that are on the same network.
 
