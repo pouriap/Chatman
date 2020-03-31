@@ -16,16 +16,17 @@
  */
 package com.pouria.chatman;
 
+import com.pouria.chatman.classes.AbstractPOSTHander;
 import com.pouria.chatman.commands.CmdChangeStatusIcon;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdSetLabelStatus;
-import com.pouria.chatman.connection.ChatmanClient;
-import com.pouria.chatman.connection.ChatmanServer;
-import com.pouria.chatman.connection.HttpClient;
-import com.pouria.chatman.connection.HttpServer;
+import com.pouria.chatman.connection.*;
+import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.DisplayableMessage;
 import com.pouria.chatman.messages.PingMessage;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.form.FormData;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -51,8 +52,9 @@ public class Chatman {
 	private final CMSendQueue sendQueue;
 	
 	public Chatman(){
-		client = new HttpClient();
-		server = new HttpServer();
+		int port = Integer.parseInt(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
+		client = new HttpClient(port, getIpsToScan(), CMHelper.getInstance()::log);
+		server = new HttpServer(port, new ChatmanHandler());
 		sendQueue = new CMSendQueue();
 		bgTasksMngr = new BgTasksManager();
 		history = new CMHistory();
@@ -90,6 +92,27 @@ public class Chatman {
 		DisplayableMessage[] messages = new DisplayableMessage[allDisplayableMessages.size()];
 		allDisplayableMessages.toArray(messages);
 		return messages;
+	}
+
+	private String[] getIpsToScan(){
+
+		String[] ipsToScan;
+		//if we have server's ip we don't scan the network
+		if(CMConfig.getInstance().isSet("server-ip")){
+			String serverIp = CMConfig.getInstance().get("server-ip", "");
+			ipsToScan = new String[]{serverIp};
+		}
+		else{
+			String subnet = CMConfig.getInstance().get("subnet-mask", CMConfig.DEFAULT_SUBNET);
+			int numHostsToScan = Integer.parseInt(CMConfig.getInstance().get("num-hosts-to-scan", CMConfig.DEFAULT_HOSTS_SCAN));
+			ipsToScan = new String[numHostsToScan];
+			for(int i=0; i<numHostsToScan; i++){
+				String ip = subnet.replace("*", String.valueOf(i));
+				ipsToScan[i] = ip;
+			}
+		}
+
+		return ipsToScan;
 	}
 
 	//all access to lists should be synchronized
@@ -161,7 +184,8 @@ public class Chatman {
 		/**
 		 * is called from client when a server is found
 		 * @param o
-		 * @param arg 
+		 * @param arg a Pair<ChatmanClient.ConnectionStatus, String><br>
+		 *            String is IP if found
 		 */
 		@Override
 		public synchronized void update(Observable o, Object arg) {
@@ -187,6 +211,64 @@ public class Chatman {
 					(new CmdInvokeLater(new CmdChangeStatusIcon("disconnected.png"))).execute();
 			}
 
+		}
+
+	}
+
+
+	private class ChatmanHandler extends AbstractPOSTHander {
+
+		@Override
+		public void handle(HttpServerExchange exchange, FormData formData) throws Exception{
+
+			long start = System.currentTimeMillis();
+
+			String localIp = exchange.getDestinationAddress().getAddress().getHostAddress();
+			String peerIp = exchange.getSourceAddress().getAddress().getHostAddress();
+
+			//some guards
+			if(!"127.0.0.1".equals(peerIp)){
+				//we don't want to receive our own messages unless it's a showGUI
+				if(peerIp.equals(localIp)){
+					CMHelper.getInstance().log("rejecting self-to-self message with IP: " + peerIp);
+					exchange.setStatusCode(400);
+					return;
+				}
+				//don't receive message from anyone else when server is set
+				if(CMConfig.getInstance().isSet("server-ip")){
+					String configServerIP = CMConfig.getInstance().get("server-ip", "");
+					if(!peerIp.equals(configServerIP))
+						CMHelper.getInstance().log("rejecting message from IP: " + peerIp);
+						exchange.setStatusCode(400);
+						return;
+				}
+			}
+
+			//form data is stored here
+			CMFormDataParser parser = new CMFormDataParser(formData);
+			CMMessage message = parser.parseAsCMMessage();
+			IncomingMsgHandler handler = new IncomingMsgHandler(message);
+			handler.receive();
+
+			//don't set server to localhost
+			if("127.0.0.1".equals(peerIp)){
+				return;
+			}
+
+			//set server everytime we recieve a message to avoid unnecessary searches
+			notifyServerIsUp(peerIp);
+
+			long time = System.currentTimeMillis() - start;
+			CMHelper.getInstance().log("request handling took: " + time + " millis");
+
+		}
+
+		//we do this in a thread because if we block request takes too long and times out
+		private void notifyServerIsUp(String serverIP){
+			Runnable r = () -> {
+				client.setServer(serverIP);
+			};
+			(new Thread(r, "CM-Server-Notify")).start();
 		}
 
 	}

@@ -16,8 +16,7 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.CMConfig;
-import com.pouria.chatman.CMHelper;
+import com.pouria.chatman.classes.CMLogger;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdUpdateProgressbar;
 import javafx.util.Pair;
@@ -36,7 +35,6 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +47,10 @@ import java.util.concurrent.TimeUnit;
  * @author pouriap
  */
 public class HttpClient extends Observable implements ChatmanClient{
-	
+
+	private final int serverPort;
+	private final String[] ipsToScan;
+	private final CMLogger logger;
 	private String serverIP = null;
 	private boolean connectInProgress = false;
 	private final RequestConfig configTimeoutText;
@@ -59,7 +60,12 @@ public class HttpClient extends Observable implements ChatmanClient{
 	private final int responeTimeoutFile = 5;	//mins - baraye file handler bayad sabr kone ta file biad va baad copy ham bokone pas bishtare
 
 	
-	public HttpClient(){
+	public HttpClient(int serverPort, String[] ipsToScan, CMLogger logger){
+
+		this.serverPort = serverPort;
+		this.ipsToScan = ipsToScan;
+		this.logger = logger;
+
 		configTimeoutText = RequestConfig.custom()
 			.setConnectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
 			.setConnectionRequestTimeout(connectTimeout, TimeUnit.MILLISECONDS)
@@ -71,6 +77,7 @@ public class HttpClient extends Observable implements ChatmanClient{
 			.setConnectionRequestTimeout(connectTimeout, TimeUnit.MILLISECONDS)
 			.setResponseTimeout(responeTimeoutFile, TimeUnit.MINUTES)
 			.build();
+
 	}
 
 
@@ -114,8 +121,8 @@ public class HttpClient extends Observable implements ChatmanClient{
 		String reason = "";
 				
 		try{
-			String remotePort = CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT);
-			String remoteAddress = "http://" + serverIP + ":" + remotePort;
+
+			String remoteAddress = "http://" + serverIP + ":" + serverPort;
 			
 			HttpPost post = new HttpPost(remoteAddress);
 			post.setConfig(config);
@@ -135,13 +142,13 @@ public class HttpClient extends Observable implements ChatmanClient{
 			else{
 				reason = "http request returned code: " + code;
 				success = false;
-				CMHelper.getInstance().log("send failed. reason: " + reason);
+				logger.log("send failed. reason: " + reason);
 			}
 			
 		}catch(Exception e){
 			reason = "http request could not be sent: " + e.getMessage();
 			success = false;
-			CMHelper.getInstance().log("send failed. reason: " + reason);
+			logger.log("send failed. reason: " + reason);
 		}
 		
 		if(!success){
@@ -155,10 +162,10 @@ public class HttpClient extends Observable implements ChatmanClient{
 	//this is blocking!
 	public synchronized boolean connect(){
 		
-		CMHelper.getInstance().log("trying to connect");
+		logger.log("trying to connect");
 		
 		if(connectInProgress){
-			CMHelper.getInstance().log("connection already in progress. stopping connect attempt");
+			logger.log("connection already in progress. stopping connect attempt");
 			return false;
 		}
 		
@@ -166,20 +173,17 @@ public class HttpClient extends Observable implements ChatmanClient{
 		removeServer();
 		notifyListeners(ConnectionStatus.CONNETING);
 
-        int serverPort = Integer.parseInt(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
-		String[] ipsToScan = getIpsToScan();
-		
 		IpScanner scanner = new IpScanner(ipsToScan, serverPort);
 		ArrayList<String> foundIps = scanner.scan();
 		boolean success = !foundIps.isEmpty();
 		
 		if(success){
 			String ip = foundIps.get(0);
-			CMHelper.getInstance().log("connection sucessfully established with " + ip);
+			logger.log("connection sucessfully established with " + ip);
 			setServer(ip);
 		}
 		else{
-			CMHelper.getInstance().log("connection failed. no servers found");
+			logger.log("connection failed. no servers found");
 			removeServer();
 		}
 		
@@ -189,44 +193,18 @@ public class HttpClient extends Observable implements ChatmanClient{
 		
 	}
 	
-	private String[] getIpsToScan(){
-		
-		String[] ipsToScan;
-		//if we have server's ip we don't scan the network
-        if(CMConfig.getInstance().isSet("server-ip")){
-            String serverIp = CMConfig.getInstance().get("server-ip", "");
-			ipsToScan = new String[]{serverIp};
-        }
-        else{
-            String subnet = CMConfig.getInstance().get("subnet-mask", CMConfig.DEFAULT_SUBNET);
-			int numHostsToScan = Integer.parseInt(CMConfig.getInstance().get("num-hosts-to-scan", CMConfig.DEFAULT_HOSTS_SCAN));
-			ipsToScan = new String[numHostsToScan];
-			for(int i=0; i<numHostsToScan; i++){
-				String ip = subnet.replace("*", String.valueOf(i));
-				ipsToScan[i] = ip;
-			}
-        }
-		
-		return ipsToScan;
-	}
-
 	@Override
 	public synchronized void setServer(Object server) {
-		
+
 		if(server == null){
 			removeServer();
 			return;
 		}
-					
-		String ip = (String) server;
 
-		//if there is a server-ip set in the config don't let any other server to be set (useful when ping sets server)
-		if(CMConfig.getInstance().isSet("server-ip") && !ip.equals(CMConfig.getInstance().get("server-ip", "")) && !ip.equals("127.0.0.1")){
-			removeServer();
-			return;
-		}
+		this.serverIP = (String) server;
 
-		this.serverIP = ip;
+		logger.log("server set: " + this.serverIP);
+
 		notifyListeners(ConnectionStatus.CONNECTED);
 
 	}

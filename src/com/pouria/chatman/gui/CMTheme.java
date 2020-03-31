@@ -95,6 +95,7 @@ public class CMTheme {
 					json.getString(BUTTONS_THEME) : "dark";
 			textAreasTheme = json.has(TEXTAREAS_THEME)?
 					json.getString(TEXTAREAS_THEME) : "dark";
+			//todo: change "dark" and "light" to constants or enums
 
 			ZipEntry bgFile = zipFile.getEntry(bgFilename);
 			InputStream bgIn = zipFile.getInputStream(bgFile);

@@ -32,12 +32,9 @@ import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.ResourceBundle;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.*;
+import java.util.logging.*;
+
 
 /**
  *
@@ -167,27 +164,49 @@ public class CMHelper {
 		}
 
 	}
-	
-	public synchronized void log(String msg){
+
+	private void initializeLogger(){
 
 		if(logger == null){
+
 			logger = Logger.getLogger("ChatmanLog");
-			FileHandler fh;
+			logger.setUseParentHandlers(false);
+
 			try {
+
+				SimpleFormatter formatter = new SimpleFormatter(){
+					private static final String format = "[%1$tF %1$tT] [Chatman] %2$s %n";
+					@Override
+					public synchronized String format(LogRecord record){
+						return String.format(format,
+							new Date(record.getMillis()),
+							record.getMessage()
+	                    );
+					}
+				};
+
 				int logSizeLimit = 1000 * 1000 * 1;	//1MB
-				fh = new FileHandler("log_%g.txt", logSizeLimit, 2, true);
-				logger.addHandler(fh);
-				SimpleFormatter formatter = new SimpleFormatter();
+				FileHandler fh = new FileHandler("log_%g.txt", logSizeLimit, 2, true);
 				fh.setFormatter(formatter);
+
+				ConsoleHandler ch = new ConsoleHandler();
+				ch.setFormatter(formatter);
+
+				logger.addHandler(fh);
+				logger.addHandler(ch);
+
 			}catch(Exception e){
 				//if logger doesn't work then fuck it
 				e.printStackTrace();
 			}
 		}
-		
-		logger.info(msg);
 	}
-	
+
+	public synchronized void log(String message){
+		initializeLogger();
+		logger.info(message);
+	}
+
 	public void createFile(File file) throws Exception{
 		createFile(file, null);
 	}

@@ -19,6 +19,7 @@ package com.pouria.chatman.connection;
 import com.pouria.chatman.CMConfig;
 import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.IncomingMsgHandler;
+import com.pouria.chatman.classes.AbstractPOSTHander;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;
@@ -36,15 +37,21 @@ import java.io.IOException;
  * @author pouriap
  */
 public class HttpServer implements ChatmanServer{
-	
+
+	private final int port;
+	private final HttpHandler requestHandler;
+	private Undertow server;
+
+	public HttpServer(int port, HttpHandler requestHandler){
+		this.port = port;
+		this.requestHandler = requestHandler;
+	}
+
 	@Override
 	public void start() throws IOException{
-		
-		int serverPort = Integer.parseInt(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
-		final ChatmanHandler handler = new ChatmanHandler();
-		
-		Undertow server = Undertow.builder()
-			.addHttpListener(serverPort, "0.0.0.0")
+
+		server = Undertow.builder()
+			.addHttpListener(this.port, "0.0.0.0")
 			.setHandler((HttpServerExchange exchange) -> {
 				//parses POST form data and passes it to a handler
 				FormDataParser parser = FormParserFactory.builder().build().createParser(exchange);
@@ -53,67 +60,16 @@ public class HttpServer implements ChatmanServer{
 					exchange.setStatusCode(400);
 					return;
 				}
-				parser.parse(handler);
+				parser.parse(requestHandler);
 		}).build();
 		
 		server.start();
 
 	}
 
-
-	private static class ChatmanHandler implements HttpHandler{
-		
-		@Override
-		public void handleRequest(HttpServerExchange exchange) throws Exception {
-			
-			long start = System.currentTimeMillis();
-			
-			String localIp = exchange.getDestinationAddress().getAddress().getHostAddress();
-			String peerIp = exchange.getSourceAddress().getAddress().getHostAddress();
-
-			//some guards
-			if(!"127.0.0.1".equals(peerIp)){
-				//we don't want to receive our own messages unless it's a showGUI
-				if(peerIp.equals(localIp)){
-					CMHelper.getInstance().log("rejecting self-to-self message with IP: " + peerIp);
-					exchange.setStatusCode(400);
-					return;
-				}
-				//don't receive message from anyone else when server is set
-				if(CMConfig.getInstance().isSet("server-ip")){
-					String configServerIP = CMConfig.getInstance().get("server-ip", "");
-					if(!peerIp.equals(configServerIP))
-					return;
-				}
-			}
-
-			//form data is stored here
-			FormData formData = exchange.getAttachment(FormDataParser.FORM_DATA);
-			CMFormDataParser parser = new CMFormDataParser(formData);
-			CMMessage message = parser.parseAsCMMessage();
-			IncomingMsgHandler handler = new IncomingMsgHandler(message);
-			handler.receive();
-
-			//don't set server for showgui messages
-			if(message.getType() == CMType.SHOWGUI){
-				return;
-			}
-			
-			//set server everytime we recieve a message to avoid unnecessary searches
-			notifyServerIsUp(peerIp);
-			
-			long time = System.currentTimeMillis() - start;
-			CMHelper.getInstance().log("request handling took: " + time + " millis");
-		}
-		
-		//we do this in a thread because if we block request takes too long and times out
-		private void notifyServerIsUp(String serverIP){
-			Runnable r = () -> {
-				ChatFrame.getInstance().getChatmanInstance().getClient().setServer(serverIP);
-			};
-			(new Thread(r, "CM-Server-Notify")).start();
-		}
-		
+	//for stupid fucking tests
+	public void stop(){
+		server.stop();
 	}
-	
+
 }

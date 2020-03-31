@@ -1147,7 +1147,10 @@ public class ChatFrame extends javax.swing.JFrame {
 
 		//send a showgui message to localhost, if localhost responds we exit
 		ShowGUIMessage showGUIMessage = ShowGUIMessage.getNewOutgoing();
-		OutgoingMsgHandler sender = new OutgoingMsgHandler(showGUIMessage, new HttpClient());
+		int port = Integer.parseInt(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
+		String[] ipsToScan = new String[]{"127.0.0.1"};
+		OutgoingMsgHandler sender = new OutgoingMsgHandler(
+			showGUIMessage, new HttpClient(port, ipsToScan, CMHelper.getInstance()::log));
 		sender.send();
 		if(showGUIMessage.getStatus() == CMMessage.Status.SENT){
 			System.exit(0);
