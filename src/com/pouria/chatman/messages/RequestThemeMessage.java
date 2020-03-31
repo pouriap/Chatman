@@ -32,6 +32,10 @@ public class RequestThemeMessage extends HiddenMessage {
 		this.themeName = themeName;
 	}
 
+	public static RequestThemeMessage getNew(Direction dir, String themeName){
+		return new RequestThemeMessage(dir, themeName);
+	}
+
 	public static RequestThemeMessage getNewOutgoing(String themeName){
 		return new RequestThemeMessage(Direction.OUT, themeName);
 	}

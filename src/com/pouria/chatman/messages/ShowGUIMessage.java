@@ -27,6 +27,10 @@ public class ShowGUIMessage extends HiddenMessage {
 		super(direction);
 	}
 
+	public static ShowGUIMessage getNew(Direction dir){
+		return new ShowGUIMessage(dir);
+	}
+
 	public static ShowGUIMessage getNewOutgoing(){
 		return new ShowGUIMessage(Direction.OUT);
 	}

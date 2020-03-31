@@ -100,6 +100,10 @@ public class FileMessage extends DisplayableMessage {
 		return file;
 	}
 
+	public String getFileName(){
+		return fileName;
+	}
+
 	@Override
 	public void doOnReceive(){
 
@@ -107,7 +111,7 @@ public class FileMessage extends DisplayableMessage {
 
 		FileMessage messageToDisplay;
 		String dlDirectory = CMHelper.getInstance().getCMDownloadsDir();
-		File savedFile = new File(dlDirectory+fileName);
+		File savedFile = new File(dlDirectory + fileName);
 
 		//copy temp file to chatman dl directory
 		try{

@@ -39,6 +39,10 @@ public class ThemeFileMessage extends HiddenMessage {
 		this.themeDataBase64 = themeDataBase64;
 	}
 
+	public static ThemeFileMessage getNew(Direction out, String themeName, String themeDataBase64){
+		return new ThemeFileMessage(out, themeName, themeDataBase64);
+	}
+
 	public static ThemeFileMessage getNewOutgoing(String themeName, String themeDataBase64){
 		return new ThemeFileMessage(Direction.OUT, themeName, themeDataBase64);
 	}
