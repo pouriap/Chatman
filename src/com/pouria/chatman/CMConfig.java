@@ -76,7 +76,6 @@ public class CMConfig {
 	}
 	
 	private static class ChatmanConfigHolder {
-
 		private static final CMConfig INSTANCE = new CMConfig();
 	}
 	

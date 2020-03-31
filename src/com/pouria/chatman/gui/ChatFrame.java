@@ -67,7 +67,6 @@ import java.util.List;
 @SuppressWarnings("ALL")
 public class ChatFrame extends javax.swing.JFrame {
 
-    private static ChatFrame instance = null; 
     private Chatman chatman;
     private String defaultTextAreaHtml;
 	private StyleSheet cssHideTime;
@@ -97,12 +96,13 @@ public class ChatFrame extends javax.swing.JFrame {
     }
     
     
-    public static ChatFrame getInstance(){
-        if(instance == null)
-            instance = new ChatFrame();
-        
-        return instance;
-    }
+	public static ChatFrame getInstance() {
+		return ChatFrame.ChatFrameHolder.INSTANCE;
+	}
+
+	private static class ChatFrameHolder {
+		private static final ChatFrame INSTANCE = new ChatFrame();
+	}
     
 
     /**
