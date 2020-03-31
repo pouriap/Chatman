@@ -1297,16 +1297,6 @@ public class ChatFrame extends javax.swing.JFrame {
         };
 		nextEmojiPage();
 
-        // Theme
-		try{
-			String themeName = CMConfig.getInstance().get("theme", CMConfig.DEFAULT_THEME);
-			currentTheme = CMTheme.getFromDefaultDir(themeName);
-		}catch(Exception e){
-			CMHelper.getInstance().log("getting theme failed. getting default theme");
-			currentTheme = CMTheme.getDefaultTheme();
-		}
-		applyCurrentTheme();
-
         // Make ScrollPanes invisible
         scrollPaneInput.setOpaque(false);
         scrollPaneInput.getViewport().setOpaque(false);
@@ -1318,21 +1308,30 @@ public class ChatFrame extends javax.swing.JFrame {
 			public void adjustmentValueChanged(AdjustmentEvent e) {  
 				e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
 			}
-		};	
-		
-		// Customized scrollbars
-		JScrollBar scrollbarV = scrollPaneConversation.getVerticalScrollBar();
-		scrollbarV.setOpaque(false);
-		int defaultHeight = scrollbarV.getPreferredSize().height;
-		scrollbarV.setPreferredSize(new Dimension(10, defaultHeight));
-		scrollbarV.setUI(new CMScrollbarUI());
+		};
+
+	    // Customized scrollbars UI
+	    JScrollBar scrollbarV = scrollPaneConversation.getVerticalScrollBar();
+	    scrollbarV.setOpaque(false);
+	    int defaultHeight = scrollbarV.getPreferredSize().height;
+	    scrollbarV.setPreferredSize(new Dimension(10, defaultHeight));
 
 	    JScrollBar scrollbarH = scrollPaneConversation.getHorizontalScrollBar();
 	    scrollbarH.setOpaque(false);
 	    int defaultWidth = scrollbarH.getPreferredSize().width;
 	    scrollbarH.setPreferredSize(new Dimension(defaultWidth, 10));
-	    scrollbarH.setUI(new CMScrollbarUI());
-		
+
+	    // Theme
+	    try{
+		    String themeName = CMConfig.getInstance().get("theme", CMConfig.DEFAULT_THEME);
+		    currentTheme = CMTheme.getFromDefaultDir(themeName);
+	    }catch(Exception e){
+		    CMHelper.getInstance().log("getting theme failed. getting default theme");
+		    currentTheme = CMTheme.getDefaultTheme();
+	    }
+
+	    applyCurrentTheme();
+
         // Application icon
         Toolkit toolkit = Toolkit.getDefaultToolkit();	
 		ArrayList<Image> icons = new ArrayList<Image>();
@@ -1690,6 +1689,9 @@ public class ChatFrame extends javax.swing.JFrame {
         else{
 	        textAreaConvo.hideTime();
         }
+
+		scrollPaneConversation.getVerticalScrollBar().setUI(new CMScrollbarUI(currentTheme));
+		scrollPaneConversation.getHorizontalScrollBar().setUI(new CMScrollbarUI(currentTheme));
 
 		//set label icons
 		changeLabelIcon(labelConvoBg, "");

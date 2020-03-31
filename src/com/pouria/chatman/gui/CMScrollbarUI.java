@@ -25,6 +25,38 @@ import java.awt.*;
  * @author pouriap
  */
 public class CMScrollbarUI extends BasicScrollBarUI{
+
+	private static int CORNER_RADIUS = 5;
+	private final Color trackColor;
+	private final Color normalColor;
+	private final Color normalShadowColor;
+	private final Color hoverColor;
+	private final Color hoverShadowColor;
+	private final Color dragColor;
+	private final Color dragShadowColor;
+
+	public CMScrollbarUI(CMTheme theme){
+		super();
+		if(theme.getTextAreasTheme().equals("dark")){
+			trackColor = new Color(45,45,45);
+			normalColor = new Color(80,80,80);
+			normalShadowColor = new Color(65,65,65);
+			hoverColor = new Color(110, 110,110);
+			hoverShadowColor = new Color(80,80,80);
+			dragColor = new Color(75,75,75);
+			dragShadowColor = new Color(50,50,50);
+		}
+		else{
+			trackColor = new Color(180, 180, 180);
+			normalColor = new Color(220, 220, 220);
+			normalShadowColor = new Color(200, 200, 200);
+			hoverColor = new Color(240, 240, 240);
+			hoverShadowColor = new Color(200, 200, 200);
+			dragColor = new Color(200,200,200);
+			dragShadowColor = new Color(150,150,150);
+
+		}
+	}
 	
 	@Override
 	protected JButton createIncreaseButton(int orientation){
@@ -53,9 +85,10 @@ public class CMScrollbarUI extends BasicScrollBarUI{
 	{
 		//no track hehe
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setColor(new Color(45, 45, 45));
+		g.setColor(trackColor);
 		//g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
-		g.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 7, 7);
+		g.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height,
+			CORNER_RADIUS, CORNER_RADIUS);
 
 		if(trackHighlight == DECREASE_HIGHLIGHT)        {
 			paintDecreaseHighlight(g);
@@ -84,22 +117,22 @@ public class CMScrollbarUI extends BasicScrollBarUI{
 		Color color;
 		Color shadowColor;
 		if(isDragging) {
-		  color = new Color(75,75,75);
-		  shadowColor = new Color(45,45,45);
+		  color = dragColor;
+		  shadowColor = dragShadowColor;
 		}else if(isThumbRollover()) {
-		  color = new Color(120,120,120);
-		  shadowColor = new Color(70,70,70);
+		  color = hoverColor;
+		  shadowColor = hoverShadowColor;
 		}else {
-		  color = new Color(90,90,90);
-		  shadowColor = new Color(70,70,70);
+		  color = normalColor;
+		  shadowColor = normalShadowColor;
 		}
 
 		//thumb shadow
 		g.setColor(shadowColor);
-		g.drawRoundRect(0, 0, w-1, h-1, 7, 7);
+		g.drawRoundRect(0, 0, w-1, h-1, CORNER_RADIUS, CORNER_RADIUS);
 		//thumb color
 		g.setColor(color);
-		g.fillRoundRect(0, 0, w-1, h-1, 7, 7);			
+		g.fillRoundRect(0, 0, w-1, h-1, CORNER_RADIUS, CORNER_RADIUS);
 
 		g.translate(-thumbBounds.x, -thumbBounds.y);
 	}
