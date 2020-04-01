@@ -237,10 +237,11 @@ public class Chatman {
 				//don't receive message from anyone else when server is set
 				if(CMConfig.getInstance().isSet("server-ip")){
 					String configServerIP = CMConfig.getInstance().get("server-ip", "");
-					if(!peerIp.equals(configServerIP))
+					if(!peerIp.equals(configServerIP)){
 						CMHelper.getInstance().log("rejecting message from IP: " + peerIp);
 						exchange.setStatusCode(400);
 						return;
+					}
 				}
 			}
 

@@ -78,17 +78,17 @@ public abstract class DisplayableMessage extends CMMessage {
 		String timeTxt = dateFormat.format(d);
 		String messageHTML = getDisplayableContent();
 
-		String you = "You";
-		String class_ = (getStatus() == Status.SENDFAIL)? "username-unsent" : "username-sent";
-		String senderName = (getDirection() == Direction.OUT)? you : getSender();
+		String senderNameClass = (getStatus() == Status.SENDFAIL)? "username-unsent" : "username-sent";
+		String senderName = (getDirection() == Direction.OUT)? "You" : getSender();
 
 		//each message is a div
 		messageHTML =
-					"<div class='message-div'>" +
-						"<span class='time'>[" + timeTxt + "]  |  </span>" +
-						"<b class='" + class_ + "'>" + senderName + ":</b> " +
-						messageHTML +
-					"</div>";
+			"<div class='message-div'>" +
+				"<span class='time'>[" + timeTxt + "]  |  </span>" +
+				"<b class='" + senderNameClass + "'>" + senderName + ":</b> " +
+				messageHTML +
+			"</div>";
+
 
 		return messageHTML;
 	}

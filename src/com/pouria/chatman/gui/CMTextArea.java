@@ -38,6 +38,7 @@ public class CMTextArea {
 
 	public CMTextArea(JEditorPane editorPane){
 		this.editorPane = editorPane;
+		editorPane.setText(defaultHTML);
 	}
 
 	public String getText(){

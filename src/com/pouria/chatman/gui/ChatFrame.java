@@ -1621,7 +1621,9 @@ public class ChatFrame extends javax.swing.JFrame {
 		if(message.getAsHTMLString().isEmpty()){
 			return;
 		}
-		
+
+		//todo: is everything shown like 100 times???
+	    System.out.println("showing: " + message.getTime());
 		updateConversationText();
 		
 		//check peer theme
