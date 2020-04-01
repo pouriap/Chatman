@@ -19,7 +19,6 @@ package com.pouria.chatman.connection;
 import com.pouria.chatman.classes.CMLogger;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdUpdateProgressbar;
-import javafx.util.Pair;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
@@ -36,10 +35,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -215,7 +211,9 @@ public class HttpClient extends Observable implements ChatmanClient{
 	}
 
 	private void notifyListeners(ConnectionStatus status){
-		Pair<ConnectionStatus, String> result = new Pair<>(status, this.serverIP);
+		Map<String, Object> result = new HashMap<>();
+		result.put("status", status);
+		result.put("server-ip", this.serverIP);
 		setChanged();
 		notifyObservers(result);
 	}

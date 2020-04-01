@@ -88,7 +88,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	    HIDE_TIME, SHOW_TIME;
     }
 
-	private final String version = "3.0.2";
+	private final String version = "3.0.3";
 	private final String appTitle = "Chatman Forever";
 
     private ChatFrame(){

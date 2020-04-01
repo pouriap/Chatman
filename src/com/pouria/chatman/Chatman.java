@@ -21,13 +21,11 @@ import com.pouria.chatman.commands.CmdChangeStatusIcon;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdSetLabelStatus;
 import com.pouria.chatman.connection.*;
-import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.DisplayableMessage;
 import com.pouria.chatman.messages.PingMessage;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
-import javafx.util.Pair;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -190,13 +188,15 @@ public class Chatman {
 		@Override
 		public synchronized void update(Observable o, Object arg) {
 
-			Pair<ChatmanClient.ConnectionStatus, String> result = (Pair)arg;
-			ChatmanClient.ConnectionStatus status = result.getKey();
-			String ip = result.getValue();
+			Map<String, Object> result = (Map)arg;
+			ChatmanClient.ConnectionStatus status =
+				(ChatmanClient.ConnectionStatus) result.get("status");
+			String serverIP =
+				(String) result.get("server-ip");
 
 			switch(status){
 				case CONNECTED:
-					(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + ip + CMHelper.getInstance().getStr("stablished")))).execute();
+					(new CmdInvokeLater(new CmdSetLabelStatus(CMHelper.getInstance().getStr("connection_with") + serverIP + CMHelper.getInstance().getStr("stablished")))).execute();
 					(new CmdInvokeLater(new CmdChangeStatusIcon("connected.png"))).execute();
 					sendQueue.process();
 					break;
