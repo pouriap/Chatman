@@ -13,3 +13,5 @@ This means:
  - Install Chatman on two computers that are on the same network.
 
  - A `config.conf` file will be created that stores configurations for Chatman. If you want, you can change configurations according to the instructions in the comments.
+ 
+- Or you could build the `jar` yourself from the sources if you know how to do that.
