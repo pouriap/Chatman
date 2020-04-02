@@ -16,7 +16,6 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.classes.FileUploadCallback;
 import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;

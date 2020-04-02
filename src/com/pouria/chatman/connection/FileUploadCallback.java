@@ -14,20 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package com.pouria.chatman.connection;
 
-package com.pouria.chatman.classes;
-
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.form.FormData;
-import io.undertow.server.handlers.form.FormDataParser;
-
-
-public abstract class AbstractPOSTHander implements HttpHandler {
-	@Override
-	public void handleRequest(HttpServerExchange exchange) throws Exception{
-		handle(exchange, exchange.getAttachment(FormDataParser.FORM_DATA));
-	}
-
-	public abstract void handle(HttpServerExchange exchange, FormData formData) throws Exception;
+/**
+ *
+ * @author pouriap
+ */
+public interface FileUploadCallback {
+	public void call(int percent);
 }

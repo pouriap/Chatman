@@ -17,8 +17,7 @@
 
 package tests;
 
-import com.pouria.chatman.classes.AbstractPOSTHander;
-import com.pouria.chatman.classes.CMLogger;
+import com.pouria.chatman.connection.AbstractPOSTHander;
 import com.pouria.chatman.connection.CMFormDataParser;
 import com.pouria.chatman.connection.HttpClient;
 import com.pouria.chatman.connection.HttpServer;
@@ -27,7 +26,6 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
 import org.junit.*;
 
-import javax.xml.transform.sax.SAXSource;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;

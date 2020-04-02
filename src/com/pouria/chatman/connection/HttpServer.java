@@ -16,17 +16,9 @@
  */
 package com.pouria.chatman.connection;
 
-import com.pouria.chatman.CMConfig;
-import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.IncomingMsgHandler;
-import com.pouria.chatman.classes.AbstractPOSTHander;
-import com.pouria.chatman.enums.CMType;
-import com.pouria.chatman.gui.ChatFrame;
-import com.pouria.chatman.messages.CMMessage;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormDataParser;
 import io.undertow.server.handlers.form.FormParserFactory;
 

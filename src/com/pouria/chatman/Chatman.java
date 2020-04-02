@@ -16,7 +16,7 @@
  */
 package com.pouria.chatman;
 
-import com.pouria.chatman.classes.AbstractPOSTHander;
+import com.pouria.chatman.connection.AbstractPOSTHander;
 import com.pouria.chatman.commands.CmdChangeStatusIcon;
 import com.pouria.chatman.commands.CmdInvokeLater;
 import com.pouria.chatman.commands.CmdSetLabelStatus;
