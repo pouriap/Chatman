@@ -788,7 +788,10 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_dialogHistoryWindowClosing
 
     private void buttonNextHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNextHistoryPageActionPerformed
-        
+
+    	//clear table
+	    ((DefaultTableModel)tableHistory.getModel()).setRowCount(0);
+
         try{
             historyPagination.nextPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
@@ -800,6 +803,9 @@ public class ChatFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonNextHistoryPageActionPerformed
 
     private void buttonPrevHistoryPageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPrevHistoryPageActionPerformed
+
+	    //clear table
+	    ((DefaultTableModel)tableHistory.getModel()).setRowCount(0);
 
         try{
             historyPagination.prevPage();
@@ -959,6 +965,8 @@ public class ChatFrame extends javax.swing.JFrame {
 		
 		//is run everytime history dialog shows 
 	    historyPagination = CMHistory.getPagination(tableHistory);
+	    //clear table
+	    ((DefaultTableModel)tableHistory.getModel()).setRowCount(0);
 
         try{
             historyPagination.nextPage();

@@ -25,6 +25,8 @@ import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  *
@@ -48,9 +50,7 @@ public class HistoryTablePagination extends AbstractSQLPagination {
         DateFormat dateFormat;
         String format; 
         Date now = new Date();
-        int oneDay = 24*60*60*1000;
-
-        ((DefaultTableModel)this.table.getModel()).setRowCount(0);
+        long oneDay = TimeUnit.DAYS.toMillis(1);
 
         Date d = new Date(row.getLong("date"));
         String textCol = row.getString("text");

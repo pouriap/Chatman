@@ -27,18 +27,13 @@ import java.sql.*;
  */
 public abstract class AbstractSQLPagination {
 
-    protected int limit = 10;
-    protected int page = -1;
-    protected boolean hasMore = true;
-    protected String query;
-    protected final String dbPath;
-    
-    //default limit is 10
-    public AbstractSQLPagination(String dbPath, String query){
-        this.query = query;
-        this.dbPath = dbPath;
-    }
-    
+	private final int limit;
+	private final String query;
+	private final String dbPath;
+	
+	private int page = -1;
+	private boolean hasMore = true;
+
     public AbstractSQLPagination(int limit, String dbPath, String query){
         this.query = query;
         this.dbPath = dbPath;
@@ -115,18 +110,6 @@ public abstract class AbstractSQLPagination {
         return page - 1 >= 0;
     }
 
-    public void setLimit(int limit){
-        this.limit = limit;
-    }
-    
-    public void setPage(int page){
-        this.page = page;
-    }
-    
-    public void setQuery(String query){
-        this.query = query;
-    }
-    
     //Should return the number of results
     protected abstract void doPopulate(ResultSet rowInPage, int pageNumber) throws Exception;
     
