@@ -22,11 +22,8 @@
  */
 package com.pouria.chatman.gui;
 
-import com.pouria.chatman.CMConfig;
-import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.Chatman;
-import com.pouria.chatman.OutgoingMsgHandler;
-import com.pouria.chatman.classes.HistoryTablePagination;
+import com.pouria.chatman.*;
+import com.pouria.chatman.classes.AbstractSQLPagination;
 import com.pouria.chatman.commands.CmdFatalErrorExit;
 import com.pouria.chatman.commands.CmdShowError;
 import com.pouria.chatman.connection.HttpClient;
@@ -37,7 +34,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.Style;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import java.awt.*;
@@ -52,7 +48,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 
@@ -72,7 +67,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	private StyleSheet cssHideTime;
 	private StyleSheet cssShowTime;
 	private timeDisplay conversationShowTime = timeDisplay.HIDE_TIME;
-    private HistoryTablePagination historyPagination;
+    private AbstractSQLPagination historyPagination;
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
 	private String username;
@@ -798,7 +793,7 @@ public class ChatFrame extends javax.swing.JFrame {
             historyPagination.nextPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
-        }catch(SQLException e){
+        }catch(Exception e){
 			CMHelper.getInstance().log("history next page failed: " + e.getMessage());
             message(CMHelper.getInstance().getStr("history_fail"));
         }
@@ -810,7 +805,7 @@ public class ChatFrame extends javax.swing.JFrame {
             historyPagination.prevPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
             buttonPrevHistoryPage.setEnabled(historyPagination.hasPrev());
-        }catch(SQLException e){
+        }catch(Exception e){
 			CMHelper.getInstance().log("history prev page failed: " + e.getMessage());
             message(CMHelper.getInstance().getStr("history_fail"));
         }
@@ -963,17 +958,12 @@ public class ChatFrame extends javax.swing.JFrame {
     private void dialogHistoryComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_dialogHistoryComponentShown
 		
 		//is run everytime history dialog shows 
-        historyPagination = new HistoryTablePagination(
-                tableHistory,
-                "history.sqlite",
-                "SELECT date,text FROM chat_sessions ORDER BY date DESC"
-        );
+	    historyPagination = CMHistory.getPagination(tableHistory);
 
         try{
             historyPagination.nextPage();
             buttonNextHistoryPage.setEnabled(historyPagination.hasNext());
-            
-        }catch(SQLException e){
+        }catch(Exception e){
 			CMHelper.getInstance().log("failed to show history window: " + e.getMessage());
             message(CMHelper.getInstance().getStr("history_fail"));
         }
@@ -1160,9 +1150,6 @@ public class ChatFrame extends javax.swing.JFrame {
      
 
     public void initialize() throws Exception {
-
-		// Checks if history.sqlite exists and if not tries to create it
-		CMHelper.getInstance().checkDatabaseFile();
 
 		this.setTitle(appTitle);
 

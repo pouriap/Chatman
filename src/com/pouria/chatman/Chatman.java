@@ -55,7 +55,7 @@ public class Chatman {
 		server = new HttpServer(port, new ChatmanHandler());
 		sendQueue = new CMSendQueue();
 		bgTasksMngr = new BgTasksManager();
-		history = new CMHistory();
+		history = new CMHistory("history.sqlite");
 	}
 	
 	public ChatmanClient getClient(){
@@ -63,6 +63,7 @@ public class Chatman {
 	}
 	
 	public void start() throws Exception{
+		history.createDBIfNotExist();
 		server.start();
 		client.addServerStateChangedListener(bgTasksMngr);
 		bgTasksMngr.start();
@@ -75,7 +76,7 @@ public class Chatman {
 	}
 	
 	public void saveHistory(){
-		history.save();
+		history.save(getAllDisplayableMessages());
 	}
 	
 	//anything that accesses Lists should be synchronized
@@ -86,10 +87,10 @@ public class Chatman {
 		}
 	}
 
-	public synchronized DisplayableMessage[] getAllDisplayableMessages(){
-		DisplayableMessage[] messages = new DisplayableMessage[allDisplayableMessages.size()];
-		allDisplayableMessages.toArray(messages);
-		return messages;
+	public synchronized List<DisplayableMessage> getAllDisplayableMessages(){
+		DisplayableMessage[] allMessages = new DisplayableMessage[allDisplayableMessages.size()];
+		allDisplayableMessages.toArray(allMessages);
+		return Arrays.asList(allMessages);
 	}
 
 	private String[] getIpsToScan(){

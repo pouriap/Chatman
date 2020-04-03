@@ -17,7 +17,6 @@
 package com.pouria.chatman.classes;
 
 import com.pouria.chatman.CMHelper;
-import com.pouria.chatman.gui.ChatFrame;
 import com.puria.ShamsiDate;
 
 import javax.swing.*;
@@ -33,89 +32,75 @@ import java.util.Date;
  * 
  * our implementation of the AbstractPagination class
  */
-public class HistoryTablePagination extends AbstractPagination{
+public class HistoryTablePagination extends AbstractSQLPagination {
     
-    final ChatFrame gui;
-    final JTable table;
-    
-    
-    public HistoryTablePagination(JTable table, String dbPath, String query){
-        super(dbPath, query);
-        this.gui = ChatFrame.getInstance();
+    private final static String QUERY = "SELECT date,text FROM chat_sessions ORDER BY date DESC";
+    private final JTable table;
+
+    public HistoryTablePagination(int limit, JTable table, String dbPath){
+        super(limit, dbPath, QUERY);
         this.table = table;
     }
     
     @Override
-    protected int doPopulate(ResultSet rs){
+    protected void doPopulate(ResultSet row, int pageNumber) throws Exception{
 
         DateFormat dateFormat;
         String format; 
         Date now = new Date();
         int oneDay = 24*60*60*1000;
-        int resultCount = 0;
-        
-        ((DefaultTableModel)this.table.getModel()).setRowCount(0);
-        try {
-            while (rs.next()) {
-				
-                Date d = new Date(rs.getLong("date"));
-                String textCol = rs.getString("text");
-				String dateCol = "";
 
-                //u = day of week
-                dateFormat = new SimpleDateFormat("u");
-                String weekDay = dateFormat.format(d);
-                String[] weekdays = CMHelper.getInstance().getStr("week_days").split(",");
-                weekDay = weekdays[Integer.valueOf(weekDay) -1];
-                format = "'" + weekDay + "' yyyy-MM-dd ";
-                
-                //D = day in year
-                dateFormat = new SimpleDateFormat("D");
-                int todayNumber = Integer.valueOf(dateFormat.format(now));
-                dateFormat = new SimpleDateFormat("D");
-                int dayNumber = Integer.valueOf(dateFormat.format(d));
-                
-                long distance =  now.getTime() - d.getTime();
-                //because we only want it to be applied to last week
-                //it doesn't work on new years first week but whatever! ;)
-                if(distance < (4 * oneDay)){
-                    switch(todayNumber - dayNumber){
-                        case 0:
-                            format = "'" + CMHelper.getInstance().getStr("today") + " '";
-                            break;
-                        case 1:
-                            format = "'" + CMHelper.getInstance().getStr("yesterday") + " '";
-                            break;
-                        case 2:
-                            format = "'" + CMHelper.getInstance().getStr("two_days_ago") + " '";
-                            break;
-                        case 3:
-                            format = "'" + CMHelper.getInstance().getStr("three_days_ago") + " '";
-                            break;
-                        case 4:
-                            format = "'" + CMHelper.getInstance().getStr("four_days_ago") + " '";
-                            break;
-                        default:
-                            break;
-                    }
-					dateFormat = new SimpleDateFormat(format);
-					dateCol = dateFormat.format(d);
-                }
-				else{
-					ShamsiDate shamsiDate = new ShamsiDate(d.getTime());
-					dateCol = " " + shamsiDate.getStandardShamsi();
-				}
-				   
-                ((DefaultTableModel)this.table.getModel()).addRow(new Object[]{dateCol, textCol});
-                
-                resultCount++;
-            }//while
-            
-        }catch ( Exception e ){
-            gui.message(CMHelper.getInstance().getStr("history_fail"));
-            CMHelper.getInstance().log("could not load history: " + e.getMessage());
+        ((DefaultTableModel)this.table.getModel()).setRowCount(0);
+
+        Date d = new Date(row.getLong("date"));
+        String textCol = row.getString("text");
+		String dateCol = "";
+
+        //u = day of week
+        dateFormat = new SimpleDateFormat("u");
+        String weekDay = dateFormat.format(d);
+        String[] weekdays = CMHelper.getInstance().getStr("week_days").split(",");
+        weekDay = weekdays[Integer.parseInt(weekDay) -1];
+        format = "'" + weekDay + "' yyyy-MM-dd ";
+
+        //D = day in year
+        dateFormat = new SimpleDateFormat("D");
+        int todayNumber = Integer.parseInt(dateFormat.format(now));
+        dateFormat = new SimpleDateFormat("D");
+        int dayNumber = Integer.parseInt(dateFormat.format(d));
+
+        long distance =  now.getTime() - d.getTime();
+        //because we only want it to be applied to last week
+        //it doesn't work on new years first week but whatever! ;)
+        if(distance < (4 * oneDay)){
+            switch(todayNumber - dayNumber){
+                case 0:
+                    format = "'" + CMHelper.getInstance().getStr("today") + " '";
+                    break;
+                case 1:
+                    format = "'" + CMHelper.getInstance().getStr("yesterday") + " '";
+                    break;
+                case 2:
+                    format = "'" + CMHelper.getInstance().getStr("two_days_ago") + " '";
+                    break;
+                case 3:
+                    format = "'" + CMHelper.getInstance().getStr("three_days_ago") + " '";
+                    break;
+                case 4:
+                    format = "'" + CMHelper.getInstance().getStr("four_days_ago") + " '";
+                    break;
+                default:
+                    break;
+            }
+			dateFormat = new SimpleDateFormat(format);
+			dateCol = dateFormat.format(d);
         }
-        
-        return resultCount;
+		else{
+			ShamsiDate shamsiDate = new ShamsiDate(d.getTime());
+			dateCol = " " + shamsiDate.getStandardShamsi();
+		}
+
+        ((DefaultTableModel)this.table.getModel()).addRow(new Object[]{dateCol, textCol});
+
     }
 }
