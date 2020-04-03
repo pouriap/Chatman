@@ -53,7 +53,7 @@ public class Chatman {
 		int port = Integer.parseInt(CMConfig.getInstance().get("server-port", CMConfig.DEFAULT_SERVER_PORT));
 		client = new HttpClient(port, getIpsToScan(), CMHelper.getInstance()::log);
 		server = new HttpServer(port, new ChatmanHandler());
-		sendQueue = new CMSendQueue();
+		sendQueue = new CMSendQueue(client);
 		bgTasksMngr = new BgTasksManager();
 		history = new CMHistory("history.sqlite");
 	}

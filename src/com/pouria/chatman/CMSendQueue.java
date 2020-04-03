@@ -16,6 +16,7 @@
  */
 package com.pouria.chatman;
 
+import com.pouria.chatman.connection.ChatmanClient;
 import com.pouria.chatman.gui.ChatFrame;
 import com.pouria.chatman.messages.CMMessage;
 import com.pouria.chatman.messages.DisplayableMessage;
@@ -30,13 +31,56 @@ public class CMSendQueue {
 
 	//we only send diaplayable messages with sendQueue
 	private final ConcurrentLinkedQueue<DisplayableMessage> queue = new ConcurrentLinkedQueue<>();
-	private Thread processThread = new Thread();
-	private final Runnable r;
+	private QueueProcessorThread processThread = new QueueProcessorThread();
 	private final int CONNECT_COOLDOWN = 1000 * 30;	//30 sec
 	private long lastConnectTime = 0;
+	private final ChatmanClient client;
+
+	public CMSendQueue(ChatmanClient client){
+		this.client = client;
+	}
+
+	private boolean connectWithCooldown(){
+		long time = System.currentTimeMillis();
+		if(time - lastConnectTime > CONNECT_COOLDOWN){
+			boolean success = client.connect();
+			lastConnectTime = time;
+			return success;
+		}
+		return false;
+	}
 	
-	public CMSendQueue(){
-		r = () -> {
+	public void add(DisplayableMessage object){
+		queue.add(object);
+	}
+	
+	public DisplayableMessage peek(){
+		return queue.peek();
+	}
+	
+	public DisplayableMessage poll(){
+		return queue.poll();
+	}
+	
+	public boolean isEmpty(){
+		return queue.isEmpty();
+	}
+	
+	public void process(){
+		if(!processThread.isAlive()){
+			processThread = new QueueProcessorThread();
+			processThread.start();
+		}
+	}
+
+	private class QueueProcessorThread extends Thread{
+
+		public QueueProcessorThread(){
+			super("CM-SendQeue-Processor");
+		}
+
+		@Override
+		public void run() {
 			//ta zamani ke chizi dar queue has edame bede
 			while(!queue.isEmpty()){
 				//avvalin message ra befrest
@@ -73,39 +117,6 @@ public class CMSendQueue {
 					}
 				}
 			}
-		};
-	}
-	
-	private boolean connectWithCooldown(){
-		long time = System.currentTimeMillis();
-		if(time - lastConnectTime > CONNECT_COOLDOWN){
-			boolean success = ChatFrame.getInstance().getChatmanInstance().getClient().connect();
-			lastConnectTime = time;
-			return success;
-		}
-		return false;
-	}
-	
-	public void add(DisplayableMessage object){
-		queue.add(object);
-	}
-	
-	public DisplayableMessage peek(){
-		return queue.peek();
-	}
-	
-	public DisplayableMessage poll(){
-		return queue.poll();
-	}
-	
-	public boolean isEmpty(){
-		return queue.isEmpty();
-	}
-	
-	public void process(){
-		if(!processThread.isAlive()){
-			processThread = new Thread(r, "CM-SendQeue-Processor");
-			processThread.start();
 		}
 	}
 	
