@@ -8,6 +8,8 @@ dist/
 history.sqlite
 history.sqlite-journal
 config.conf
+stdout.txt
+stderr.txt
 
 #idea ignores
 out/

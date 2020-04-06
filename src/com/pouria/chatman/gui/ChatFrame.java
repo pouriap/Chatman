@@ -42,9 +42,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,7 +81,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	    HIDE_TIME, SHOW_TIME;
     }
 
-	private final String version = "3.0.4";
+	private final String version = "3.0.6";
 	private final String appTitle = "Chatman Forever";
 
     private ChatFrame(){
@@ -701,8 +699,7 @@ public class ChatFrame extends javax.swing.JFrame {
         //replace the emoticon image with the larger image. we also add the width=50 and height=50 for better display
         String img = (String) tableEmojis.getValueAt(row, col);
 		img = img.replaceAll("<html>(.*)emoticons(.*\\.gif')\\s(\\/>)<\\/html>", "$1emoticons_large$2  $3");
-        
-        
+
         textAreaInput.appendText(img);
         editorPaneInput.requestFocus();
     
@@ -1088,6 +1085,11 @@ public class ChatFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+
+	    try{
+		    System.setOut(new PrintStream("stdout.txt"));
+		    System.setErr(new PrintStream("stderr.txt"));
+	    }catch(FileNotFoundException e){}
 
 		do_pregui_checks();
 		

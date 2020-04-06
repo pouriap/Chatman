@@ -47,8 +47,8 @@ public class CMScrollbarUI extends BasicScrollBarUI{
 			dragShadowColor = new Color(50,50,50);
 		}
 		else{
-			trackColor = new Color(180, 180, 180);
-			normalColor = new Color(220, 220, 220);
+			trackColor = new Color(220, 220, 220);
+			normalColor = new Color(180, 180, 180);
 			normalShadowColor = new Color(200, 200, 200);
 			hoverColor = new Color(240, 240, 240);
 			hoverShadowColor = new Color(200, 200, 200);

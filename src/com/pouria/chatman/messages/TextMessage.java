@@ -58,7 +58,7 @@ public class TextMessage extends DisplayableMessage {
 	public String getDisplayableContent(){
 		String text = getContent();
 		//parse web links
-		text = text.replaceAll("((http|https)://[^\\s]*)\\s?", "<a style='color:#dee3e9;font-weight:bold;' href='$1'><u>$1</u></a> ");
+		text = text.replaceAll("((http|https)://[^\\s]*)\\s?", "<a class='link' href='$1'><u>$1</u></a> ");
 		//parse emoticons
 		String url = getClass().getResource("/resources/emoticons_large/").toString();
 		text = text.replaceAll("src=\"[^\"]*emoticons_large\\/([^\"]*\\.gif)\"", "src=\"" + url + "$1\"");

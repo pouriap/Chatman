@@ -82,7 +82,7 @@ public class FileMessage extends DisplayableMessage {
 			name = fileName;
 		}
 		//add file link
-		return "<a style='font-weight:bold;' href='file://" + path + "'><u>" + name + "</u></a>";
+		return "<a class='link' href='file://" + path + "'><u>" + name + "</u></a>";
 	}
 
 	@Override

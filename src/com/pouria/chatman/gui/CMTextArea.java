@@ -44,6 +44,7 @@ public class CMTextArea {
 	public String getText(){
 		String html = editorPane.getText();
 		Document doc = Jsoup.parse(html);
+		doc.outputSettings().prettyPrint(false);
 		Element textDiv = doc.select("body").first();
 		return (textDiv != null)? textDiv.html() : "";
 	}
@@ -60,6 +61,7 @@ public class CMTextArea {
 
 		String html = editorPane.getText();
 		Document doc = Jsoup.parse(html);
+		doc.outputSettings().prettyPrint(false);
 		Element textDiv = doc.select("body").first();
 
 		if(textDiv == null){
@@ -72,6 +74,7 @@ public class CMTextArea {
 		else{
 			textDiv.html(text);
 		}
+
 
 		editorPane.setText(doc.outerHtml());
 
