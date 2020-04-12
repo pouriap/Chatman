@@ -81,7 +81,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	    HIDE_TIME, SHOW_TIME;
     }
 
-	private final String version = "3.0.6";
+	private final String version = "3.0.7";
 	private final String appTitle = "Chatman Forever";
 
     private ChatFrame(){
@@ -1600,8 +1600,9 @@ public class ChatFrame extends javax.swing.JFrame {
         String text = textAreaInput.getText();
         
         //return if input is empty
-        if(text.isEmpty())
-            return;
+        if(text.replace("\n","").trim().isEmpty()){
+	        return;
+        }
 
 	    TextMessage message = TextMessage.getNewOutgoing(text);
 		chatman.sendMessage(message);
