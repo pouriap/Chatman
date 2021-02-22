@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://gmpg.org/xfn/11">
+
+	<title>Java as Windows Service with Apache Commons Daemon | Platinum Solutions Blog</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+</head>
+
+<body class="sidebar-right">
+<div id="page">
+  <a href="http://web.archive.org/web/20090228071059/http://blog.platinumsolutions.com/">
+  <div id="header">
+                    </div>	
+  </a>
+  <hr/>
+  <center><a href="http://web.archive.org/web/20090228071059/http://www.platinumsolutions.com/">Platinum Solutions Corporate Website</a></center>
+  <hr/>
+  <div class="content">
+    <div id="primary">
+      <div id="current-content">
+        <div id="primarycontent" class="hfeed">
+          <div class="navigation"><div class="breadcrumb"><a href="/web/20090228071059/http://blog.platinumsolutions.com/">Home</a> » <a href="/web/20090228071059/http://blog.platinumsolutions.com/blog">Blogs</a> » <a href="/web/20090228071059/http://blog.platinumsolutions.com/blog/37">Christopher Pierce&#039;s blog</a></div><div class="clear"></div></div><hr/>                    <h2 class="entry-title">Java as Windows Service with Apache Commons Daemon</h2>                                        <div class="messages error">
+The answer you entered to the math problem is incorrect.</div>
+          <div id="node-234" class="hentry node">
+  <div class="entry-head">
+        <small class="entry-meta">
+            <span class="chronodata"><abbr class="published" title="Wed, 2009-02-11 21:38">Wed, 2009-02-11 21:38</abbr></span>      <span class="entry-category">in <ul class="links inline"><li class="first last taxonomy_term_6"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/6" rel="tag" title="
+" class="taxonomy_term_6">Java</a></li>
+</ul></span>      <ul class="links inline"><li class="first blog_usernames_blog"><a href="/web/20090228071059/http://blog.platinumsolutions.com/blog/37" title="Read Christopher Pierce's latest blog entries." class="blog_usernames_blog">Christopher Pierce&#039;s blog</a></li>
+<li class="last statistics_counter"><span class="statistics_counter">415 reads</span></li>
+</ul>    </small>
+     
+  </div>
+  <div class="entry-content">
+    <p>Recently, I wanted to take a Java command line program and turn it into a Windows Service. There are a number of ways to do this, but I decided to try out the Apache Commons Daemon project (<a href="http://web.archive.org/web/20090228071059/http://commons.apache.org/daemon/">http://commons.apache.org/daemon/</a>).</p>
+<p>
+It is actually very simple to turn your Java Program into a service with Commons Daemon but, if you’re like me, you will very quickly become confused by browsing the project page, so here are some tips.</p>
+<p>
+<strong>Procrun</strong><br/>
+On the Commons Daemon homepage, under the "Platforms" section you’ll see that it says "For win32 platforms use procrun". Procrun is actually an umbrella term for a set of libraries and applications. The applications we are concerned with are called "prunsrv" and "prunmgr".</p>
+<p>
+The "prunsrv" application is the Windows Service binary.  It is native windows binary that runs as a windows service and starts up an embedded JVM to run your Java code in (it can run in other modes, but "embedded JVM" was all I cared about).  The "prunmgr" is a GUI application to start/stop and configure the service.  It can also be run in the system tray where its icon will show the current state of the service (running or stopped).  The Commons Daemon homepage has a link in its left navigation called "Procrun" which has documentation for these two applications.</p>
+<p>
+So where do you download the "prunsrv" and "prunmgr" binaries?  That is the confusing part! Your first instinct will be to click the "Download" link on the Commons Daemon home page, but that only has a download for UNIX. Next, you’ll click the "Procrun" link, but that only has documentation. Last, you’ll click on the "Native binaries" link, but that page has nothing but a link back to the documentation.</p>
+<p>
+After a bit of googling, and sifting through a lot of "where do I download procrun?" postings, I found that the Commons Daemon project does not provide binaries for these applications.  The only binaries available are from the Tomcat project. Tomcat comes with 2 windows binaries: tomcat5.exe and tomcat5w.exe. It turns out that these are "prunsrv" and "prunmgr" respectively!</p>
+<p>
+You can download the binaries without downloading Tomcat (or to get 64 bit versions) here:<br/>
+<a href="http://web.archive.org/web/20090228071059/http://svn.apache.org/repos/asf/tomcat/connectors/trunk/procrun/bin/">http://svn.apache.org/repos/asf/tomcat/connectors/trunk/procrun/bin/</a></p>
+<p>
+<strong>The Daemon Java Interface is not used!</strong><br/>
+The next thing that confused me was that the Commons Daemon project has a Java API, that revolves around an interface called "Daemon".  This interface has methods one would expect in a service such as start/stop and initialize/destroy methods.</p>
+<p>
+My assumption was that you needed to implement the Daemon interface to have Procrun interact with your java application.  I spent a lot of time trying to figure out how this worked (the Procrun documentation makes no mention of this interface). Well, it turns out that this interface is not used at all by the Procrun application. (It might be used by the UNIX daemon binary, I’m not sure.) If your only goal is to create a Windows Service, don’t bother with the Daemon Java interface.</p>
+<p>
+<strong>Writing a Service</strong><br/>
+Procrun will call a static method that takes a String array as its only argument to start your service. By default, Procrun will look for and call <code>static void main(String[] args)</code> as the startup method, but you can configure any method name. Procrun will also call a static method that takes a String array as its only argument to stop your service. Again, it will default to <code>static void main(String[] args)</code>, but this is also configurable.</p>
+<p>
+The idea is that your "main" method will determine whether the service is starting or stopping based on the arguments.  You can specify different static methods for start and stop, but they still must have a single String array for its argument.</p>
+<p>
+(Note: Another thing that had confused me was that you will get the message "Static method 'void main(String[])' not found" if Procrun can’t find your start/stop method, even if you specify a method name other than “main”)</p>
+<p>
+The service will be considered in "running" state for as long as your "start" method blocks. Procrun will run your start method in a worker thread, and monitor that thread for your method to return.</p>
+<p>
+<strong>Sample Java Service: "MyService"</strong><br/>
+I created a sample Java service called "MyService", which is a simple class that just logs a message to standard out ever minute.</p>
+<p>
+Below is a simplified sequence diagram of how Procrun starts and stops the MyService class.<br/>
+<img src="http://web.archive.org/web/20090228071059im_/https://gate.platinumsolutions.com/psblog/files/procrun_java_seq.jpg"/></p>
+<p>
+Below is the code for the MyService class:</p>
+<pre><code>
+package com.platinumsolutions;
+
+/**
+ * Simple service class that writes a
+ * message to standard out every minute.
+ */
+public class MyService {
+
+   /**
+    * Single static instance of the service class
+    */
+   private static MyService 
+       serviceInstance = new MyService();
+	
+   /**
+    * Static method called by prunsrv to start/stop
+    * the service.  Pass the argument "start"
+    * to start the service, and pass "stop" to
+    * stop the service.
+    */
+   public static void windowsService(String args[]) {
+      String cmd = "start";
+      if(args.length &gt; 0) {
+         cmd = args[0];
+      }
+	
+      if("start".equals(cmd)) {
+         serviceInstance.start();
+      }
+      else {
+         serviceInstance.stop();
+      }
+   }
+
+   /**
+    * Flag to know if this service
+    * instance has been stopped.
+    */
+   private boolean stopped = false;
+	
+	
+   /**
+    * Start this service instance
+    */
+   public void start() {
+	
+      stopped = false;
+		
+      System.out.println("My Service Started "
+                         + new java.util.Date());
+		
+      while(!stopped) {
+         System.out.println("My Service Executing "
+                             + new java.util.Date());
+         synchronized(this) {
+            try {
+               this.wait(60000);  // wait 1 minute
+            }
+            catch(InterruptedException ie){}
+         }
+      }
+		
+      System.out.println("My Service Finished "
+                          + new java.util.Date());
+   }
+	
+   /**
+    * Stop this service instance
+    */
+   public void stop() {
+      stopped = true;
+      synchronized(this) {
+         this.notify();
+      }
+   }
+}
+</code></pre><p>
+<strong>Deploying the Sample Java Service</strong><br/>
+I will be using the following folder hierarchy for my sample service:</p>
+<pre><code>
+C:\MyService
+    \bin
+        \myService.exe
+        \myServicew.exe
+    \classes
+        \com\platinumsolutions\MyService.class
+    \logs
+</code></pre><p>You’ll notice that I renamed the prunsrv and prunmgr executables (originally called tomcat5.exe and tomcat5w.exe) to "myService.exe" and "myServicew.exe" respectively. This is simply so that when I look in the running process list for my service, it will be listed as "myService.exe".</p>
+<p>
+To deploy my service, I open a Command Prompt to the "C:\MyService\bin" folder and run the following command:</p>
+<pre><code>
+C:\MyService\bin&gt; myService.exe //IS//MyService --Install=C:\MyService\bin\myService.exe --Description="My Java Service" --Jvm=auto --Classpath=C:\MyService\classes --StartMode=jvm --StartClass=com.platinumsolutions.MyService --StartMethod=windowsService --StartParams=start --StopMode=jvm --StopClass=com.platinumsolutions.MyService --StopMethod=windowsService --StopParams=stop --LogPath=C:\MyService\logs --StdOutput=auto --StdError=auto
+</code></pre><p>There is an exhaustive list of command line parameters documented at <a href="http://web.archive.org/web/20090228071059/http://commons.apache.org/daemon/procrun.html">http://commons.apache.org/daemon/procrun.html</a></p>
+<p>
+Here is a description of command line arguments I am using for the sample service</p>
+<table border="1" cellspacing="1" cellpadding="0">
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>//IS//</td>
+<td>MyService</td>
+<td>"IS" is "Install Service", and MyService is the service name. (The name that will be listed in the Window Control Panel Service Administration)</td>
+</tr>
+<tr>
+<td>--Install</td>
+<td>C:\MyService\bin\myService.exe</td>
+<td>The full path to the prunsrv executable to install as the service binary</td>
+</tr>
+<tr>
+<td>--Description</td>
+<td>"My Java Service"</td>
+<td>Descriptive name displayed in the Window Control Panel Service Administration.</td>
+</tr>
+<tr>
+<td>--Jvm</td>
+<td>auto</td>
+<td>This specifies the jvm.dll to use for the embedded JVM.  By specifying "auto", it will automatically locate the Java instance installed on the machine.</td>
+</tr>
+<tr>
+<td>--Classpath</td>
+<td>C:\MyService\classes</td>
+<td>The classpath for the JVM environment. Include any Jar files here that your service depends on.</td>
+</tr>
+<tr>
+<td>--StartMode</td>
+<td>jvm</td>
+<td>This specifies that we want to use an embedded JVM to run our service.</td>
+<tr>
+<td>--StartClass</td>
+<td>com.platinumsolutions.MyService</td>
+<td>The sample Java service class.</td>
+</tr>
+<tr>
+<td>--StartMethod</td>
+<td>windowsService</td>
+<td>The static method used to start the service (this static method must take a String array as an argument)</td>
+</tr>
+<tr>
+<td>--StartParams</td>
+<td>start</td>
+<td>String values to pass to the StartMethod.  The sample Java service expects a single parameter of "start" to start the service.</td>
+</tr>
+<tr>
+<td>--StopMode</td>
+<td>jvm</td>
+<td>This specifies that we want to use an embedded JVM to run our service.</td>
+<tr>
+<td>--StopClass</td>
+<td>com.platinumsolutions.MyService</td>
+<td>The sample Java service class.</td>
+</tr>
+<tr>
+<td>--StopMethod</td>
+<td>windowsService</td>
+<td>The static method used to stop the service (this static method must take a String array as an argument)</td>
+</tr>
+<tr>
+<td>--StopParams</td>
+<td>stop</td>
+<td>String values to pass to the StopMethod.  The sample Java service expects a single parameter of "stop" to stop the service.</td>
+</tr>
+<tr>
+<td>--LogPath</td>
+<td>C:\MyService\logs</td>
+<td>Specify the folder where prunsvr will write *it’s* log files to, including the StdOutput and StdError redirect logs.</td>
+<tr>
+<td>--StdOutput</td>
+<td>auto</td>
+<td>The name of the log file to create where the Standard Out will be redirected to.  By specifying "auto", the file will be called "stdout" with a date/time stamp appended to it.</td>
+</tr>
+<tr>
+<td>--StdError</td>
+<td>auto</td>
+<td>The name of the log file to create where the Standard Error will be redirected to.  By specifying "auto", the file will be called "stderr" with a date/time stamp appended to it.</td>
+</tr>
+</table>
+<p>
+<strong>Monitor the sample service with prunmgr</strong><br/>
+By default the service will be installed with a startup mode of "Manual", so it is not running after it is deployed. It can be started via the Window's Control Panel's Administer Services screen, or we can use Procrun's prunmgr.</p>
+<p>
+As previously mentioned, I renamed prunmgr (which was originally named tomcat5w.exe) to "myServicew.exe". Running myServicew.exe will bring up a GUI screen with a start/stop button as well as a number of tabs to modify the configuration. Just about every value that you can specify on the command line when deploying can be changed after deployment via this GUI.</p>
+<p>
+One nice feature of prunmgr is the ability to have it run in the system tray. To run prunmgr in the system tray, use the command line parameter "//MS//" like so:<br/>
+<code>C:\MyService\bin&gt; myServicew.exe //MS//</code></p>
+<p>
+The system tray icon will have a red box on it if the service is stopped, and a green arrow if it is running. You can start/stop the service by right clicking the system tray icon and picking start/stop from the context menu.</p>
+<p>
+<strong>In Conclusion</strong><br/>
+It's actually very simple to turn a Java application into a windows service with Apache Commons Daemon. In fact you can do it with no change at all to your command line program since, by default, all Procrun does is call your programs "main" method, and waits for it to return. Hopefully this write up will help you get your service up and running in no time at all.</p>
+  </div>
+</div><div id="comments"><h3 class="comments">Comments</h3><div class="box">
+
+  <h2>Post new comment</h2>
+
+  <div class="content"><form action="/web/20090228071059/http://blog.platinumsolutions.com/comment/reply/234" method="post" id="comment-form">
+<div><div class="form-item">
+ <label for="edit-captcha-response">Math Question: What is <em>7 + 7</em>?: <span class="form-required" title="This field is required.">*</span></label>
+ <input type="text" maxlength="128" name="captcha_response" id="edit-captcha-response" size="60" value="" class="form-text required error"/>
+ <div class="description">Please solve the math problem above and type in the result. e.g. for 1+1, type 2.</div>
+</div>
+<div class="form-item">
+ <label for="edit-name">Your name: </label>
+ <input type="text" maxlength="60" name="name" id="edit-name" size="30" value="Anonymous" class="form-text"/>
+</div>
+<div class="form-item">
+ <label for="edit-mail">E-mail: </label>
+ <input type="text" maxlength="64" name="mail" id="edit-mail" size="30" value="" class="form-text"/>
+ <div class="description">The content of this field is kept private and will not be shown publicly.</div>
+</div>
+<div class="form-item">
+ <label for="edit-homepage">Homepage: </label>
+ <input type="text" maxlength="255" name="homepage" id="edit-homepage" size="30" value="" class="form-text"/>
+</div>
+<div class="form-item">
+ <label for="edit-subject">Subject: </label>
+ <input type="text" maxlength="64" name="subject" id="edit-subject" size="60" value="" class="form-text"/>
+</div>
+<div class="form-item">
+ <label for="edit-comment">Comment: <span class="form-required" title="This field is required.">*</span></label>
+ <textarea cols="60" rows="15" name="comment" id="edit-comment" class="form-textarea resizable required"></textarea>
+</div>
+<ul class="tips"><li>Lines and paragraphs break automatically.</li></ul><p><a href="/web/20090228071059/http://blog.platinumsolutions.com/filter/tips">More information about formatting options</a></p><input type="hidden" name="form_id" id="edit-comment-form" value="comment_form"/>
+<input type="submit" name="op" id="edit-preview" value="Preview comment" class="form-submit"/>
+<input type="submit" name="op" id="edit-submit" value="Post comment" class="form-submit"/>
+
+</div></form>
+</div>
+</div>
+</div>	
+        </div><!-- #primarycontent .hfeed -->
+      </div> <!-- #current-content -->
+    </div> <!-- #primary -->
+          <hr/>
+      <div id="sidebar-right" class="k2-secondary">
+                <div id="block-user-1" class="block-user">
+      <h2>Navigation</h2>
+    
+<ul class="menu">
+<li class="leaf"><a href="/web/20090228071059/http://blog.platinumsolutions.com/tracker">Recent posts</a></li>
+
+</ul>
+</div><div id="block-taxonomy_context-1" class="block-taxonomy_context">
+      <h2>Topic</h2>
+    <ul class="menu">
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/26" title="
+">Business Logic</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/8" title="
+">Databases</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/2" title="
+">General</a></li>
+<li class="expanded"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/6" title="
+">Java</a>
+<ul class="menu">
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/17" title="
+">Ant</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/1" title="
+Eclipse IDE
+">Eclipse</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/24" title="
+">Frameworks</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/25" title="
+">JBoss</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/4" title="
+">JDK</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/11" title="
+">Oracle ADF UIX</a></li>
+</ul>
+
+</li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/11" title="
+">Oracle ADF UIX</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/10" title="
+">Project Management</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/3" title="
+">Security</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/5" title="
+">Servers</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/16" title="
+">Software Development</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/12" title="
+">Technical Documentation</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/22" title="
+">Web Technologies</a></li>
+<li class="collapsed"><a href="/web/20090228071059/http://blog.platinumsolutions.com/taxonomy/term/7" title="
+">XML</a></li>
+</ul>
+
+</div><div id="block-block-5" class="block-block">
+    <p><a href="http://web.archive.org/web/20090228071059/https://gate.platinumsolutions.com/psblog/login"><strong>User Login</strong></a></p>
+</div><div id="block-node-0" class="block-node">
+      <h2>Syndicate</h2>
+    <a href="/web/20090228071059/http://blog.platinumsolutions.com/node/feed" class="feed-icon"><img src="/web/20090228071059im_/http://blog.platinumsolutions.com/misc/feed.png" alt="Syndicate content" title="Syndicate content" width="16" height="16"/></a></div><div id="block-block-4" class="block-block">
+    <script src="http://web.archive.org/web/20090228071059js_/https://ssl.google-analytics.com/urchin.js" type="text/javascript">
+</script><script type="text/javascript">
+_uacct = "UA-101319-3";
+urchinTracker();
+</script></div>      </div>
+        <div class="clear"></div>	
+  </div>
+  <div class="clear"></div>
+</div> <!-- Close Page -->
+<hr/>
+<p id="footer">
+  <small>Platinum Solutions Blog, 2009. 
+<br/></p>
+</body>
+</html>
+<!--
+     FILE ARCHIVED ON 07:10:59 Feb 28, 2009 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 20:52:22 Mar 05, 2020.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  exclusion.robots: 0.259
+  esindex: 0.01
+  CDXLines.iter: 13.174 (3)
+  captures_list: 192.241
+  RedisCDXSource: 5.427
+  load_resource: 498.703
+  exclusion.robots.policy: 0.247
+  LoadShardBlock: 170.456 (3)
+  PetaboxLoader3.datanode: 185.438 (4)
+  PetaboxLoader3.resolve: 430.154
+-->
