@@ -35,7 +35,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
@@ -61,13 +60,11 @@ import java.util.List;
 public class ChatFrame extends javax.swing.JFrame {
 
     private Chatman chatman;
-    private String defaultTextAreaHtml;
-	private StyleSheet cssHideTime;
-	private StyleSheet cssShowTime;
 	private timeDisplay conversationShowTime = timeDisplay.HIDE_TIME;
     private AbstractSQLPagination historyPagination;
 	private String[][][] emoticonsArray;
 	private int emojisIndex = -1; //-1 chon bare avval mikhaim bere be 0
+	private int[] lastEmojiHover = {-1, -1};
 	private String username;
 	private AdjustmentListener scrollListenerAlwaysDown;
 	private TrayIcon trayIconApp, trayIconNewMessage;
@@ -81,7 +78,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	    HIDE_TIME, SHOW_TIME;
     }
 
-	private final String version = "3.0.7";
+	private final String version = "3.1.0";
 	private final String appTitle = "Chatman Forever";
 
     private ChatFrame(){
@@ -133,6 +130,7 @@ public class ChatFrame extends javax.swing.JFrame {
         progressBar = new javax.swing.JProgressBar();
         labelNextEmojiPage = new javax.swing.JLabel();
         labelPrevEmojiPage = new javax.swing.JLabel();
+        labelEmojiPrev = new javax.swing.JLabel();
         labelSend = new javax.swing.JLabel();
         labelClear = new javax.swing.JLabel();
         labelStatusLabl = new javax.swing.JLabel();
@@ -433,7 +431,15 @@ public class ChatFrame extends javax.swing.JFrame {
         tableEmojis.setRowHeight(30);
         tableEmojis.setRowSelectionAllowed(false);
         tableEmojis.setSelectionBackground(new java.awt.Color(255, 255, 255));
+        tableEmojis.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                tableEmojisMouseMoved(evt);
+            }
+        });
         tableEmojis.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                tableEmojisMouseExited(evt);
+            }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 tableEmojisMouseReleased(evt);
             }
@@ -481,7 +487,7 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labelNextEmojiPage);
-        labelNextEmojiPage.setBounds(390, 490, 30, 25);
+        labelNextEmojiPage.setBounds(340, 490, 30, 25);
 
         labelPrevEmojiPage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelPrevEmojiPage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/label-prev-dark-normal.png"))); // NOI18N
@@ -501,7 +507,14 @@ public class ChatFrame extends javax.swing.JFrame {
             }
         });
         getContentPane().add(labelPrevEmojiPage);
-        labelPrevEmojiPage.setBounds(350, 490, 30, 25);
+        labelPrevEmojiPage.setBounds(310, 490, 30, 25);
+
+        labelEmojiPrev.setText(bundle.getString("ChatFrame.labelEmojiPrev.text")); // NOI18N
+        labelEmojiPrev.setToolTipText(bundle.getString("ChatFrame.labelEmojiPrev.toolTipText")); // NOI18N
+        labelEmojiPrev.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        labelEmojiPrev.setIconTextGap(0);
+        getContentPane().add(labelEmojiPrev);
+        labelEmojiPrev.setBounds(380, 490, 80, 70);
 
         labelSend.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelSend.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/ui_en_US/label-send-dark-normal.png"))); // NOI18N
@@ -1081,6 +1094,45 @@ public class ChatFrame extends javax.swing.JFrame {
         updateNewMessagePopup();
     }//GEN-LAST:event_menuOverridePopupActionPerformed
 
+    private void tableEmojisMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableEmojisMouseMoved
+        // TODO add your handling code here:
+		
+		Point p = evt.getPoint();
+		int row = tableEmojis.rowAtPoint(p);
+		int col = tableEmojis.columnAtPoint(p);
+		
+		if(lastEmojiHover[0] == row && lastEmojiHover[1] == col){
+			//mouse hasn't moved to another cell
+			return;
+		}
+		
+		lastEmojiHover[0] = row;
+		lastEmojiHover[1] = col;
+         
+        //replace the emoticon image with the larger image.
+        String img = (String) tableEmojis.getValueAt(row, col);
+		img = img.replaceAll("<html>(.*)emoticons\\/(.*\\.gif)'\\s(\\/>)<\\/html>", "$2");
+			
+		try{
+			String res = "/resources/emoticons_large/" + img;
+			ImageIcon icon = (new ImageIcon(getClass().getResource(res)));
+			//this is needed otherwise the icon doesn't appear
+			icon.getImage().flush();
+			labelEmojiPrev.setIcon(icon);
+		}catch(Exception e){
+			//if there was a problem clear the icon
+			tableEmojisMouseExited(evt);
+		}
+
+    }//GEN-LAST:event_tableEmojisMouseMoved
+
+    private void tableEmojisMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableEmojisMouseExited
+        // TODO add your handling code here:
+		lastEmojiHover[0] = -1;
+		lastEmojiHover[1] = -1;
+		labelEmojiPrev.setIcon(null);
+    }//GEN-LAST:event_tableEmojisMouseExited
+
     /**
      * @param args the command line arguments
      */
@@ -1159,7 +1211,7 @@ public class ChatFrame extends javax.swing.JFrame {
 	}
      
 
-    public void initialize() throws Exception {
+    public void initialize() throws Exception {	
 
 		this.setTitle(appTitle);
 
@@ -1836,9 +1888,12 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JDialog dialogChooseTheme;
     private javax.swing.JDialog dialogHistory;
     private javax.swing.JComboBox<String> dropdownThemes;
+    private javax.swing.JEditorPane editorPaneConversation;
+    private javax.swing.JEditorPane editorPaneInput;
     private javax.swing.JLabel labelBgPrev;
     private javax.swing.JLabel labelClear;
     private javax.swing.JLabel labelConvoBg;
+    private javax.swing.JLabel labelEmojiPrev;
     private javax.swing.JLabel labelFrameBg;
     private javax.swing.JLabel labelInputBg;
     private javax.swing.JLabel labelMouseDetector;
@@ -1874,7 +1929,5 @@ public class ChatFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane scrollPaneInput;
     private javax.swing.JTable tableEmojis;
     private javax.swing.JTable tableHistory;
-    private javax.swing.JEditorPane editorPaneConversation;
-    private javax.swing.JEditorPane editorPaneInput;
     // End of variables declaration//GEN-END:variables
 }
