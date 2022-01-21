@@ -21,6 +21,7 @@ import com.pouria.chatman.CMHelper;
 import com.pouria.chatman.MessageDisplayer;
 import com.pouria.chatman.enums.CMType;
 import com.pouria.chatman.gui.ChatFrame;
+import java.awt.image.BufferedImage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import javax.imageio.ImageIO;
 
 public class FileMessage extends DisplayableMessage {
 
@@ -81,6 +84,32 @@ public class FileMessage extends DisplayableMessage {
 			path = file.getAbsolutePath();
 			name = fileName;
 		}
+                //if it's an image show it inline
+                if(name.indexOf(".") != -1)
+                {
+                    String[] imgExts = {"png", "jpg", "jpeg", "bmp"};
+                    String[] slices = name.split("\\.");
+                    String ext = slices[slices.length - 1].toLowerCase();
+                    if(Arrays.asList(imgExts).contains(ext))
+                    {
+                        int maxW = 300;
+                        int w = 100;
+                        int h = 100;
+                        try{
+                            BufferedImage img = ImageIO.read(file);
+                            w = img.getWidth();
+                            h = img.getHeight();
+                            if(w > maxW){
+                                double ratio = (float) maxW / (float) w;
+                                w = maxW;
+                                h = (int) (h * ratio);
+                            }
+                        }
+                        catch(Exception e){}
+
+                        return "<br><a class='link' href='file://" + path + "'><img src='file:" + path + "' width=" + w + " height=" + h + "></a>";
+                    }
+                }
 		//add file link
 		return "<a class='link' href='file://" + path + "'><u>" + name + "</u></a>";
 	}
