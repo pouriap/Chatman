@@ -5,6 +5,7 @@ nbdist/
 .nb-gradle/
 log*.txt*
 dist/
+_dist_files/Output/
 history.sqlite
 history.sqlite-journal
 config.conf

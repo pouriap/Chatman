@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>Chatman.jar</jar>
-  <outfile>C:\Users\Pouria\Desktop\Chatman.exe</outfile>
+  <outfile>D:\Personal Folder\Pouria\My Documents\_Projects\NetBeansProjects\Chatman\_dist_files\Chatman.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>D:\Personal Folder\Pouria\My Documents\NetBeansProjects\Chatman\_dist_files\icon.ico</icon>
+  <icon>D:\Personal Folder\Pouria\My Documents\_Projects\NetBeansProjects\Chatman\_dist_files\icon.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
