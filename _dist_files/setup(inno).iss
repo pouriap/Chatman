@@ -38,7 +38,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "D:\Personal Folder\Pouria\My Documents\_Projects\NetBeansProjects\Chatman\_dist_files\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Personal Folder\Pouria\My Documents\_Projects\NetBeansProjects\Chatman\_dist_files\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Personal Folder\Pouria\My Documents\_Projects\NetBeansProjects\Chatman\out\artifacts\Chatman_jar\Chatman.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Personal Folder\Pouria\My Documents\_Projects\NetBeansProjects\Chatman\themes\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\Personal Folder\Pouria\My Documents\_Projects\NetBeansProjects\Chatman\themes\*"; DestDir: "{app}\themes"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
